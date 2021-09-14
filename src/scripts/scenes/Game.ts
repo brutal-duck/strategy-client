@@ -1,3 +1,4 @@
+import Hex from "../components/Hex"
 import Zoom from "../components/Zoom"
 
 export default class Game extends Phaser.Scene {
@@ -11,7 +12,7 @@ export default class Game extends Phaser.Scene {
   private camera: Phaser.Cameras.Scene2D.Camera
 
   private world: Phaser.GameObjects.TileSprite
-  private hexSprites: any[]
+  private hexSprites: Phaser.GameObjects.Sprite[]
 
   public init(state: Istate) {
     this.state = state
@@ -27,21 +28,15 @@ export default class Game extends Phaser.Scene {
     this.add.sprite(0, 0, 'bg').setOrigin(0)
 
     for (let i = 0; i < 20; i++) {
-      let hex = this.matter.add.sprite(0, 0, 'hex').setDepth(1)
-      if (i < 10) hex.setPosition(this.camera.centerX - 150 + i * 300, this.camera.centerY).setPolygon(100, 6).setInteractive()
-      else hex.setPosition(this.camera.centerX + (i - 10) * 300, this.camera.centerY + 300).setPolygon(100, 6).setInteractive()
+      const hex = new Hex(this, 0, 0)
+      if (i < 10) hex.setPosition(this.camera.centerX - 150 + i * 300, this.camera.centerY)
+      else hex.setPosition(this.camera.centerX + (i - 10) * 300, this.camera.centerY + 300)
       this.hexSprites.push(hex)
     }
 
-    this.world = this.add.tileSprite(0, 0, 4096, 4096, 'pixel').setOrigin(0).setAlpha(0.0001).setInteractive({ draggable: true })
+    this.world = this.add.tileSprite(0, 0, 4096, 4096, 'pixel').setOrigin(0).setAlpha(0.2).setTint(0x880000).setDepth(this.hexSprites[0].depth).setInteractive({ draggable: true })
     this.setScroll()
     this.setHexInteractive()
-
-
-    let hex = this.matter.add.sprite(this.camera.centerX, this.camera.centerY, 'hex').setDepth(3).setTint(0x880000).setBody({
-      
-    })
-    
   }
 
 
