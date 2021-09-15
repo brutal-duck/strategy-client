@@ -11,12 +11,10 @@ class Zoom extends Phaser.GameObjects.Sprite {
   private zoom: number;
   private distance: number;
   private minScroll: number;
-  // private moveCounter: number;
 
 
   public setZoom(): void {
-    // this.moveCounter = 0
-    this.zoom = 2;
+    this.zoom = 1;
     this.scene.events.on(Phaser.Scenes.Events.UPDATE, this.preUpdate, this);
     this.scene.cameras.main.setZoom(this.zoom);
     this.scene.input.on('wheel', (pointer: Phaser.Input.Pointer, gameObjects: Phaser.GameObjects.GameObject, deltaX: number, deltaY: number): void => {
@@ -30,7 +28,7 @@ class Zoom extends Phaser.GameObjects.Sprite {
     this.scene.input.addPointer(1);
 
     const maxMultiplier: number = 1.4;
-    const minMultiplier: number = 0.9;
+    const minMultiplier: number = 0.7;
     const maxWidth: number = 1920;
     const minWidth: number = 640;
 
