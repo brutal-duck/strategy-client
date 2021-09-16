@@ -4,25 +4,33 @@ class Zoom extends Phaser.GameObjects.Sprite {
   constructor(scene: Game) {
     super(scene, 0, 0, '')
     this.scene = scene;
-    this.setZoom();
+    this.init();
   }
 
   public scene: Game;
   private zoom: number;
+  private zoomStap: number;
+  private maxZoom: number;
+  private minZoom: number;
   private distance: number;
   private minScroll: number;
+  private zoomInToViewAni: Phaser.Tweens.Tween
+
+  private init(): void {
+    this.zoom = 1.2;
+    this.zoomStap = 0.05
+    this.maxZoom = 1.6
+    this.minZoom = 0.7
+    this.setZoom();
+  }
 
 
-  public setZoom(): void {
-    this.zoom = 1;
+  private setZoom(): void {
     this.scene.events.on(Phaser.Scenes.Events.UPDATE, this.preUpdate, this);
     this.scene.cameras.main.setZoom(this.zoom);
     this.scene.input.on('wheel', (pointer: Phaser.Input.Pointer, gameObjects: Phaser.GameObjects.GameObject, deltaX: number, deltaY: number): void => {
-      if (deltaY < 0) {
-        this.plusZoom();
-      } else if (deltaY > 0) {
-        this.minusZoom();
-      }
+      if (deltaY < 0) this.zooming('+');
+      else if (deltaY > 0) this.zooming('-');
     });
 
     this.scene.input.addPointer(1);
@@ -45,6 +53,7 @@ class Zoom extends Phaser.GameObjects.Sprite {
 
     this.scene.input.keyboard.addKey('W').once('up', (): void => { this.debagZoomOnDesktop() })
   }
+
 
   private debagZoomOnDesktop(): void {
     this.scene.input.pointer2.x = this.scene.cameras.main.centerX - 300
@@ -70,25 +79,33 @@ class Zoom extends Phaser.GameObjects.Sprite {
       );
       
       if (Math.abs(this.distance - distance) > 2) {
-        if (distance > this.distance) this.plusZoom();
-        else if (distance < this.distance) this.minusZoom();
+        if (distance > this.distance) this.zooming('+');
+        else if (distance < this.distance) this.zooming('-');
       }
 
       this.distance = distance;
     } else if (this.distance) this.distance = null;
   }
 
-  private minusZoom(): void {
-    if (this.zoom > this.minScroll) {
-      this.zoom -= 0.1;
-      this.scene.cameras.main.setZoom(this.zoom);
-    }
-  }
 
-  private plusZoom(): void {
-    if (this.zoom < 3.9) {
-      this.zoom += 0.1;
-      this.scene.cameras.main.setZoom(this.zoom);
+  private zooming(inOrOut: string) {
+    const widthZoom = this.scene.camera.width / this.scene.worldWidth
+    const heightZoom = this.scene.camera.height / this.scene.worldHeight
+    this.minZoom = this.scene.camera.width > this.scene.camera.height ? widthZoom : heightZoom
+
+    if (inOrOut === '+' && this.zoom < this.maxZoom) this.zoom += this.zoomStap;
+    else if (inOrOut === '-') {
+      if (this.zoom - this.zoomStap > this.minZoom) this.zoom -= this.zoomStap;
+      else this.zoom = this.minZoom
+    }
+    
+    this.scene.camera.setZoom(this.zoom);
+    this.scene.dragOrZoom = true
+    this.scene.worldViewBorders = {
+      x1: this.scene.camera.worldView.width / 2,
+      x2: this.scene.camera.getBounds().width - this.scene.camera.worldView.width / 2,
+      y1: this.scene.camera.worldView.height / 2,
+      y2: this.scene.camera.getBounds().height - this.scene.camera.worldView.height / 2,
     }
   }
 }

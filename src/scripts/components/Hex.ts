@@ -46,6 +46,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       0, 50
     ]
 
+    // @ts-ignore
     const hitArea: Phaser.Geom.Polygon = new Phaser.Geom.Polygon(vectors)
     this.setDepth(1).setOrigin(0).setInteractive(hitArea, Phaser.Geom.Polygon.Contains)
 

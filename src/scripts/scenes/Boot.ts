@@ -45,6 +45,7 @@ class Boot extends Phaser.Scene {
     // if (process.env.DEV === 'true') this.state.platform = 'vk'
 
     if (this.game.device.os.windows) this.state.platform = 'windows web'
+    else if (this.game.device.os.android) this.state.platform = 'android'
 
     console.log('Platform:', this.state.platform);
     

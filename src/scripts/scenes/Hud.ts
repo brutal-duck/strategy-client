@@ -16,14 +16,18 @@ export default class Hud extends Phaser.Scene {
   }
   
   public create(): void {
-    this.debugText = this.add.text(0, 0, '', { font: '14px Colus', align: 'left', color: 'green' }).setStroke('#000', 2).setLineSpacing(-8)
+    this.debugText = this.add.text(-6, -3, '', { font: '10px Colus', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-7)
   }
 
 
   private debug(): void {
     let text = `
+      desktop:  ${this.game.device.os.desktop}\n
+      android:  ${this.game.device.os.android}\n
       width:  ${this.gameScene?.camera.width}\n
       height:  ${this.gameScene?.camera.height}\n
+      worldView_width:  ${this.gameScene?.camera.worldView.width}\n
+      worldView_height:  ${this.gameScene?.camera.worldView.height}\n
       zoom:  ${this.gameScene?.camera.zoom}\n
       rows:  ${this.gameScene?.rows}\n
       cols:  ${this.gameScene?.cols}\n
@@ -31,6 +35,8 @@ export default class Hud extends Phaser.Scene {
       chosen:  ${this.gameScene?.chosenHex?.id}\n
       pointer-x:  ${this.gameScene.input.mousePointer.x}\n
       pointer-y:  ${this.gameScene.input.mousePointer.y}\n
+      drag_Or_Zoom:  ${this.gameScene.dragOrZoom}\n
+      hold_Counter:  ${this.gameScene.holdCounter}\n
     `
     this.debugText?.setText(text)
   }

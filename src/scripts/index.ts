@@ -22,10 +22,10 @@ window.onload = (): void => {
     width: size.width,
     height: size.height,
     physics: {
-      default: 'matter',
-      matter: {
-        debug: true,
-        gravity: false
+      default: 'arcade',
+      arcade: {
+        // debug: true,
+        gravity: { x: 0, y: 0 }
       },
     },
     render: { transparent: true },
@@ -33,8 +33,11 @@ window.onload = (): void => {
   }
   
   const game: Phaser.Game = new Phaser.Game(config);
+  console.log('game', game)
+
   window.addEventListener('resize', (): void => {
     const size: Isize = getSizes();
+    // game.input.mousePointer.camera = game.scene.getScene('Game').cameras.main // фикс краша вывода курсора за предел веб окна для старшей версии Phasera
     game.scale.resize(size.width, size.height);
   }, false);
 }
