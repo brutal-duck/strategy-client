@@ -27,7 +27,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
 
   private init(): void {
-    this.id = `${this.row}-${this.col}`
+    this.id = `${this.col}-${this.row}`
     this.own = 'neutral'
     this.color = 'white'
     this.create()
@@ -54,6 +54,11 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   }
 
 
+  public clame(color: string) {
+    this.setColor(color)
+  }
+
+
   public click(): void {
     this.setColor('gray')
   }
@@ -73,7 +78,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     if (color === 'white') {
       this.clearTint()
       this.color = 'white'
-    } else if (typeof color === 'string' && color[0] !== '#') {
+    } else if (color[0] !== '#') {
       this.setTint(colors[color])
       this.color = color
     } else return this

@@ -3,6 +3,7 @@ interface Istate {
   platform: string
 }
 interface Iplayer {
+  color: string
   vk_id?: string
   ok_id?: string
   id: string
