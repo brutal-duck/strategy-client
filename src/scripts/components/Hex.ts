@@ -12,6 +12,14 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   public id: string
   public own: string
   public color: string
+  public nearby: {
+    top: string
+    topRight: string
+    botRight: string
+    bot: string
+    botLeft: string
+    topLeft: string
+  }
 
   
   constructor(scene: Game, x: number, y: number, row: number, col: number, sprite: string = 'hex') {
@@ -30,6 +38,14 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.id = `${this.col}-${this.row}`
     this.own = 'neutral'
     this.color = 'white'
+    this.nearby = {
+      top: `${this.col}-${this.row - 1}`,
+      topRight: this.col % 2 === 0 ? `${this.col + 1}-${this.row - 1}` : `${this.col + 1}-${this.row}`,
+      botRight: this.col % 2 === 0 ? `${this.col + 1}-${this.row}` : `${this.col + 1}-${this.row + 1}`,
+      bot: `${this.col}-${this.row + 1}`,
+      topLeft: this.col % 2 === 0 ? `${this.col - 1}-${this.row - 1}` : `${this.col - 1}-${this.row}`,
+      botLeft: this.col % 2 === 0 ? `${this.col - 1}-${this.row}` : `${this.col - 1}-${this.row + 1}`,
+    }
     this.create()
   }
 
@@ -89,6 +105,6 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
   public debug(): void {
     // this.scene.input.enableDebug(this, 0xff00ff);
-    this.scene.add.text(this.getCenter().x, this.getCenter().y, `row:  ${this.row}\ncol:  ${this.col}`, { font: '14px Colus', align: 'left', color: 'black' }).setOrigin(0.5).setDepth(10)
+    this.scene.add.text(this.getCenter().x, this.getCenter().y, `col:  ${this.col}\nrow:  ${this.row}`, { font: '14px Colus', align: 'left', color: 'black' }).setOrigin(0.5).setDepth(10)
   }
 }
