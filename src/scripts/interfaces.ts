@@ -8,6 +8,11 @@ interface Iplayer {
   ok_id?: string
   id: string
 }
+interface Iconfig {
+  hexes: number
+  hexRestoreSpeed: number
+  clameTime: number
+}
 interface Isize {
   width: number
   height: number

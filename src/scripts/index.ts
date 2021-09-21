@@ -33,11 +33,12 @@ window.onload = (): void => {
   }
   
   const game: Phaser.Game = new Phaser.Game(config);
-  console.log('game', game)
 
   window.addEventListener('resize', (): void => {
     const size: Isize = getSizes();
     // game.input.mousePointer.camera = game.scene.getScene('Game').cameras.main // фикс краша вывода курсора за предел веб окна для старшей версии Phasera
+    const hud = game.scene.getScene('Hud') as Hud
+    hud?.resize()
     game.scale.resize(size.width, size.height);
   }, false);
 }

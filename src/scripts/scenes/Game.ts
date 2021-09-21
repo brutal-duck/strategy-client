@@ -1,5 +1,6 @@
 import Hex from "../components/Hex"
 import Zoom from "../components/Zoom"
+import { config } from "../gameConfig"
 import Hud from "./Hud"
 
 export default class Game extends Phaser.Scene {
@@ -12,14 +13,17 @@ export default class Game extends Phaser.Scene {
   public hud: Hud
   public debuging: boolean
 
+  public player1Config: any
+  public player2Config: any
+
   public camera: Phaser.Cameras.Scene2D.Camera
   public midPoint: Phaser.Physics.Arcade.Sprite
   public vector: Phaser.Physics.Arcade.Sprite
   public distanceX: number
   public distanceY: number
   public holdCounter: number
-  public press: boolean
   public dragOrZoom: boolean
+  public twoPointerZoom: boolean
   public worldViewBorders: { x1: number, x2: number, y1: number, y2: number }
   public worldWidth: number
   public worldHeight: number
@@ -32,7 +36,7 @@ export default class Game extends Phaser.Scene {
   public cols: number
 
   private world: Phaser.GameObjects.TileSprite
-  private hexes: Hex[]
+  public hexes: Hex[]
   public pointerHex: Hex
   public chosenHex: Hex 
 
@@ -43,6 +47,9 @@ export default class Game extends Phaser.Scene {
     this.player.color = 'red'
     this.hud = this.game.scene.getScene('Hud') as Hud
 
+    this.player1Config = Object.assign({}, config)
+    this.player2Config = Object.assign({}, config)
+
     this.worldWidth = 2048
     this.worldHeight = 2048
     this.camera = this.cameras.main
@@ -50,17 +57,17 @@ export default class Game extends Phaser.Scene {
     this.distanceX = 0
     this.distanceY = 0
     this.holdCounter = 0
-    this.press = false
+    this.twoPointerZoom = false
     this.dragOrZoom = false
     new Zoom(this)
 
     this.hexes = []
     this.hexWidth = 100
-    this.hexHeight = 100
-    this.startX = 400
-    this.startY = 400
-    this.rows = 8
-    this.cols = 12
+    this.hexHeight = 70
+    this.startX = 340
+    this.startY = 340
+    this.rows = 12
+    this.cols = 16
   
     this.debuging = true
   }
@@ -82,8 +89,8 @@ export default class Game extends Phaser.Scene {
 
   private createField(): void {
     const offsetX = 75
-    const offsetY = 100
-    const rowPadding = 50
+    const offsetY = this.hexHeight
+    const rowPadding = offsetY / 2
     
     for (let row = 0; row < this.rows; row++) {
       for (let col = 0; col < this.cols; col++) {
@@ -93,7 +100,7 @@ export default class Game extends Phaser.Scene {
       }
     }
     // console.log('createField ~ this.hexes', this.hexes)
-        
+
   }
 
 
@@ -104,8 +111,8 @@ export default class Game extends Phaser.Scene {
 
   private setInput(): void {
     const holdedPoint = { x: 0, y: 0 }
-    const vectorStep = this.game.device.os.desktop ? 0.4 : 3.5
-    const dragStep = this.game.device.os.desktop ? 1 : 1.5
+    const vectorStep = this.game.device.os.desktop ? 0.5 : 4 // Сила "натяжения" точки для быстрого драга
+    const dragStep = this.game.device.os.desktop ? 1 : 1.7
     let ani: Phaser.Tweens.Tween
 
     this.midPoint = this.physics.add.sprite(0, 0, 'pixel').setVisible(true).setScale(5).setTint(0x000).setDepth(10)
@@ -197,9 +204,6 @@ export default class Game extends Phaser.Scene {
         y2: this.camera.getBounds().height - this.camera.worldView.height / 2,
       }
     })
-
-    // this.events.on('preupdate', (): void => {
-    // })
   }
 
 
@@ -208,69 +212,123 @@ export default class Game extends Phaser.Scene {
       hex.on('pointerover', (): void => { this.pointerHex = hex })
       hex.on('pointerup', (): void => {
         if (this.dragOrZoom) this.dragOrZoom = false
+        else if (this.twoPointerZoom) this.twoPointerZoom = false
         else {
           this.chosenHex = hex
           // console.log('hex.on ~ this.chosenHex', this.chosenHex)
           // this.clearGrayHex()
           hex.clame(this.player.color)
-          this.multiClameCheck()
+          this.multiClameCheck(this.player.color)
+          this.hud.updateWorldStatusBar()
         }
       })
     })
   }
   
 
-  private multiClameCheck(): void {
+  private multiClameCheck(color: string): void {
     const chains: Array<Hex[]> = []
     let chain: Hex[] = []
     let innerHexes: Array<Hex[]> = []
-
     let innerHexesIsClosed = false
 
-    const reduce = (arr) => {
-      console.log('1 - createField ~ arr', arr)
 
-      for (let i = arr.length - 1; i > 0; i--) {
-        const a = arr[i]
-        const b = arr[i - 1]
-        let newA = []
-        newA = newA.concat(a)
-        console.log('1: createField ~ a', a, b)
-  
-        if (b) {
-          a.forEach(el1 => {
-            b.forEach(el2 => {
-              if (el1 === el2) {
-                Phaser.Utils.Array.Remove(newA, el1)
-              }
-              console.log('---createField ~ a', a, newA, b)
-            })
-          })
-  
-          if (newA.length === 0) arr.splice(i, 1)
-          console.log('2: createField ~ a', newA, b)
-        } else break
+    // Пушит новые найденые гексы в массив внутренних гексов
+    const pushNewInnerHexes = (nextCol: Hex[], top: Hex, bot: Hex): void => {
+      const filtered = nextCol.filter(hex => hex.row > top.row && hex.row < bot.row && hex.color !== color)
+      const length = filtered.length
+
+      for (let i = 0; i < length; i++) {
+        const newHex = filtered[i]
+
+        if (innerHexes.length === 0) {
+          innerHexes.push([newHex])
+          continue
+        }
+    
+        for (let j = 0; j < innerHexes.length; j++) {
+          const arr = innerHexes[j]
+          if (arr.some(hex => hex.id === newHex.id)) continue
+        }
+
+        const nearbyIDs = Object.values(newHex.nearby)
+        const innerHexesLength = innerHexes.length
+        let newHexSetted = false
+
+        for (let j = 0; j < innerHexesLength; j++) {
+          const arr = innerHexes[j]
+          if (arr.some(hex => nearbyIDs.some(id => id === hex.id))) {
+            arr.push(newHex)
+            newHexSetted = true
+            break
+          }
+        }
+
+        if (!newHexSetted) innerHexes.push([newHex])
       }
-      console.log('2 - createField ~ arr', arr)
     }
 
+
+    // Сокращение массива внутренних незахваченных гекс
+    const reduce = (arrs) => {
+      let newArrs = []
+      let arrayIsChanged = false
+
+      for (let i = 0; i < arrs.length; i++) {
+        const arr = arrs[i]
+        const newArr = []
+
+        for (let j = 0; j < arr.length; j++) {
+          const hex = arr[j]
+          if (j === 0) {
+            newArr.push(hex)
+            continue
+          }
+          if (newArr.every(el => el.id !== hex.id)) newArr.push(hex)
+        }
+
+        newArrs.push(newArr)
+      }
+
+      for (let i = newArrs.length - 1; i > 0; i--) {
+        let a = newArrs[i]
+        let b = newArrs[i - 1]
+
+        if (b) {
+          for (let j = a.length - 1; j >= 0; j--) {
+            let nearby = Object.values(a[j].nearby)
+            if (b.some(hex => nearby.some(id => id === hex.id))) {
+              b.push(a.splice(j, 1)[0])
+              if (!arrayIsChanged) arrayIsChanged = true
+            }
+          }
+          if (a.length === 0) newArrs.pop()
+        }
+      }
+
+      arrs = newArrs
+      if (arrayIsChanged) arrs = reduce(arrs)
+      return arrs
+    }
+
+
+    // Поиск верхней и нижней клетки игрока
     const findTopAndBotPlayerHexes = (arr: Hex[]): { top: Hex, bot: Hex } => {
       const array = arr
-      console.log('f ~ array', array.map(hex => hex.id))
       let top = array[0]
       let bot = array[array.length - 1]
 
-      while (top.color !== this.player.color && array.length > 3) {
+      while (top.color !== color && array.length > 3) {
         array.shift()
         top = array[0]
       }
 
-      while (bot.color !== this.player.color && array.length > 3) {
+      while (bot.color !== color && array.length > 3) {
         array.pop()
         bot = array[array.length - 1]
       }
 
-      const nonPlayerHexes = array.filter(hex => hex.color !== this.player.color).sort((a, b) => a.row - b.row)
+      const nonPlayerHexes = array.filter(hex => hex.color !== color).sort((a, b) => a.row - b.row)
       top = array.find(hex => hex.row === nonPlayerHexes[0]?.row - 1)
       bot = array.find(hex => hex.row === nonPlayerHexes[nonPlayerHexes.length - 1]?.row + 1)
       return { top, bot }
@@ -279,104 +337,30 @@ export default class Game extends Phaser.Scene {
 
     const findInnerHexes = (array: Hex[]): void => {
       if (array[0].col < this.cols - 1) {
-        // начальная цепь
         array = array.sort((a, b) => a.row - b.row)
-        console.log('1: recurse', array.map(hex => hex.id));
-  
-        // верхняя и нижняя очки цепи
+
         let topHex = array[0]
         let botHex = array[array.length - 1]
   
         // следующая колонка
-        const nextCol = this.nextColHexesBetween(topHex, botHex).sort((a, b) => a.row - b.row)
-        console.log('2: следующая колонка ~ nextCol', nextCol.map(hex => hex.id))
-  
-        const nextColCheck = nextCol.filter(hex => hex.color === this.player.color).length < 2 || nextCol.every(hex => hex.color === this.player.color) || nextCol.every(hex => hex.color !== this.player.color)
-  
-        if (nextColCheck) {
-          console.log(nextCol.filter(hex => hex.color === this.player.color).length, nextCol.every(hex => hex.color === this.player.color), nextCol.every(hex => hex.color !== this.player.color), 'return_____________');
-          return
-        }
+        const nextCol = this.nextColHexesBetween(topHex, botHex).sort((a, b) => a.row - b.row)  
+        const nextColCheck = nextCol.filter(hex => hex.color === color).length < 2 || nextCol.every(hex => hex.color === color) || nextCol.every(hex => hex.color !== color)
+        if (nextColCheck) return
         
-        const { top, bot } = findTopAndBotPlayerHexes(nextCol)
-        console.log('3: findInnerHexes ~ hex', top?.id, bot?.id, nextCol.map(hex => hex.id))
-        
+        const { top, bot } = findTopAndBotPlayerHexes(nextCol)        
   
         if (top && bot) {
-          const filtered = nextCol.filter(hex => hex.row > top.row && hex.row < bot.row && hex.color !== this.player.color)
-          console.log('4: findInnerHexes ~ filtered', filtered.map(hex => hex.id))
-
-          const length = filtered.length
-
-          for (let i = 0; i < length; i++) {
-            if (innerHexes.length === 0) {
-              innerHexes.push([filtered[i]])
-              continue
-            }
-
-            
-              // console.log('56: findInnerHexes ~ innerHexes', innerHexes.map(arr => arr.map(hex => hex.id)))
-
-              innerHexes.forEach((arr, j) => {
-                const nearbyIDs = Object.values(filtered[i].nearby)
-                console.log('innerHexes.forEach ~ nearbyIDs', nearbyIDs)
-                if (innerHexes.every(arr => arr.every(el => el.id !== filtered[i].id))) {
-                  arr.forEach(hex => {
-                    if (hex.id !== filtered[i].id && nearbyIDs.some(id => id === hex.id)) {
-                      console.log('wefgetge');
-                      
-                      arr.push(filtered[i])
-                    } else {
-                      innerHexes.push([filtered[i]])
-                    }
-                  })
-                }
-                // arr.some(hex => nearbyIDs.some(id => id === hex.id))
-                // Object.values(filtered[i].nearby).some(id => id === hex.id)
-              })
-              
-            
-            
-          }
-
-          // filtered.forEach(hex => {
-          //   if (innerHexes.length === 0) {
-          //     innerHexes.push([hex])
-          //   } else {
-          //     const length = innerHexes.length
-
-          //     for (let j = 0; j < length; j++) {
-                
-                
-          //       if (!innerHexes[j].some(el => el.id === hex.id)) {
-          //         if (innerHexes[j].some(el => Object.values(el.nearby).some(id => id === hex.id))) {
-          //           innerHexes[j].push(hex)
-          //         } else innerHexes.push([hex])
-          //       }
-
-
-          //     }
-
-          //   }
-          // })
-
-          console.log('!!! 5: innerHexes', innerHexes.map(arr => arr.map(hex => hex.id)))
-
-          // reduce(innerHexes)
+          pushNewInnerHexes(nextCol, top, bot)
+          innerHexes = reduce(innerHexes)
           findInnerHexes(nextCol)
-        } else {
-          console.log('return_________________');
-          return
-        }
+        } else return
       }
     }
 
 
-    console.log('____________________');
-    // поиск цепочек захваченых гексов
+    // 1. Поиск цепочек захваченых гексов
     for (let i = 0; i < this.cols; i++) {      
-      const colHexes: Hex[] = this.hexes.filter(hex => hex.col === i && hex.color === this.player.color).sort((a, b) => a.row - b.row)
-      // console.log('globalClameCheck ~ rowHexes', colHexes.map(hex => hex.id))
+      const colHexes: Hex[] = this.hexes.filter(hex => hex.col === i && hex.color === color).sort((a, b) => a.row - b.row)
       chain = []
 
       if (colHexes.length > 1) {
@@ -393,19 +377,16 @@ export default class Game extends Phaser.Scene {
       }
     }
     
-    
-    
-    console.log('~ chains', chains.map(arr => arr.map(hex => hex.id)))
+    // 2. Поиск внутренних незахваченных гекс
     chains.forEach(arr => findInnerHexes(arr))
 
+    // 3. Проверка на замыкание внутренних незахваченных гекс
     if (innerHexes.length > 0) {
       innerHexes.forEach(arr => {
-        innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => arr.some(el => el.id === id) || this.getHexByID(id) === null || this.getHexByID(id).color === this.player.color) && hex.col < this.cols - 1)
-        console.log('multiClameCheck ~ innerHexesIsClosed', innerHexesIsClosed)
-        if (innerHexesIsClosed) arr.forEach(hex => hex.clame(this.player.color))
+        innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => arr.some(el => el.id === id) || this.getHexByID(id) === null || this.getHexByID(id).color === color) && hex.col < this.cols - 1)
+        if (innerHexesIsClosed) arr.forEach(hex => hex.clame(color))
       })
     }
-
   }
 
 
@@ -419,14 +400,10 @@ export default class Game extends Phaser.Scene {
 
   private nextColHexesBetween(topHex: Hex, botHex: Hex = topHex): Hex[] {
     if (topHex.col < this.cols - 1) {
-      // console.log('nextColHexesBetween ~ in', topHex.id, botHex.id)
       topHex = this.findTopRightHex(topHex)
       botHex = this.findBottomRightHex(botHex)
 
-      // console.log('nextColHexesBetween ~ mod', topHex.id, botHex.id)
-
       if (topHex.id !== botHex.id && topHex.row + 1 !== botHex.row) {
-
         for (let i = topHex.row; topHex.row > 0; i--) {
           const upperHex = this.hexes.find(hex => hex.col === topHex.col && hex.row === i - 1)
           if (upperHex.color === this.player.color) topHex = upperHex
@@ -440,12 +417,6 @@ export default class Game extends Phaser.Scene {
         }
       }
   
-      // console.log('nextColHexesBetween ~ out', topHex.id, botHex.id)
-      
-      
-      // const topRightHex = this.findTopRightHex(topHex)
-      // const botRightHex = this.findBottomRightHex(botHex)
-      // console.log('nextColHexesBetween out', topRightHex.id, botRightHex.id)
       return this.hexes.filter(hex => hex.col === topHex.col && hex.row >= topHex.row && hex.row <= botHex.row)
     }
   }
@@ -466,24 +437,6 @@ export default class Game extends Phaser.Scene {
   private getHexByID(id: string): Hex {
     return this.hexes.find(hex => hex.id === id) || null
   }
-
-
-  // private findNeighborHexesIDs(hex: Hex): string[] {
-  //   const ids = [ `${hex.col}-${hex.row + 1}`, `${hex.col}-${hex.row - 1}` ]
-  //   if (hex.col % 2 === 0) {
-  //     ids.push(
-  //       `${hex.col + 1}-${hex.row}`, `${hex.col + 1}-${hex.row - 1}`,
-  //       `${hex.col - 1}-${hex.row}`, `${hex.col - 1}-${hex.row - 1}`
-  //     )
-  //   } else {
-  //     ids.push(
-  //       `${hex.col + 1}-${hex.row}`, `${hex.col + 1}-${hex.row + 1}`,
-  //       `${hex.col - 1}-${hex.row}`, `${hex.col - 1}-${hex.row + 1}`
-  //     )
-  //   }
-    
-  //   return ids
-  // }
 
 
   public update(): void {

@@ -11,6 +11,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
   public id: string
   public own: string
+  public class: string
   public color: string
   public nearby: {
     top: string
@@ -37,6 +38,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   private init(): void {
     this.id = `${this.col}-${this.row}`
     this.own = 'neutral'
+    this.class = ''
     this.color = 'white'
     this.nearby = {
       top: `${this.col}-${this.row - 1}`,
@@ -53,13 +55,15 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   private create(): void {
     this.scene.add.existing(this)
 
+    const w = this.scene.hexWidth
+    const h = this.scene.hexHeight
     const vectors = [
-      25, 0,
-      75, 0,
-      100, 50,
-      75, 100,
-      25, 100,
-      0, 50
+      w/4, 0,
+      w*0.75, 0,
+      w, h/2,
+      w*0.75, h,
+      w/4, h,
+      0, h/2
     ]
 
     // @ts-ignore
