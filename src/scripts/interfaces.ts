@@ -10,8 +10,10 @@ interface Iplayer {
 }
 interface Iconfig {
   hexes: number
+  superHex: number
   hexRestoreSpeed: number
   clameTime: number
+  matchTime: number
 }
 interface Isize {
   width: number

@@ -1,7 +1,9 @@
 const config: Iconfig = {
   hexes: 10,
-  hexRestoreSpeed: 3000,
-  clameTime: 1500
+  superHex: 0,
+  hexRestoreSpeed: 10000,
+  clameTime: 2000,
+  matchTime: 10 * 60000
 }
 
 export { config }

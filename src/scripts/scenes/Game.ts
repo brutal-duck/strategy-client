@@ -67,7 +67,7 @@ export default class Game extends Phaser.Scene {
     this.startX = 340
     this.startY = 340
     this.rows = 12
-    this.cols = 16
+    this.cols = 17
   
     this.debuging = true
   }
@@ -99,8 +99,44 @@ export default class Game extends Phaser.Scene {
         this.hexes.push(new Hex(this, x, y, row, col))
       }
     }
-    // console.log('createField ~ this.hexes', this.hexes)
+    
+    this.createBase()
+    this.createLandscape()
+    this.createResource()
+  }
 
+
+  private createBase(): void {
+    const redBase = this.hexes.find(hex => hex.id === '2-5').setClass('base', 'red').removeFog()
+    Object.values(redBase.nearby).forEach(id => this.getHexByID(id).removeFog(true))
+
+    const blueBase = this.hexes.find(hex => hex.id === '14-5').setClass('base', 'blue').removeFog()
+    Object.values(blueBase.nearby).forEach(id => this.getHexByID(id).removeFog(true))
+  }
+
+
+  private createLandscape(): void {
+    const rocks = [
+      '5-4', '5-5', '6-5',
+      '10-5', '11-4', '11-5',
+      '7-1', '9-1', '7-9', '9-9'
+    ]
+    const water = this.hexes.filter(hex => hex.row === 0 || hex.row === this.rows - 1)
+    rocks.forEach(id => this.getHexByID(id).setClass('rock'))
+    water.forEach(hex => hex.setClass('water'))
+  }
+
+
+  private createResource(): void {
+    const x1 = [
+      '0-5', '1-2', '1-7', '4-4', '4-5', '4-6', '5-1', '5-9', '7-3', '7-6',
+      '16-5', '15-2', '15-7', '12-4', '12-5', '12-6', '11-1', '11-9', '9-3', '9-6',
+    ]
+    const x3 = ['8-1', '8-5', '8-10',]
+    const superHexes = ['4-8', '6-8', '8-8', '10-8', '12-8']
+    x1.forEach(id => this.getHexByID(id).setClass('x1'))
+    x3.forEach(id => this.getHexByID(id).setClass('x3'))
+    superHexes.forEach(id => this.getHexByID(id).setClass('super'))
   }
 
 
@@ -216,17 +252,18 @@ export default class Game extends Phaser.Scene {
         else {
           this.chosenHex = hex
           // console.log('hex.on ~ this.chosenHex', this.chosenHex)
-          // this.clearGrayHex()
-          hex.clame(this.player.color)
-          this.multiClameCheck(this.player.color)
-          this.hud.updateWorldStatusBar()
+          if (Object.values(hex.nearby).some(id => this.getHexByID(id)?.own === this.player.color) && !hex.landscape) {
+            hex.setClaming(this.player.color)
+            // this.multiClameCheck(this.player.color)
+            // this.hud.updateWorldStatusBar()
+          }
         }
       })
     })
   }
   
 
-  private multiClameCheck(color: string): void {
+  public multiClameCheck(color: string): void {
     const chains: Array<Hex[]> = []
     let chain: Hex[] = []
     let innerHexes: Array<Hex[]> = []
@@ -235,7 +272,7 @@ export default class Game extends Phaser.Scene {
 
     // Пушит новые найденые гексы в массив внутренних гексов
     const pushNewInnerHexes = (nextCol: Hex[], top: Hex, bot: Hex): void => {
-      const filtered = nextCol.filter(hex => hex.row > top.row && hex.row < bot.row && hex.color !== color)
+      const filtered = nextCol.filter(hex => hex.row > top.row && hex.row < bot.row && hex.color !== color && !hex.landscape)
       const length = filtered.length
 
       for (let i = 0; i < length; i++) {
@@ -434,7 +471,7 @@ export default class Game extends Phaser.Scene {
   }
 
 
-  private getHexByID(id: string): Hex {
+  public getHexByID(id: string): Hex {
     return this.hexes.find(hex => hex.id === id) || null
   }
 
