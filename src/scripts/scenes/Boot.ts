@@ -58,7 +58,7 @@ class Boot extends Phaser.Scene {
     let scene: Boot = this;
     Webfont.load({
       custom: {
-        families: ['Gotham', 'Gotham-l', 'Colus']
+        families: ['Molot']
       },
       active() {
         scene.fontsReady = true;

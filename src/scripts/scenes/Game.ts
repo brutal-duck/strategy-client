@@ -1,6 +1,8 @@
+import FlyAwayMsg from "../components/FlyAwayMsg"
 import Hex from "../components/Hex"
 import Zoom from "../components/Zoom"
 import { config } from "../gameConfig"
+import langs from "../langs"
 import Hud from "./Hud"
 
 export default class Game extends Phaser.Scene {
@@ -9,12 +11,13 @@ export default class Game extends Phaser.Scene {
   }
 
   public state: Istate
+  public lang: any
   public player: Iplayer
   public hud: Hud
   public debuging: boolean
 
-  public player1Config: any
-  public player2Config: any
+  public red: Iconfig
+  public blue: Iconfig
 
   public camera: Phaser.Cameras.Scene2D.Camera
   public midPoint: Phaser.Physics.Arcade.Sprite
@@ -43,12 +46,13 @@ export default class Game extends Phaser.Scene {
 
   public init(state: Istate) {
     this.state = state
+    this.lang = langs.ru
     this.player = state.player
     this.player.color = 'red'
     this.hud = this.game.scene.getScene('Hud') as Hud
 
-    this.player1Config = Object.assign({}, config)
-    this.player2Config = Object.assign({}, config)
+    this.red = Object.assign({}, config)
+    this.blue = Object.assign({}, config)
 
     this.worldWidth = 2048
     this.worldHeight = 2048
@@ -252,10 +256,35 @@ export default class Game extends Phaser.Scene {
         else {
           this.chosenHex = hex
           // console.log('hex.on ~ this.chosenHex', this.chosenHex)
-          if (Object.values(hex.nearby).some(id => this.getHexByID(id)?.own === this.player.color) && !hex.landscape) {
-            hex.setClaming(this.player.color)
-            // this.multiClameCheck(this.player.color)
-            // this.hud.updateWorldStatusBar()
+
+          
+          if (hex.own !== this.player.color && !hex.landscape && !hex.clamingAni?.isPlaying()) {
+
+            if (Object.values(hex.nearby).some(id => this.getHexByID(id)?.own === this.player.color)) {
+              if (hex.own === 'neutral' && this[`${this.player.color}`].hexes > 0) {
+                new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, '-1', 'red', this.player.color)
+                this[`${this.player.color}`].hexes--
+                hex.setClaming(this.player.color)
+
+              } else if (this[`${this.player.color}`].hexes > 1) {
+                new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, '-2', 'red', this.player.color)
+                this[`${this.player.color}`].hexes -= 2
+                hex.setClearClame(this.player.color)
+
+              } else new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, this.lang.notEnought, 'red', this.player.color)
+
+            } else if (!hex.fog) {
+              if (this[`${this.player.color}`].superHex > 0) {
+                new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, '-1', 'red', 'purple')
+                this[`${this.player.color}`].superHex--
+  
+                if (hex.own === 'neutral') hex.setClaming(this.player.color)
+                else hex.setClearClame(this.player.color)
+
+              } else new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, this.lang.notEnought, 'red', 'purple')
+            }
+
+            this.hud.updateHexCounter()
           }
         }
       })
@@ -473,6 +502,11 @@ export default class Game extends Phaser.Scene {
 
   public getHexByID(id: string): Hex {
     return this.hexes.find(hex => hex.id === id) || null
+  }
+
+
+  public gameOver(): void {
+    console.log('game over');
   }
 
 

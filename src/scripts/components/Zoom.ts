@@ -51,7 +51,7 @@ class Zoom extends Phaser.GameObjects.Sprite {
       this.minScroll = maxMultiplier - (differenceMultiplier / 100 * percent);
     }
 
-    this.scene.input.keyboard.addKey('W').once('up', (): void => { this.debagZoomOnDesktop() })
+    // this.scene.input.keyboard.addKey('W').once('up', (): void => { this.debagZoomOnDesktop() })
   }
 
 

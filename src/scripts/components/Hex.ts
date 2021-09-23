@@ -1,4 +1,5 @@
 import Game from "../scenes/Game";
+import FlyAwayMsg from "./FlyAwayMsg";
 
 export default class Hex extends Phaser.GameObjects.Sprite {
   
@@ -17,7 +18,8 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   public tile: Phaser.GameObjects.Sprite
   public landscape: boolean
   // public claming: boolean
-  private clamingAni: Phaser.Tweens.Tween
+  public clamingAni: Phaser.Tweens.Tween
+  private productionTimer: Phaser.Time.TimerEvent
   public nearby: {
     top: string
     topRight: string
@@ -77,7 +79,29 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     const hitArea: Phaser.Geom.Polygon = new Phaser.Geom.Polygon(vectors)
     this.setDepth(1).setOrigin(0).setInteractive(hitArea, Phaser.Geom.Polygon.Contains).setFog()
 
-    if (this.scene.debuging) this.debug()
+    // if (this.scene.debuging) this.debug()
+  }
+
+
+  public setClearClame(color: string) {
+    const lineColor = color === 'red' ? 0xD68780 : 0x909CD1
+    const line: Phaser.GameObjects.TileSprite = this.scene.add.tileSprite(this.getCenter().x - 25, this.getCenter().y - 22, 50, 5, 'pixel').setOrigin(0, 0.5).setTint(lineColor).setDepth(this.depth + 2)
+    // this.claming = true
+
+    new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y + 20, this.scene.lang.underAtack, 'yellow')
+
+    this.clamingAni?.remove()
+    this.clamingAni = this.scene.tweens.add({
+      targets: line,
+      width: 1,
+      duration: this.scene.red.clameTime,
+      onComplete: (): void => {
+        this.productionTimer?.remove()
+        line.destroy()
+        this.setColor('white')
+        this.setClaming(color)
+      }
+    })
   }
 
 
@@ -93,7 +117,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.clamingAni = this.scene.tweens.add({
       targets: line,
       width: lineBg.width,
-      duration: this.scene.player1Config.clameTime,
+      duration: this.scene.red.clameTime,
       onComplete: (): void => {
         this.clame(color)
         this.scene.multiClameCheck(color)
@@ -107,16 +131,22 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   }
 
   public clame(color: string) {
+    if (this?.own === 'neutral' && this.class === 'super') this.giveSuperHex(color)
+
     this.setColor(color)
     this.own = color
     Object.values(this.nearby).forEach(id => {
       const hex = this.scene.getHexByID(id)
-      if (hex.fog) hex?.removeFog()
-      Object.values(hex.nearby).forEach(lvlPlusId => {
-        const lvlPlusHex = this.scene.getHexByID(lvlPlusId)
-        if (lvlPlusHex?.fog) lvlPlusHex.removeFog()
-      })
+      if (hex) {
+        if (hex.fog) hex.removeFog()
+        Object.values(hex.nearby).forEach(lvlPlusId => {
+          const lvlPlusHex = this.scene.getHexByID(lvlPlusId)
+          if (lvlPlusHex?.fog) lvlPlusHex.removeFog()
+        })
+      }
     })
+
+    if (this?.own !== 'neutral' && (this?.class === 'x1' || this?.class === 'x3')) this.produceHexes()
   }
 
 
@@ -131,7 +161,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       this.setColor(newClass)
     }
 
-    this.scene.add.text(this.getCenter().x, this.getCenter().y + 10, newClass, { font: '17px Colus', color: 'black' }).setOrigin(0.5, 0).setDepth(10)
+    this.scene.add.text(this.getCenter().x, this.getCenter().y + 10, newClass, { font: '17px Molot', color: 'black' }).setOrigin(0.5, 0).setDepth(10).setStroke('#ffffff', 2)
     return this
   }
 
@@ -156,11 +186,6 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     return this
   }
 
-  /**
-   * Установка цвета
-   * @param color [ white / gray / rock / x1 / x3 / water / red / blue ]
-   * @returns Hex
-   */
   public setColor(color: string): this {
     const colors = {
       gray: 0xAAADAF,
@@ -181,8 +206,30 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   }
 
 
+  private produceHexes(): void {
+    const output = this.class === 'x3' ? 3 : 1
+    const delay = this.scene[this.color].hexProductionSpeed
+
+    this.productionTimer?.remove()
+    this.productionTimer = this.scene.time.addEvent({
+      delay,
+      callback: (): void => {
+        new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y, `+${output}`, 'green', this.color)
+        this.scene[this.color].hexes += output
+        this.scene.hud.updateHexCounter()
+      },
+      loop: true
+    })
+  }
+
+  private giveSuperHex(color): void {
+    new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y, '+1', 'green', 'purple')
+    this.scene[color].superHex++
+  }
+
+
   public debug(): void {
     // this.scene.input.enableDebug(this, 0xff00ff);
-    this.scene.add.text(this.getCenter().x, this.getCenter().y - 6, `col:  ${this.col}\nrow:  ${this.row}`, { font: '14px Colus', align: 'left', color: 'black' }).setOrigin(0.5).setDepth(10)
+    this.scene.add.text(this.getCenter().x, this.getCenter().y - 6, `col:  ${this.col}\nrow:  ${this.row}`, { font: '14px Molot', align: 'left', color: 'black' }).setOrigin(0.5).setDepth(10)
   }
 }

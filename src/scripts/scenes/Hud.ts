@@ -1,3 +1,4 @@
+import Timer from "../components/Timer"
 import langs from "../langs"
 import Game from "./Game"
 
@@ -23,9 +24,9 @@ export default class Hud extends Phaser.Scene {
   private player2StatusBar: Phaser.GameObjects.TileSprite
   private player1StatusBarBg: Phaser.GameObjects.TileSprite
   private player2StatusBarBg: Phaser.GameObjects.TileSprite
-  private playerHexCounter: Phaser.GameObjects.Text
-  private enemyHexCounter: Phaser.GameObjects.Text
-  private timer: Phaser.GameObjects.Text
+  private playerClamedHexCounter: Phaser.GameObjects.Text // счетчик захваченных гексов игрока
+  private enemyHexCounter: Phaser.GameObjects.Text // счетчик захваченных гексов противника
+  private timer: Timer
   private worldStatusAni: Phaser.Tweens.Tween
 
   private hexBar: Phaser.GameObjects.Sprite
@@ -61,71 +62,65 @@ export default class Hud extends Phaser.Scene {
     // this.createHexBar()
     this.createHexBarPlayer2()
     this.createWorldStatusBar()
+    this.timer = new Timer(this, this.worldStatusBar.getCenter().x, this.worldStatusBar.getBottomCenter().y + 2, this.gameScene.red.matchTime)
+
     this.createColorSwitcher()
-
-
-    this.debugText = this.add.text(-6, this.worldStatusBar.getBottomCenter().y, '', { font: '10px Colus', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-7)
+    this.debugText = this.add.text(-26, this.worldStatusBar.getBottomCenter().y - 4, '', { font: '10px Molot', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-9)
   }
 
 
   private createMainBar(): void {
-    this.hexBar = this.add.sprite(this.camera.width / 2 - 50, 4, 'hex').setScale(0.7).setTint(0xD68780).setOrigin(0.5, 0)
-    this.hexBarText = this.add.text(this.hexBar.getCenter().x + 1, this.hexBar.getCenter().y - 2, String(this.gameScene.player1Config.hexes), {
-      font: '36px Colus', color: '#BED3C0'
+    this.hexBar = this.add.sprite(this.camera.width / 2 - 30, 4, 'hex').setScale(0.5).setTint(0xD68780).setOrigin(0.5, 0)
+    this.hexBarText = this.add.text(this.hexBar.getCenter().x + 1, this.hexBar.getCenter().y - 2, String(this.gameScene.red.hexes), {
+      font: '28px Molot', color: '#BED3C0'
     }).setOrigin(0.5).setStroke('black', 3)
 
-    this.superHexBar = this.add.sprite(this.camera.width / 2 + 50, 4, 'hex').setScale(0.7).setTint(0xb879ff).setOrigin(0.5, 0)
-    this.superHexBarText = this.add.text(this.superHexBar.getCenter().x + 1, this.superHexBar.getCenter().y - 2, String(this.gameScene.player1Config.superHex), {
-      font: '36px Colus', color: '#BED3C0'
+    this.superHexBar = this.add.sprite(this.camera.width / 2 + 30, 4, 'hex').setScale(0.5).setTint(0xb879ff).setOrigin(0.5, 0)
+    this.superHexBarText = this.add.text(this.superHexBar.getCenter().x + 1, this.superHexBar.getCenter().y - 2, String(this.gameScene.red.superHex), {
+      font: '28px Molot', color: '#BED3C0'
     }).setOrigin(0.5).setStroke('black', 3)
 
     this.targetText = this.add.text(0, 4, this.lang.target, {
-      font: '16px Colus',
+      font: '10px Molot',
       align: 'left',
       wordWrap: { width: this.camera.width / 3 },
       color: 'black'
     })
-    console.log('Hud ~ createMainBar ~ this.targetText', this.targetText)
-
   }
 
 
   private createHexBar(): void {
     this.hexBar = this.add.sprite(10, this.camera.height - 10, 'hex').setScale(0.65).setTint(0xD68780).setOrigin(0, 1)
-    this.hexBarText = this.add.text(this.hexBar.getCenter().x + 1, this.hexBar.getCenter().y - 2, String(this.gameScene.player1Config.hexes), {
-      font: '36px Colus', color: '#BED3C0'
+    this.hexBarText = this.add.text(this.hexBar.getCenter().x + 1, this.hexBar.getCenter().y - 2, String(this.gameScene.red.hexes), {
+      font: '36px Molot', color: '#BED3C0'
     }).setOrigin(0.5).setStroke('black', 3)
   }
 
 
   private createHexBarPlayer2(): void {
     this.hexBarP2 = this.add.sprite(this.camera.width - 10, this.camera.height - 10, 'hex').setScale(0.65).setTint(0x909CD1).setOrigin(1)
-    this.hexBarTextP2 = this.add.text(this.hexBarP2.getCenter().x + 1, this.hexBarP2.getCenter().y - 2, String(this.gameScene.player2Config.hexes), {
-      font: '36px Colus', color: '#BED3C0'
+    this.hexBarTextP2 = this.add.text(this.hexBarP2.getCenter().x + 1, this.hexBarP2.getCenter().y - 2, String(this.gameScene.blue.hexes), {
+      font: '36px Molot', color: '#BED3C0'
     }).setOrigin(0.5).setStroke('black', 3)
   }
 
 
   private createWorldStatusBar(): void {
-    this.worldStatusBar = this.add.tileSprite(this.camera.width / 2, 60, this.camera.width, 20, 'pixel').setOrigin(0.5, 0)
+    this.worldStatusBar = this.add.tileSprite(this.camera.width / 2, this.hexBar.getBottomCenter().y + 4, this.camera.width, 20, 'pixel').setOrigin(0.5, 0)
     this.player1StatusBar = this.add.tileSprite(this.worldStatusBar.getLeftCenter().x, this.worldStatusBar.getLeftCenter().y, 1, this.worldStatusBar.height, 'pixel').setTint(this.player1Color.num).setDepth(2).setOrigin(0, 0.5).setVisible(false)
     this.player2StatusBar = this.add.tileSprite(this.worldStatusBar.getRightCenter().x, this.worldStatusBar.getRightCenter().y, 1, this.worldStatusBar.height, 'pixel').setTint(this.player2Color.num).setDepth(2).setOrigin(1, 0.5).setVisible(false)
     this.player1StatusBarBg = this.add.tileSprite(this.worldStatusBar.getLeftCenter().x, this.worldStatusBar.getLeftCenter().y, 1, this.worldStatusBar.height, 'pixel').setTint(this.player1AltColor).setOrigin(0, 0.5).setVisible(false)
     this.player2StatusBarBg = this.add.tileSprite(this.worldStatusBar.getRightCenter().x, this.worldStatusBar.getRightCenter().y, 1, this.worldStatusBar.height, 'pixel').setTint(this.player2AltColor).setOrigin(1, 0.5).setVisible(false)
 
-    this.timer = this.add.text(this.worldStatusBar.getCenter().x, this.worldStatusBar.getBottomCenter().y + 2, '00:00', {
-      font: '18px Colus', align: 'center', color: '#c6ea00'
-    }).setOrigin(0.5, 0).setStroke('black', 3)
-
     const redHexes: number = this.gameScene.hexes.filter(hex => hex.color === 'red').length
     const blueHexes: number = this.gameScene.hexes.filter(hex => hex.color === 'blue').length
 
-    this.playerHexCounter = this.add.text(this.worldStatusBar.getCenter().x - 40, this.worldStatusBar.getBottomCenter().y + 2, `${redHexes}`, {
-      font: '24px Colus', align: 'right', color: '#D80000'
+    this.playerClamedHexCounter = this.add.text(this.worldStatusBar.getCenter().x - 40, this.worldStatusBar.getBottomCenter().y + 2, `${redHexes}`, {
+      font: '24px Molot', align: 'right', color: '#D80000'
     }).setOrigin(1, 0).setStroke('black', 3)
 
     this.enemyHexCounter = this.add.text(this.worldStatusBar.getCenter().x + 40, this.worldStatusBar.getBottomCenter().y + 2, `${blueHexes}`, {
-      font: '24px Colus', align: 'left', color: '#3E3BD6'
+      font: '24px Molot', align: 'left', color: '#3E3BD6'
     }).setOrigin(0).setStroke('black', 3)
 
     this.updateWorldStatusBar()
@@ -163,8 +158,15 @@ export default class Hud extends Phaser.Scene {
       })
     }
 
-    this.playerHexCounter.setText(`${redHexes}`)
+    this.playerClamedHexCounter.setText(`${redHexes}`)
     this.enemyHexCounter.setText(`${blueHexes}`)
+  }
+
+
+  public updateHexCounter(): void {
+    this.hexBarText.setText(`${this.gameScene.red.hexes}`)
+    this.superHexBarText.setText(`${this.gameScene.red.superHex}`)
+    this.hexBarTextP2.setText(`${this.gameScene.blue.hexes}`)
   }
 
 
@@ -198,22 +200,22 @@ export default class Hud extends Phaser.Scene {
     this.player2StatusBarBg.setPosition(this.worldStatusBar.getRightCenter().x, this.worldStatusBar.getRightCenter().y).setSize(this.getLineWidth(blueHexes), this.worldStatusBar.height)
     this.timer.setPosition(this.worldStatusBar.getCenter().x, this.worldStatusBar.getBottomCenter().y + 2)
 
-    this.playerHexCounter.setPosition(this.worldStatusBar.getCenter().x - 40, this.worldStatusBar.getBottomCenter().y + 2)
+    this.playerClamedHexCounter.setPosition(this.worldStatusBar.getCenter().x - 40, this.worldStatusBar.getBottomCenter().y + 2)
     this.enemyHexCounter.setPosition(this.worldStatusBar.getCenter().x + 40, this.worldStatusBar.getBottomCenter().y + 2)
 
-    this.hexBar.setPosition(this.camera.width / 2 - 50, 4)
+    this.hexBar.setPosition(this.camera.width / 2 - 30, 4)
     this.hexBarText.setPosition(this.hexBar.getCenter().x + 1, this.hexBar.getCenter().y - 2)
-    this.superHexBar.setPosition(this.camera.width / 2 + 50, 4)
+    this.superHexBar.setPosition(this.camera.width / 2 + 30, 4)
     this.superHexBarText.setPosition(this.superHexBar.getCenter().x + 1, this.superHexBar.getCenter().y - 2)
 
     this.targetText.setPosition(0, 4).setWordWrapWidth(this.camera.width / 2.8)
-    const fontSize = +this.targetText.style.fontSize.replace('px', '')
+    // const fontSize = +this.targetText.style.fontSize.replace('px', '')
 
-    if (this.targetText.height > 52) {
-      this.targetText.setFontSize(fontSize - 1)
-    } else if (this.targetText.height < 30) {
-      this.targetText.setFontSize(fontSize + 1)
-    }
+    // if (this.targetText.height > 52) {
+    //   this.targetText.setFontSize(fontSize - 1)
+    // } else if (this.targetText.height < 30) {
+    //   this.targetText.setFontSize(fontSize + 1)
+    // }
 
 
     this.hexBarP2.setPosition(this.camera.width - 10, this.camera.height - 10)

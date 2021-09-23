@@ -1,15 +1,8 @@
 @font-face {
-  font-family: Gotham-l;
-  src: url('../assets/fonts/GothamPro.ttf');
+  font-family: Molot;
+  src: url('../assets/fonts/Molot.otf');
 }
-@font-face {
-  font-family: Gotham;
-  src: url('../assets/fonts/GothamPro-Medium.ttf');
-}
-@font-face {
-  font-family: Colus;
-  src: url('../assets/fonts/Colus-Regular.ttf');
-}
+
 div, p, span, h1, h2, h3, h4, img {
   -moz-user-select: -moz-none;
   -o-user-select: none;

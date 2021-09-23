@@ -11,7 +11,7 @@ interface Iplayer {
 interface Iconfig {
   hexes: number
   superHex: number
-  hexRestoreSpeed: number
+  hexProductionSpeed: number
   clameTime: number
   matchTime: number
 }
