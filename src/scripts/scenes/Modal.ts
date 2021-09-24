@@ -160,7 +160,7 @@ export default class Modal extends Phaser.Scene {
 
   private lineOut(text: Phaser.GameObjects.Text): void {
     const tint = this.info?.win ? 0x16ac0f : 0x800000
-    const line: Phaser.GameObjects.TileSprite = this.add.tileSprite(text.getTopCenter().x, text.getTopCenter().y, 1, 4, 'pixel').setOrigin(0.5, 1).setAlpha(0).setTint(tint)
+    const line: Phaser.GameObjects.TileSprite = this.add.tileSprite(text.getTopCenter().x, text.getTopCenter().y + 1, 1, 4, 'pixel').setOrigin(0.5, 1).setAlpha(0).setTint(tint)
 
     this.tweens.add({
       targets: line,
