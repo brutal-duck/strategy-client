@@ -2,7 +2,11 @@
 const block: any = require("./../../assets/images/block-rounded.png");
 const world: any = require("./../../assets/images/world.png");
 const hex: any = require("./../../assets/images/hex.png");
-const hex2: any = require("./../../assets/images/hex2.png");
+const warning: any = require("./../../assets/images/warning.png");
+const blink: any = require("./../../assets/images/blink-line.png");
+const grade: any = require("./../../assets/images/grade.png");
+const side: any = require("./../../assets/images/rounded-side.png");
+const btnBorder: any = require("./../../assets/images/btn-border.png");
 
 class Preload extends Phaser.Scene {
   constructor() {
@@ -25,7 +29,11 @@ class Preload extends Phaser.Scene {
     this.load.image('block', block)
     this.load.image('bg', world)
     this.load.image('hex', hex)
-    this.load.image('hex2', hex2)
+    this.load.image('warning', warning)
+    this.load.image('grade', grade)
+    this.load.image('blink', blink)
+    this.load.image('side', side)
+    this.load.image('btn-border', btnBorder)
   }
 
   public create(): void {

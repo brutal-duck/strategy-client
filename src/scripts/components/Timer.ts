@@ -11,9 +11,9 @@ export default class Timer {
   public min: number
   public sec: number
 
-  private minutes: Phaser.GameObjects.Text
-  private seconds: Phaser.GameObjects.Text
-  private colon: Phaser.GameObjects.Text
+  public minutes: Phaser.GameObjects.Text
+  public seconds: Phaser.GameObjects.Text
+  public colon: Phaser.GameObjects.Text
 
   private timeEvent: Phaser.Time.TimerEvent
   private colonAni: Phaser.Tweens.Tween
@@ -44,10 +44,10 @@ export default class Timer {
     this.minutes = this.scene.add.text(this.colon.getLeftCenter().x, this.colon.getLeftCenter().y, m, { font, align: 'right', color }).setOrigin(1, 0.5).setStroke('black', 3)
     this.seconds = this.scene.add.text(this.colon.getRightCenter().x, this.colon.getRightCenter().y, s, { font, align: 'left', color }).setOrigin(0, 0.5).setStroke('black', 3)
     this.startCountdown()
-    this.playColonAni()
   }
 
   private startCountdown(): void {
+    this.playColonAni()
     this.timeEvent = this.scene.time.addEvent({
       delay: 1000,
       callback: (): void => {
@@ -57,7 +57,7 @@ export default class Timer {
         if (this.sec === 0 && this.min === 0) {
           this.timeEvent.remove()
           this.colonAni.remove()
-          this.scene.gameScene.gameOver()
+          this.scene.gameScene.gameOver('timeIsUp')
 
         } else if (this.sec === 0 && this.min > 0) {
           this.sec = 59
@@ -113,5 +113,9 @@ export default class Timer {
     this.minutes.setPosition(this.colon.getLeftCenter().x, this.colon.getLeftCenter().y)
     this.seconds.setPosition(this.colon.getRightCenter().x, this.colon.getRightCenter().y)
     return this
+  }
+
+  public stop(): void {
+    this.timeEvent.remove()
   }
 }

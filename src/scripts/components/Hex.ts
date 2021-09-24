@@ -85,10 +85,12 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
   public setClearClame(color: string) {
     const lineColor = color === 'red' ? 0xD68780 : 0x909CD1
-    const line: Phaser.GameObjects.TileSprite = this.scene.add.tileSprite(this.getCenter().x - 25, this.getCenter().y - 22, 50, 5, 'pixel').setOrigin(0, 0.5).setTint(lineColor).setDepth(this.depth + 2)
+    const line: Phaser.GameObjects.TileSprite = this.scene.add.tileSprite(this.getCenter().x - 25, this.getCenter().y, 50, 5, 'pixel').setOrigin(0, 0.5).setTint(lineColor).setDepth(this.depth + 2)
     // this.claming = true
+    this.scene.claming.push(this.id)
 
-    new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y + 20, this.scene.lang.underAtack, 'yellow')
+    new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y + 20, '', 'yellow', 'warning', 7000)
+    this.scene.hud.setWarning(this.getCenter().x, this.getCenter().y, this.id)
 
     this.clamingAni?.remove()
     this.clamingAni = this.scene.tweens.add({
@@ -109,9 +111,10 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     const bgColor = color === 'red' ? 0xD68780 : 0x909CD1
     const lineColor = color === 'red' ? 0xD80000 : 0x3E3BD6
 
-    const lineBg: Phaser.GameObjects.TileSprite = this.scene.add.tileSprite(this.getCenter().x, this.getCenter().y - 22, 50, 5, 'pixel').setTint(bgColor).setDepth(this.depth + 2)
+    const lineBg: Phaser.GameObjects.TileSprite = this.scene.add.tileSprite(this.getCenter().x, this.getCenter().y, 50, 5, 'pixel').setTint(bgColor).setDepth(this.depth + 2)
     const line: Phaser.GameObjects.TileSprite = this.scene.add.tileSprite(lineBg.getLeftCenter().x, lineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(this.depth + 2)
     // this.claming = true
+    if (!this.scene.claming.find(id => id === this.id)) this.scene.claming.push(this.id)
 
     this.clamingAni?.remove()
     this.clamingAni = this.scene.tweens.add({
@@ -122,6 +125,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
         this.clame(color)
         this.scene.multiClameCheck(color)
         this.scene.hud.updateWorldStatusBar()
+        this.scene.gameOverCheck(color)
 
         // this.claming = false
         lineBg.destroy()
@@ -130,11 +134,13 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     })
   }
 
+
   public clame(color: string) {
     if (this?.own === 'neutral' && this.class === 'super') this.giveSuperHex(color)
 
     this.setColor(color)
     this.own = color
+
     Object.values(this.nearby).forEach(id => {
       const hex = this.scene.getHexByID(id)
       if (hex) {
@@ -146,7 +152,9 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       }
     })
 
+    
     if (this?.own !== 'neutral' && (this?.class === 'x1' || this?.class === 'x3')) this.produceHexes()
+    Phaser.Utils.Array.Remove(this.scene.claming, this.id)
   }
 
 

@@ -20,6 +20,7 @@ export default class Game extends Phaser.Scene {
   public blue: Iconfig
 
   public camera: Phaser.Cameras.Scene2D.Camera
+  public pan: Phaser.Cameras.Scene2D.Effects.Pan
   public midPoint: Phaser.Physics.Arcade.Sprite
   public vector: Phaser.Physics.Arcade.Sprite
   public distanceX: number
@@ -41,7 +42,10 @@ export default class Game extends Phaser.Scene {
   private world: Phaser.GameObjects.TileSprite
   public hexes: Hex[]
   public pointerHex: Hex
-  public chosenHex: Hex 
+  public chosenHex: Hex
+
+  public claming: string[]
+  public gameIsOver: boolean
 
 
   public init(state: Istate) {
@@ -53,6 +57,7 @@ export default class Game extends Phaser.Scene {
 
     this.red = Object.assign({}, config)
     this.blue = Object.assign({}, config)
+    this.claming = []
 
     this.worldWidth = 2048
     this.worldHeight = 2048
@@ -63,6 +68,7 @@ export default class Game extends Phaser.Scene {
     this.holdCounter = 0
     this.twoPointerZoom = false
     this.dragOrZoom = false
+    this.gameIsOver = false
     new Zoom(this)
 
     this.hexes = []
@@ -85,6 +91,8 @@ export default class Game extends Phaser.Scene {
     this.setInput()
     this.setHexInteractive()
     this.setEvents()
+
+    this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('yourBaseHasCaptured', 'red') })
 
     console.log('init ~ this.camera', this.camera)
     console.log('create ~ this.input', this.input)
@@ -116,6 +124,8 @@ export default class Game extends Phaser.Scene {
 
     const blueBase = this.hexes.find(hex => hex.id === '14-5').setClass('base', 'blue').removeFog()
     Object.values(blueBase.nearby).forEach(id => this.getHexByID(id).removeFog(true))
+
+    this.centerCamera(redBase.getCenter().x, redBase.getCenter().y)
   }
 
 
@@ -158,7 +168,7 @@ export default class Game extends Phaser.Scene {
     this.midPoint = this.physics.add.sprite(0, 0, 'pixel').setVisible(true).setScale(5).setTint(0x000).setDepth(10)
     this.vector = this.physics.add.sprite(0, 0, 'pixel').setVisible(true).setScale(5).setTint(0x880000).setDepth(10)
     const pointerPoint = this.physics.add.sprite(0, 0, 'pixel').setVisible(true).setScale(5).setTint(0x008800).setDepth(10)
-    console.log('setInput ~ midPoint', this.midPoint)
+    // console.log('setInput ~ midPoint', this.midPoint)
 
     this.input.setPollAlways()
     this.input.setTopOnly(false)
@@ -166,6 +176,7 @@ export default class Game extends Phaser.Scene {
 
     this.world.on('dragstart', (pointer): void => {
       ani?.remove()
+      this.camera.panEffect.reset()
 
       holdedPoint.x = pointer.x
       holdedPoint.y = pointer.y
@@ -256,36 +267,38 @@ export default class Game extends Phaser.Scene {
         else {
           this.chosenHex = hex
           // console.log('hex.on ~ this.chosenHex', this.chosenHex)
-
+          const x = hex.getCenter().x
+          const y = hex.getCenter().y
           
-          if (hex.own !== this.player.color && !hex.landscape && !hex.clamingAni?.isPlaying()) {
+          if (hex.own !== this.player.color && hex.class !== 'base' && !hex.landscape && !hex.clamingAni?.isPlaying()) {
 
             if (Object.values(hex.nearby).some(id => this.getHexByID(id)?.own === this.player.color)) {
               if (hex.own === 'neutral' && this[`${this.player.color}`].hexes > 0) {
-                new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, '-1', 'red', this.player.color)
+                new FlyAwayMsg(this, x, y, '-1', 'red', this.player.color)
                 this[`${this.player.color}`].hexes--
                 hex.setClaming(this.player.color)
 
               } else if (this[`${this.player.color}`].hexes > 1) {
-                new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, '-2', 'red', this.player.color)
+                new FlyAwayMsg(this, x, y, '-2', 'red', this.player.color)
                 this[`${this.player.color}`].hexes -= 2
                 hex.setClearClame(this.player.color)
 
-              } else new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, this.lang.notEnought, 'red', this.player.color)
+              } else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', this.player.color)
 
             } else if (!hex.fog) {
               if (this[`${this.player.color}`].superHex > 0) {
-                new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, '-1', 'red', 'purple')
+                new FlyAwayMsg(this, x, y, '-1', 'red', 'purple')
                 this[`${this.player.color}`].superHex--
   
                 if (hex.own === 'neutral') hex.setClaming(this.player.color)
                 else hex.setClearClame(this.player.color)
 
-              } else new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, this.lang.notEnought, 'red', 'purple')
+              } else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', 'purple')
             }
 
             this.hud.updateHexCounter()
-          }
+
+          } else if (hex.class === 'base' && hex.color !== this.player.color) new FlyAwayMsg(this, x, y, this.lang.surroundBase, 'yellow', '', 2000)
         }
       })
     })
@@ -453,15 +466,7 @@ export default class Game extends Phaser.Scene {
         if (innerHexesIsClosed) arr.forEach(hex => hex.clame(color))
       })
     }
-  }
 
-
-  private clearGrayHex(): void {
-    this.hexes.filter(hex => hex.color = 'gray').forEach(hex => hex.setColor('white'))
-  }
-
-  private hexesBeetween(topHex: Hex, botHex: Hex): Hex[] {
-    return this.hexes.filter(hex => hex.col === topHex.col && hex.row >= topHex.row && hex.row <= botHex.row)
   }
 
   private nextColHexesBetween(topHex: Hex, botHex: Hex = topHex): Hex[] {
@@ -504,9 +509,50 @@ export default class Game extends Phaser.Scene {
     return this.hexes.find(hex => hex.id === id) || null
   }
 
+  public centerCamera(x: number, y: number, duration: number = 1500, ease: string = 'Power2'): void {
+    this.camera.stopFollow()
+    this.camera.panEffect.reset()
+    this.camera.pan(x, y, duration, ease)
+  }
 
-  public gameOver(): void {
-    console.log('game over');
+
+  public gameOverCheck(color): void {
+    const hexes = this.hexes.filter(hex => hex.color === color)
+
+    if (hexes.filter(hex => hex.class === 'base').length > 1) this.gameOver('enemyBaseHasCaptured', color)
+    else if (
+      this[color].hexes === 0 && this[color].superHex === 0 &&
+      !hexes.some(hex => hex.class === 'x1' || hex.class === 'x3') &&
+      this.claming.length === 0
+    ) this.gameOver('youOutOfHexes', color === 'red' ? 'blue' : color)
+
+  }
+
+
+  public gameOver(reason: string, winner?: string): void {
+    if (!this.gameIsOver) {
+      this.gameIsOver = true
+      this.hud.hide()
+  
+      if (winner) {
+        console.log('game over', winner, reason);
+  
+      } else {
+        const red = this.hexes.filter(hex => hex.color === 'red').length
+        const blue = this.hexes.filter(hex => hex.color === 'blue').length
+  
+        if (red === blue) {
+          console.log('game over tie', reason);
+        } else if (red > blue) {
+          console.log('game over red', reason);
+        } else {
+          console.log('game over blue', reason);
+        }
+      }
+      
+      const win = winner === this.player.color
+      this.scene.launch('Modal', { state: this.state, type: 'gameOver', info: { win, reason } })
+    }
   }
 
 
@@ -525,5 +571,6 @@ export default class Game extends Phaser.Scene {
     } else {
       this.vector.body.stop()
     }
+
   }
 }
