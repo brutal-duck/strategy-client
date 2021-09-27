@@ -70,6 +70,7 @@ export default class Game extends Phaser.Scene {
     this.dragOrZoom = false
     this.gameIsOver = false
     new Zoom(this)
+    this.scale.lockOrientation('landscape-primary')
 
     this.hexes = []
     this.hexWidth = 100
@@ -92,7 +93,7 @@ export default class Game extends Phaser.Scene {
     this.setHexInteractive()
     this.setEvents()
 
-    this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('yourBaseHasCaptured', 'red') })
+    this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('timeIsUp') })
 
     console.log('init ~ this.camera', this.camera)
     console.log('create ~ this.input', this.input)
@@ -462,11 +463,10 @@ export default class Game extends Phaser.Scene {
     // 3. Проверка на замыкание внутренних незахваченных гекс
     if (innerHexes.length > 0) {
       innerHexes.forEach(arr => {
-        innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => arr.some(el => el.id === id) || this.getHexByID(id) === null || this.getHexByID(id).color === color) && hex.col < this.cols - 1)
+        innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => arr.some(el => el.id === id) || this.getHexByID(id) === null || this.getHexByID(id).color === color || this.getHexByID(id).class === 'rock') && hex.col < this.cols - 1)
         if (innerHexesIsClosed) arr.forEach(hex => hex.clame(color))
       })
     }
-
   }
 
   private nextColHexesBetween(topHex: Hex, botHex: Hex = topHex): Hex[] {
@@ -525,7 +525,6 @@ export default class Game extends Phaser.Scene {
       !hexes.some(hex => hex.class === 'x1' || hex.class === 'x3') &&
       this.claming.length === 0
     ) this.gameOver('youOutOfHexes', color === 'red' ? 'blue' : color)
-
   }
 
 
@@ -543,6 +542,7 @@ export default class Game extends Phaser.Scene {
   
         if (red === blue) {
           console.log('game over tie', reason);
+          winner = null
         } else if (red > blue) {
           console.log('game over red', reason);
         } else {
@@ -551,7 +551,7 @@ export default class Game extends Phaser.Scene {
       }
       
       const win = winner === this.player.color
-      this.scene.launch('Modal', { state: this.state, type: 'gameOver', info: { win, reason } })
+      this.scene.launch('Modal', { state: this.state, type: 'gameOver', info: { win, winner, reason } })
     }
   }
 

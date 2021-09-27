@@ -79,7 +79,7 @@ class Zoom extends Phaser.GameObjects.Sprite {
         this.scene.input.pointer2.y
       );
       
-      if (Math.abs(this.distance - distance) > 2) {
+      if (Math.abs(this.distance - distance) > 2 && !this.scene.gameIsOver) {
         if (distance > this.distance) this.zooming('+');
         else if (distance < this.distance) this.zooming('-');
       }

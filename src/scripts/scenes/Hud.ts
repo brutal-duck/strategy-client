@@ -1,3 +1,4 @@
+import MatchMenuBtn from "../components/buttons/MatchMenuBtn"
 import Timer from "../components/Timer"
 import langs from "../langs"
 import Game from "./Game"
@@ -19,6 +20,7 @@ export default class Hud extends Phaser.Scene {
   private player2AltColor: number
 
   private allElements: Array<Phaser.GameObjects.TileSprite | Phaser.GameObjects.Sprite | Phaser.GameObjects.Text>
+  private bg: Phaser.GameObjects.TileSprite
   private switcher: Phaser.GameObjects.TileSprite
   private worldStatusBar: Phaser.GameObjects.TileSprite
   private player1StatusBar: Phaser.GameObjects.TileSprite
@@ -32,8 +34,10 @@ export default class Hud extends Phaser.Scene {
 
   private hexBar: Phaser.GameObjects.Sprite
   private hexBarText: Phaser.GameObjects.Text
+  private tilesBarText: Phaser.GameObjects.Text
   private superHexBar: Phaser.GameObjects.Sprite
   private superHexBarText: Phaser.GameObjects.Text
+  private superTilesBarText: Phaser.GameObjects.Text
 
   private targetText: Phaser.GameObjects.Text
 
@@ -47,7 +51,8 @@ export default class Hud extends Phaser.Scene {
   private warnIcon: Phaser.GameObjects.Sprite
   private warnCreateAni: Phaser.Tweens.Tween
   private warnFadeInAni: Phaser.Tweens.Tween
-  // private warnCreateAni: Phaser.Tweens.Tween
+
+  private menuBtn: MatchMenuBtn
 
   private debugText: Phaser.GameObjects.Text
 
@@ -69,37 +74,55 @@ export default class Hud extends Phaser.Scene {
   }
   
   public create(): void {
+    this.bg = this.add.tileSprite(0, 0, this.camera.width, 44, 'pixel').setOrigin(0)
+    this.menuBtn = new MatchMenuBtn(this, this.camera.width - 2, 1).setOrigin(1, 0)
+    this.menuBtn.border.on('pointerup', (): void => { this.scene.launch('Modal', { state: this.state, type: 'matchMenu' }) })
+
     this.createMainBar()
     this.createHexBarPlayer2()
     this.createWorldStatusBar()
     this.createWarningBar()
     this.timer = new Timer(this, this.worldStatusBar.getCenter().x, this.worldStatusBar.getBottomCenter().y + 2, this.gameScene.red.matchTime)
-    this.allElements.push(this.timer.minutes, this.timer.seconds, this.timer.colon)
+    this.allElements.push(this.bg, this.timer.minutes, this.timer.seconds, this.timer.colon, this.menuBtn.border, this.menuBtn.mid, this.menuBtn.text)
 
     this.createColorSwitcher()
-    this.debugText = this.add.text(-26, this.worldStatusBar.getBottomCenter().y - 4, '', { font: '10px Molot', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-9)
+    this.debugText = this.add.text(-26, this.camera.height + 10, '', { font: '10px Molot', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-9).setOrigin(0, 1)
   }
 
 
   private createMainBar(): void {
-    this.hexBar = this.add.sprite(this.camera.width / 2 - 30, 4, 'hex').setScale(0.5).setTint(0xD68780).setOrigin(0.5, 0)
+    // this.hexBar = this.add.sprite(this.camera.width / 2 - 30, 4, 'hex').setScale(0.5).setTint(0xD68780).setOrigin(0.5, 0)
+    // this.hexBarText = this.add.text(this.hexBar.getCenter().x + 1, this.hexBar.getCenter().y - 2, String(this.gameScene.red.hexes), {
+    //   font: '26px Molot', color: '#BED3C0'
+    // }).setOrigin(0.5).setStroke('black', 3)
+
+    // this.superHexBar = this.add.sprite(this.camera.width / 2 + 30, 4, 'hex').setScale(0.5).setTint(0xb879ff).setOrigin(0.5, 0)
+    // this.superHexBarText = this.add.text(this.superHexBar.getCenter().x + 1, this.superHexBar.getCenter().y - 2, String(this.gameScene.red.superHex), {
+    //   font: '26px Molot', color: '#BED3C0'
+    // }).setOrigin(0.5).setStroke('black', 3)
+
+    this.tilesBarText = this.add.text(10, 12, `${this.lang.tiles}:`, { font: '16px Molot', color: 'black' }).setOrigin(0)
+    this.hexBar = this.add.sprite(this.tilesBarText.getRightCenter().x + 10, this.tilesBarText.getRightCenter().y, 'hex').setScale(0.5).setTint(0xD68780).setOrigin(0, 0.5)
     this.hexBarText = this.add.text(this.hexBar.getCenter().x + 1, this.hexBar.getCenter().y - 2, String(this.gameScene.red.hexes), {
       font: '26px Molot', color: '#BED3C0'
     }).setOrigin(0.5).setStroke('black', 3)
 
-    this.superHexBar = this.add.sprite(this.camera.width / 2 + 30, 4, 'hex').setScale(0.5).setTint(0xb879ff).setOrigin(0.5, 0)
+    this.superTilesBarText = this.add.text(this.hexBar.getRightCenter().x + 16, this.hexBar.getRightCenter().y, `${this.lang.superTiles}:`, {
+      font: '16px Molot', color: 'black'
+    }).setOrigin(0, 0.5)
+    this.superHexBar = this.add.sprite(this.superTilesBarText.getRightCenter().x + 10, this.superTilesBarText.getRightCenter().y, 'hex').setScale(0.5).setTint(0xb879ff).setOrigin(0, 0.5)
     this.superHexBarText = this.add.text(this.superHexBar.getCenter().x + 1, this.superHexBar.getCenter().y - 2, String(this.gameScene.red.superHex), {
       font: '26px Molot', color: '#BED3C0'
     }).setOrigin(0.5).setStroke('black', 3)
 
-    this.targetText = this.add.text(0, 4, this.lang.target, {
-      font: '10px Molot',
-      align: 'left',
+    this.targetText = this.add.text(this.menuBtn.border.getLeftCenter().x - 20, this.menuBtn.border.getLeftCenter().y, `${this.lang.target.toUpperCase()}:\n${this.lang.targetDiscr}`, {
+      font: '12px Molot',
+      align: 'center',
       wordWrap: { width: this.camera.width / 3 },
       color: 'black'
-    })
+    }).setOrigin(1, 0.5)
 
-    this.allElements.push(this.hexBar, this.hexBarText, this.superHexBar, this.superHexBarText, this.targetText)
+    this.allElements.push(this.tilesBarText, this.hexBar, this.hexBarText, this.superTilesBarText, this.superHexBar, this.superHexBarText, this.targetText)
   }
 
 
@@ -272,6 +295,8 @@ export default class Hud extends Phaser.Scene {
     const redHexes: number = this.gameScene.hexes.filter(hex => hex.color === 'red').length
     const blueHexes: number = this.gameScene.hexes.filter(hex => hex.color === 'blue').length
 
+    this.bg.setPosition(0, 0).setSize(this.camera.width, this.bg.height)
+    this.menuBtn.setPosition(this.camera.width - 2, 1)
     this.switcher.setPosition(this.camera.width / 2, this.camera.height)
 
     this.worldStatusBar.setPosition(this.camera.width / 2, this.worldStatusBar.y).setSize(this.camera.width, 20)
@@ -284,20 +309,18 @@ export default class Hud extends Phaser.Scene {
     this.playerClamedHexCounter.setPosition(this.worldStatusBar.getCenter().x - 40, this.worldStatusBar.getBottomCenter().y + 2)
     this.enemyHexCounter.setPosition(this.worldStatusBar.getCenter().x + 40, this.worldStatusBar.getBottomCenter().y + 2)
 
-    this.hexBar.setPosition(this.camera.width / 2 - 30, 4)
+    this.tilesBarText.setPosition(10, 12)
+    this.hexBar.setPosition(this.tilesBarText.getRightCenter().x + 10, this.tilesBarText.getRightCenter().y)
     this.hexBarText.setPosition(this.hexBar.getCenter().x + 1, this.hexBar.getCenter().y - 2)
-    this.superHexBar.setPosition(this.camera.width / 2 + 30, 4)
+    this.superTilesBarText.setPosition(this.hexBar.getRightCenter().x + 16, this.hexBar.getRightCenter().y)
+    this.superHexBar.setPosition(this.superTilesBarText.getRightCenter().x + 10, this.superTilesBarText.getRightCenter().y)
     this.superHexBarText.setPosition(this.superHexBar.getCenter().x + 1, this.superHexBar.getCenter().y - 2)
 
-    this.targetText.setPosition(0, 4).setWordWrapWidth(this.camera.width / 2.8)
-    // const fontSize = +this.targetText.style.fontSize.replace('px', '')
-
-    // if (this.targetText.height > 52) {
-    //   this.targetText.setFontSize(fontSize - 1)
-    // } else if (this.targetText.height < 30) {
-    //   this.targetText.setFontSize(fontSize + 1)
-    // }
-
+    this.targetText.setPosition(this.menuBtn.border.getLeftCenter().x - 20, this.menuBtn.border.getLeftCenter().y).setWordWrapWidth(this.camera.width / 2.8)
+    const minSize = 9
+    const maxSize = 12
+    if (this.camera.width < 650 && this.targetText.style.fontSize === `${maxSize}px`) this.targetText.setFontSize(minSize)
+    else if (this.camera.width >= 650 && this.targetText.style.fontSize === `${minSize}px`) this.targetText.setFontSize(maxSize)
 
     this.hexBarP2.setPosition(this.camera.width - 10, this.camera.height - 10)
     this.hexBarTextP2.setPosition(this.hexBarP2.getCenter().x + 1, this.hexBarP2.getCenter().y - 2)
@@ -309,7 +332,7 @@ export default class Hud extends Phaser.Scene {
     this.tweens.add({
       targets: this.allElements,
       alpha: 0,
-      duration: 1000
+      duration: 700
     })
   }
 

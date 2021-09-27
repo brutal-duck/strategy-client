@@ -7,6 +7,7 @@ import Preload from './scenes/Preload';
 import Game from './scenes/Game';
 import Hud from './scenes/Hud';
 import Modal from './scenes/Modal';
+import MainMenu from './scenes/MainMenu';
 
 
 const getSizes: Function = (): Isize => {
@@ -30,10 +31,11 @@ window.onload = (): void => {
       },
     },
     render: { transparent: true },
-    scene: [ Boot, Preload, Game, Hud, Modal ],
+    scene: [ Boot, Preload, MainMenu, Game, Hud, Modal ],
   }
   
   const game: Phaser.Game = new Phaser.Game(config);
+  game.scale.lockOrientation('landscape-primary')
 
   window.addEventListener('resize', (): void => {
     const size: Isize = getSizes();

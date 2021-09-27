@@ -1,3 +1,5 @@
+import MatchMenuBtn from "../components/buttons/MatchMenuBtn"
+import MatchOverBtn from "../components/buttons/MatchOverBtn"
 import langs from "../langs"
 import Game from "./Game"
 
@@ -48,76 +50,200 @@ export default class Modal extends Phaser.Scene {
 
 
   private matchMenuWindow(): void {
-    console.log('matchMenuWindow');
-    
+    const x = this.bg.getCenter().x
+    const y = this.bg.getCenter().y
+    const windowHeight = 220
+    const windowWidth = 280
+
+    const top: Phaser.GameObjects.Sprite = this.add.sprite(x, y - 100, 'side').setOrigin(0.5, 0).setFlipY(true).setDisplaySize(windowWidth, 15)
+    const mid: Phaser.GameObjects.TileSprite = this.add.tileSprite(top.getBottomCenter().x, top.getBottomCenter().y, windowWidth, windowHeight, 'pixel').setOrigin(0.5, 0)
+    const bot: Phaser.GameObjects.Sprite = this.add.sprite(mid.getBottomCenter().x, mid.getBottomCenter().y, 'side').setOrigin(0.5, 0).setDisplaySize(windowWidth, 15)
+
+    const title: Phaser.GameObjects.Text = this.add.text(x, top.getTopCenter().y + 10, this.lang.menu, { font: '38px Molot', color: 'black' }).setOrigin(0.5, 0).setDepth(2)
+    const cross: Phaser.GameObjects.Sprite = this.add.sprite(top.getTopRight().x - 5, top.getTopRight().y + 5, 'cross').setOrigin(1, 0).setScale(0.6).setTint(0xffafaf).setInteractive()
+    cross.on('pointerup', (): void => { this.scene.stop() })
+
+    const settingsBtn = new MatchMenuBtn(this, x, mid.getCenter().y - 20).setScale(1.8, 1.5).setText(this.lang.settings)
+    settingsBtn.border.on('pointerup', (): void => { console.log('settings') })
+
+    const leaveBtn = new MatchMenuBtn(this, x, mid.getCenter().y + 60).setScale(1.8, 1.5).setText(this.lang.surrenderAndLeave)
+    leaveBtn.border.on('pointerup', (): void => {
+      this.scene.stop()
+      this.gameScene.hud.scene.stop()
+      this.gameScene.scene.stop()
+      this.scene.start('MainMenu')
+    })
   }
 
   private gameOverWindow(): void {
+    console.log(this.info);
+    
     const x = this.bg.getCenter().x
     const y = this.bg.getCenter().y
-    const text = this.info.win ? this.lang.win : this.lang.lose
-    const windowColor = this.info.win ? 0xc3ffc1 : 0xffb6b6
-    const titleColor = this.info.win ? '#e6ffe5' : '#ffdddd'
-    const tint = this.info.win ? 0x5fe459 : 0xff7c7c
+    const playerColor = this.state.player.color
+    let text = this.lang.tie
+    let windowColor = 0xfff7d9
+    let titleColor = '#e5e5e5'
+    let tint = 0xfff7d9
+    if (this.info.winner !== null) {
+      text = this.info.win ? this.lang.win : this.lang.lose
+      windowColor = this.info.win ? 0xc3ffc1 : 0xffb6b6
+      titleColor = this.info.win ? '#e6ffe5' : '#ffdddd'
+      tint = this.info.win ? 0x5fe459 : 0xff7c7c
+    }
     const titleAniDuration = 300
     const titleAniDelay = 500
     const windowHeight = 260
-    const windowWidth = 360
+    const windowWidth = 340
 
     const title = this.add.text(x, y - 100, text, {
       font: '60px Molot', color: titleColor
     }).setOrigin(0.5).setTint(0xFFFFFF, 0xFFFFFF, tint, tint).setStroke('black', 5).setAlpha(0)
 
-    const reason = this.add.text(title.getBottomCenter().x, title.getBottomCenter().y, this.lang[this.info.reason], {
+    const reason = this.add.text(title.getBottomCenter().x, y, this.lang[this.info.reason], {
       font: '18px Molot', color: titleColor
     }).setOrigin(0.5).setStroke('black', 4).setAlpha(0)
 
-    const top: Phaser.GameObjects.Sprite = this.add.sprite(title.getBottomCenter().x, title.getBottomCenter().y + 10, 'side').setOrigin(0.5, 0).setFlipY(true).setDisplaySize(windowWidth, 15).setAlpha(0)
+    const top: Phaser.GameObjects.Sprite = this.add.sprite(title.getBottomCenter().x, y, 'side').setOrigin(0.5, 0).setFlipY(true).setDisplaySize(windowWidth, 15).setAlpha(0)
     const mid: Phaser.GameObjects.TileSprite = this.add.tileSprite(top.getBottomCenter().x, top.getBottomCenter().y, windowWidth, windowHeight, 'pixel').setOrigin(0.5, 0).setAlpha(0).setTint(0xffffff, 0xffffff, windowColor, windowColor)
     const bot: Phaser.GameObjects.Sprite = this.add.sprite(mid.getBottomCenter().x, mid.getBottomCenter().y, 'side').setOrigin(0.5, 0).setDisplaySize(windowWidth, 15).setAlpha(0).setTint(windowColor)
 
+    const result: Phaser.GameObjects.Text = this.add.text(mid.getTopCenter().x, y, this.lang.result, { font: '20px Molot', color: 'black' }).setOrigin(0.5).setAlpha(0)
+    const tilesLeft: Phaser.GameObjects.Text = this.add.text(mid.getTopCenter().x, y, this.lang.tilesLeft, { font: '20px Molot', color: 'black' }).setOrigin(0.5).setAlpha(0)
 
-    this.tweens.add({
-      targets: title,
-      alpha: 1,
-      y: '-=50',
-      duration: titleAniDuration,
-      delay: titleAniDelay,
-      ease: "Power2",
-      onComplete: (): void => {
-        if (this.info.win) this.blink(title)
-        else this.grade(title)
+    const redHexes: number = this.gameScene?.hexes.filter(hex => hex.color === 'red').length
+    const blueHexes: number = this.gameScene?.hexes.filter(hex => hex.color === 'blue').length
+    const totalHexes = redHexes + blueHexes
+    const lineWidth = windowWidth - 40
+    const redLineWidth = lineWidth / totalHexes * redHexes
+    const blueLineWidth = lineWidth / totalHexes * blueHexes
 
-        
-        reason.setPosition(title.getBottomCenter().x, title.getBottomCenter().y + 6)
-        this.lineOut(reason)
+    const lineBg: Phaser.GameObjects.TileSprite = this.add.tileSprite(mid.getTopCenter().x, y + 40, lineWidth, 20, 'pixel').setOrigin(0.5, 0).setAlpha(0)
+    const redLine: Phaser.GameObjects.TileSprite = this.add.tileSprite(lineBg.getLeftCenter().x, lineBg.getLeftCenter().y, redLineWidth, 20, 'pixel').setTint(0xDB3939).setDepth(2).setOrigin(0, 0.5).setAlpha(0)
+    const blueLine: Phaser.GameObjects.TileSprite = this.add.tileSprite(lineBg.getRightCenter().x, lineBg.getRightCenter().y, blueLineWidth, 20, 'pixel').setTint(0x5B65D8).setDepth(2).setOrigin(1, 0.5).setAlpha(0)
+    const redSum: Phaser.GameObjects.Text = this.add.text(lineBg.getBottomLeft().x + 10, lineBg.getBottomLeft().y + 4, `${redHexes}`, { font: '26px Molot', color: '#D80000' }).setAlpha(0)
+    const blueSum: Phaser.GameObjects.Text = this.add.text(lineBg.getBottomRight().x - 10, lineBg.getBottomRight().y + 4, `${blueHexes}`, { font: '26px Molot', color: '#3E3BD6' }).setOrigin(1, 0).setAlpha(0)
 
+    const hex: Phaser.GameObjects.Sprite = this.add.sprite(x - 40, y, 'hex').setTint(playerColor === 'red' ? 0xD68780 : 0x909CD1).setScale(0.6).setAlpha(0)
+    const hexSum: Phaser.GameObjects.Text = this.add.text(hex.getCenter().x, y, `${this.gameScene[playerColor].hexes}`, {
+      font: '26px Molot', color: '#BED3C0'
+    }).setOrigin(0.5).setAlpha(0)
+
+    const purpleHex: Phaser.GameObjects.Sprite = this.add.sprite(x + 40, y, 'hex').setTint(0xb879ff).setScale(0.6).setAlpha(0)
+    const purpleHexSum: Phaser.GameObjects.Text = this.add.text(purpleHex.getCenter().x, y, `${this.gameScene[playerColor].superHex}`, {
+      font: '26px Molot', color: '#BED3C0'
+    }).setOrigin(0.5).setAlpha(0)
+
+    const titleFadeOut = () => {
+      this.tweens.add({
+        targets: title,
+        alpha: 1,
+        y: '-=50',
+        duration: titleAniDuration,
+        delay: titleAniDelay,
+        ease: "Power2",
+        onComplete: (): void => {
+          if (this.info.win) this.blink(title)
+          else if (this.info.winner !== null) this.grade(title)
+          reasonFadeOut()
+          bgFadeOut()
+        }
+      })
+    }
+
+    const reasonFadeOut = () => {
+      this.tweens.add({
+        onStart: (): void => {
+          reason.setPosition(title.getBottomCenter().x, y - 100)
+          this.lineOut(reason)
+        },
+        targets: reason,
+        alpha: 1,
+        duration: 300,
+        delay: 100,
+        ease: "Power2",
+      })
+    }
+
+    const bgFadeOut = () => {
+      this.tweens.add({
+        onStart: (): void => {
+          top.setPosition(reason.getBottomCenter().x, reason.getBottomCenter().y + 55)
+          mid.setPosition(top.getBottomCenter().x, top.getBottomCenter().y)
+          bot.setPosition(mid.getBottomCenter().x, mid.getBottomCenter().y)
+        },
+        targets: [ top, bot, mid ],
+        alpha: 1,
+        y: '-=50',
+        ease: 'Power2',
+        duration: 500,
+        delay: 500,
+        completeDelay: 100,
+        onComplete: (): void => {
+          statisticFadeOut()
+        }
+      })
+    }
+
+    const statisticFadeOut = () => {
+      const duration = 350
+      const delay = 150
+
+      result.setY(y - 75)
+      lineBg.setPosition(mid.getTopCenter().x, y - 55)
+      redLine.setPosition(lineBg.getLeftCenter().x, lineBg.getLeftCenter().y)
+      blueLine.setPosition(lineBg.getRightCenter().x, lineBg.getRightCenter().y)
+      redSum.setPosition(lineBg.getBottomLeft().x + 20, lineBg.getBottomLeft().y + 15)
+      blueSum.setPosition(lineBg.getBottomRight().x - 20, lineBg.getBottomRight().y + 15)
+      
+      tilesLeft.setY(y + 30)
+      hex.setY(y + 70)
+      hexSum.setY(hex.y)
+      purpleHex.setY(y + 70)
+      purpleHexSum.setY(purpleHex.y)
+
+      const btn = new MatchOverBtn(this, x, y + 140).setAlpha(0)
+      btn.border.on('pointerup', (): void => {
+        this.scene.stop()
+        this.gameScene.hud.scene.stop()
+        this.gameScene.scene.stop()
+        this.scene.start('MainMenu', this.state)
+      })
+
+      const targets = [
+        [result],
+        [lineBg, redLine, blueLine],
+        [redSum, blueSum],
+        [tilesLeft],
+        [hex, hexSum, purpleHex, purpleHexSum],
+        btn.elements
+      ]
+
+      targets.forEach((el, i) => {
         this.tweens.add({
-          targets: reason,
+          targets: el,
           alpha: 1,
-          duration: 300,
-          ease: "Power2",
+          y: '+=20',
+          duration,
+          delay: delay * i,
+          ease: 'Power2',
+          onComplete: (): void => {
+            if (this.info.reason !== 'timeIsUp' && i === 1) {
+              const glow: Phaser.GameObjects.Sprite = this.add.sprite(x, y, 'glow').setDepth(2).setAlpha(0)
+              if (this.info.winner === 'red') glow.setPosition(redLine.getCenter().x, redLine.getCenter().y).setDisplaySize(redLine.width + 2, redLine.height + 24).setTint(0xD80000)
+              else if (this.info.winner === 'blue') glow.setPosition(blueLine.getCenter().x, blueLine.getCenter().y).setDisplaySize(blueLine.width + 2, blueLine.height + 24).setTint(0x3E3BD6)
+              this.tweens.add({
+                targets: glow,
+                alpha: 1,
+                duration: 400
+              })
+            }
+          }
         })
-      }
-    })
+      })
+    }
 
-
-    const windowAniDelay = titleAniDuration + titleAniDelay + 800
-    const windowAniiDuration = 500
-
-    this.tweens.add({
-      onStart: (): void => {
-        top.setPosition(reason.getBottomCenter().x, reason.getBottomCenter().y + 55)
-        mid.setPosition(top.getBottomCenter().x, top.getBottomCenter().y)
-        bot.setPosition(mid.getBottomCenter().x, mid.getBottomCenter().y)
-      },
-      targets: [ top, bot, mid ],
-      alpha: 1,
-      y: '-=50',
-      ease: 'Power2',
-      duration: windowAniiDuration,
-      delay: windowAniDelay
-    })
+    titleFadeOut()
   }
 
   private blink(text: Phaser.GameObjects.Text): void {
@@ -159,8 +285,8 @@ export default class Modal extends Phaser.Scene {
   }
 
   private lineOut(text: Phaser.GameObjects.Text): void {
-    const tint = this.info?.win ? 0x16ac0f : 0x800000
-    const line: Phaser.GameObjects.TileSprite = this.add.tileSprite(text.getTopCenter().x, text.getTopCenter().y + 1, 1, 4, 'pixel').setOrigin(0.5, 1).setAlpha(0).setTint(tint)
+    let tint = this.info?.win ? 0x16ac0f : 0x800000
+    const line: Phaser.GameObjects.TileSprite = this.add.tileSprite(text.getTopCenter().x, text.getTopCenter().y - 3, 1, 4, 'pixel').setOrigin(0.5, 1).setAlpha(0).setTint(this.info.winner === null ? 0xFFFFFF : tint)
 
     this.tweens.add({
       targets: line,
