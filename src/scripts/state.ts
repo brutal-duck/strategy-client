@@ -5,6 +5,9 @@ let state: Istate = {
     ok_id: '',
     id: '',
   },
+  game: {
+    AI: true
+  },
   platform: ''
 };
 

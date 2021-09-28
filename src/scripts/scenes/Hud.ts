@@ -120,7 +120,7 @@ export default class Hud extends Phaser.Scene {
       align: 'center',
       wordWrap: { width: this.camera.width / 3 },
       color: 'black'
-    }).setOrigin(1, 0.5)
+    }).setOrigin(1, 0.5).setInteractive()
 
     this.allElements.push(this.tilesBarText, this.hexBar, this.hexBarText, this.superTilesBarText, this.superHexBar, this.superHexBarText, this.targetText)
   }
@@ -292,8 +292,8 @@ export default class Hud extends Phaser.Scene {
 
 
   public resize(): void {
-    const redHexes: number = this.gameScene.hexes.filter(hex => hex.color === 'red').length
-    const blueHexes: number = this.gameScene.hexes.filter(hex => hex.color === 'blue').length
+    const redHexes: number = this.gameScene?.hexes.filter(hex => hex.color === 'red').length
+    const blueHexes: number = this.gameScene?.hexes.filter(hex => hex.color === 'blue').length
 
     this.bg.setPosition(0, 0).setSize(this.camera.width, this.bg.height)
     this.menuBtn.setPosition(this.camera.width - 2, 1)

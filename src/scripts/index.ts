@@ -36,12 +36,25 @@ window.onload = (): void => {
   
   const game: Phaser.Game = new Phaser.Game(config);
   game.scale.lockOrientation('landscape-primary')
+  game.scale.on('orientationchange', (): void => {
+    const size: Isize = getSizes();
+    game.scale.resize(size.width, size.height);
+
+    const hud = game.scene.getScene('Hud') as Hud
+    const mainMenu = game.scene.getScene('MainMenu') as MainMenu
+    if (hud.scene.isActive()) hud.resize()
+    if (mainMenu.scene.isActive()) mainMenu.resize()
+  })
 
   window.addEventListener('resize', (): void => {
     const size: Isize = getSizes();
-    // game.input.mousePointer.camera = game.scene.getScene('Game').cameras.main // фикс краша вывода курсора за предел веб окна для старшей версии Phasera
-    const hud = game.scene.getScene('Hud') as Hud
-    hud?.resize()
     game.scale.resize(size.width, size.height);
+
+    const hud = game.scene.getScene('Hud') as Hud
+    const mainMenu = game.scene.getScene('MainMenu') as MainMenu
+    if (hud.scene.isActive()) hud.resize()
+    if (mainMenu.scene.isActive()) mainMenu.resize()
+
+    // game.input.mousePointer.camera = game.scene.getScene('Game').cameras.main // фикс краша вывода курсора за предел веб окна для старшей версии Phasera
   }, false);
 }

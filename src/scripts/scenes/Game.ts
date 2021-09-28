@@ -3,6 +3,7 @@ import Hex from "../components/Hex"
 import Zoom from "../components/Zoom"
 import { config } from "../gameConfig"
 import langs from "../langs"
+import AI from "../utils/AI"
 import Hud from "./Hud"
 
 export default class Game extends Phaser.Scene {
@@ -14,7 +15,9 @@ export default class Game extends Phaser.Scene {
   public lang: any
   public player: Iplayer
   public hud: Hud
+  public gameIsOver: boolean
   public debuging: boolean
+  private AI: AI
 
   public red: Iconfig
   public blue: Iconfig
@@ -45,14 +48,13 @@ export default class Game extends Phaser.Scene {
   public chosenHex: Hex
 
   public claming: string[]
-  public gameIsOver: boolean
 
 
   public init(state: Istate) {
     this.state = state
     this.lang = langs.ru
     this.player = state.player
-    this.player.color = 'red'
+    // this.player.color = 'red'
     this.hud = this.game.scene.getScene('Hud') as Hud
 
     this.red = Object.assign({}, config)
@@ -81,6 +83,7 @@ export default class Game extends Phaser.Scene {
     this.cols = 17
   
     this.debuging = true
+    if (this.state.game.AI) this.AI = new AI(this)
   }
 
 
@@ -94,6 +97,8 @@ export default class Game extends Phaser.Scene {
     this.setEvents()
 
     this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('timeIsUp') })
+
+    if (this.AI) this.AI.init()
 
     console.log('init ~ this.camera', this.camera)
     console.log('create ~ this.input', this.input)
@@ -126,7 +131,8 @@ export default class Game extends Phaser.Scene {
     const blueBase = this.hexes.find(hex => hex.id === '14-5').setClass('base', 'blue').removeFog()
     Object.values(blueBase.nearby).forEach(id => this.getHexByID(id).removeFog(true))
 
-    this.centerCamera(redBase.getCenter().x, redBase.getCenter().y)
+    const playerBase = this.player.color === 'red' ? redBase : blueBase
+    this.centerCamera(playerBase.getCenter().x, playerBase.getCenter().y)
   }
 
 
@@ -504,10 +510,10 @@ export default class Game extends Phaser.Scene {
     return nextColHex
   }
 
-
   public getHexByID(id: string): Hex {
     return this.hexes.find(hex => hex.id === id) || null
   }
+
 
   public centerCamera(x: number, y: number, duration: number = 1500, ease: string = 'Power2'): void {
     this.camera.stopFollow()
