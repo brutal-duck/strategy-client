@@ -4,6 +4,7 @@ import Zoom from "../components/Zoom"
 import { config } from "../gameConfig"
 import langs from "../langs"
 import AI from "../utils/AI"
+import World from "../utils/World"
 import Hud from "./Hud"
 
 export default class Game extends Phaser.Scene {
@@ -13,8 +14,10 @@ export default class Game extends Phaser.Scene {
 
   public state: Istate
   public lang: any
+  public isLaunched: boolean = false
   public player: Iplayer
   public hud: Hud
+  public world: World
   public gameIsOver: boolean
   public debuging: boolean
   private AI: AI
@@ -35,14 +38,14 @@ export default class Game extends Phaser.Scene {
   public worldWidth: number
   public worldHeight: number
 
-  public hexWidth: number
-  public hexHeight: number
-  private startX: number
-  private startY: number
-  public rows: number
-  public cols: number
+  // public hexWidth: number
+  // public hexHeight: number
+  // private startX: number
+  // private startY: number
+  // public rows: number
+  // public cols: number
 
-  private world: Phaser.GameObjects.TileSprite
+  private worldBG: Phaser.GameObjects.TileSprite
   public hexes: Hex[]
   public pointerHex: Hex
   public chosenHex: Hex
@@ -53,9 +56,8 @@ export default class Game extends Phaser.Scene {
   public init(state: Istate) {
     this.state = state
     this.lang = langs.ru
-    this.player = state.player
-    // this.player.color = 'red'
-    this.hud = this.game.scene.getScene('Hud') as Hud
+    // this.isLaunched = false
+
 
     this.red = Object.assign({}, config)
     this.blue = Object.assign({}, config)
@@ -68,19 +70,15 @@ export default class Game extends Phaser.Scene {
     this.distanceX = 0
     this.distanceY = 0
     this.holdCounter = 0
-    this.twoPointerZoom = false
-    this.dragOrZoom = false
-    this.gameIsOver = false
-    new Zoom(this)
     this.scale.lockOrientation('landscape-primary')
 
     this.hexes = []
-    this.hexWidth = 100
-    this.hexHeight = 70
-    this.startX = 340
-    this.startY = 340
-    this.rows = 12
-    this.cols = 17
+    // this.hexWidth = 100
+    // this.hexHeight = 70
+    // this.startX = 340
+    // this.startY = 340
+    // this.rows = 12
+    // this.cols = 17
   
     this.debuging = true
     if (this.state.game.AI) this.AI = new AI(this)
@@ -91,78 +89,36 @@ export default class Game extends Phaser.Scene {
     this.add.sprite(0, 0, 'bg').setOrigin(0)
     
     this.createWorld()
-    this.createField()
+    this.world = new World(this)
+  }
+
+  private createWorld(): void {
+    this.worldBG = this.add.tileSprite(0, 0, this.camera.getBounds().width, this.camera.getBounds().height, 'pixel').setOrigin(0).setAlpha(0.001).setInteractive({ draggable: true })
+  }
+
+
+  public launch(state: Istate): void {
+    this.state = state
+    this.isLaunched = true
+    this.player = state.player
+    // this.player.color = 'red'
+    this.hud = this.game.scene.getScene('Hud') as Hud
+    this.twoPointerZoom = false
+    this.dragOrZoom = false
+    this.gameIsOver = false
+    new Zoom(this)
+
+    // this.world.createBase()
     this.setInput()
     this.setHexInteractive()
     this.setEvents()
 
-    this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('timeIsUp') })
-
     if (this.AI) this.AI.init()
 
+    this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', 'red') })
+    
     console.log('init ~ this.camera', this.camera)
     console.log('create ~ this.input', this.input)
-  }
-
-
-  private createField(): void {
-    const offsetX = 75
-    const offsetY = this.hexHeight
-    const rowPadding = offsetY / 2
-    
-    for (let row = 0; row < this.rows; row++) {
-      for (let col = 0; col < this.cols; col++) {
-        const x = this.startX + (offsetX * col)
-        const y = this.startY + (offsetY * row) + (col % 2 !== 0 ? rowPadding : 0)
-        this.hexes.push(new Hex(this, x, y, row, col))
-      }
-    }
-    
-    this.createBase()
-    this.createLandscape()
-    this.createResource()
-  }
-
-
-  private createBase(): void {
-    const redBase = this.hexes.find(hex => hex.id === '2-5').setClass('base', 'red').removeFog()
-    Object.values(redBase.nearby).forEach(id => this.getHexByID(id).removeFog(true))
-
-    const blueBase = this.hexes.find(hex => hex.id === '14-5').setClass('base', 'blue').removeFog()
-    Object.values(blueBase.nearby).forEach(id => this.getHexByID(id).removeFog(true))
-
-    const playerBase = this.player.color === 'red' ? redBase : blueBase
-    this.centerCamera(playerBase.getCenter().x, playerBase.getCenter().y)
-  }
-
-
-  private createLandscape(): void {
-    const rocks = [
-      '5-4', '5-5', '6-5',
-      '10-5', '11-4', '11-5',
-      '7-1', '9-1', '7-9', '9-9'
-    ]
-    const water = this.hexes.filter(hex => hex.row === 0 || hex.row === this.rows - 1)
-    rocks.forEach(id => this.getHexByID(id).setClass('rock'))
-    water.forEach(hex => hex.setClass('water'))
-  }
-
-
-  private createResource(): void {
-    const x1 = [
-      '0-5', '1-2', '1-7', '4-4', '4-5', '4-6', '5-1', '5-9', '7-3', '7-6',
-      '16-5', '15-2', '15-7', '12-4', '12-5', '12-6', '11-1', '11-9', '9-3', '9-6',
-    ]
-    const x3 = ['8-1', '8-5', '8-10',]
-    const superHexes = ['4-8', '6-8', '8-8', '10-8', '12-8']
-    x1.forEach(id => this.getHexByID(id).setClass('x1'))
-    x3.forEach(id => this.getHexByID(id).setClass('x3'))
-    superHexes.forEach(id => this.getHexByID(id).setClass('super'))
-  }
-
-
-  private createWorld(): void {
-    this.world = this.add.tileSprite(0, 0, this.camera.getBounds().width, this.camera.getBounds().height, 'pixel').setOrigin(0).setAlpha(0.001).setInteractive({ draggable: true })
   }
 
 
@@ -181,7 +137,7 @@ export default class Game extends Phaser.Scene {
     this.input.setTopOnly(false)
     this.input.dragDistanceThreshold = 10
 
-    this.world.on('dragstart', (pointer): void => {
+    this.worldBG.on('dragstart', (pointer): void => {
       ani?.remove()
       this.camera.panEffect.reset()
 
@@ -199,7 +155,7 @@ export default class Game extends Phaser.Scene {
     })
 
 
-    this.world.on('drag', (pointer): void => {
+    this.worldBG.on('drag', (pointer): void => {
       if (!this.input.pointer2.isDown && this.dragOrZoom) {
         this.holdCounter = 0
 
@@ -225,7 +181,7 @@ export default class Game extends Phaser.Scene {
     })
 
 
-    this.world.on('dragend', (): void => {
+    this.worldBG.on('dragend', (): void => {
       if (this.holdCounter < 3) {
         ani = this.tweens.add({
           targets: this.midPoint,
@@ -272,8 +228,7 @@ export default class Game extends Phaser.Scene {
         if (this.dragOrZoom) this.dragOrZoom = false
         else if (this.twoPointerZoom) this.twoPointerZoom = false
         else {
-          this.chosenHex = hex
-          // console.log('hex.on ~ this.chosenHex', this.chosenHex)
+          // console.log('hex.on ~', hex)
           const x = hex.getCenter().x
           const y = hex.getCenter().y
           
@@ -422,7 +377,7 @@ export default class Game extends Phaser.Scene {
 
 
     const findInnerHexes = (array: Hex[]): void => {
-      if (array[0].col < this.cols - 1) {
+      if (array[0].col < this.world.cols - 1) {
         array = array.sort((a, b) => a.row - b.row)
 
         let topHex = array[0]
@@ -445,7 +400,7 @@ export default class Game extends Phaser.Scene {
 
 
     // 1. Поиск цепочек захваченых гексов
-    for (let i = 0; i < this.cols; i++) {      
+    for (let i = 0; i < this.world.cols; i++) {      
       const colHexes: Hex[] = this.hexes.filter(hex => hex.col === i && hex.color === color).sort((a, b) => a.row - b.row)
       chain = []
 
@@ -469,14 +424,14 @@ export default class Game extends Phaser.Scene {
     // 3. Проверка на замыкание внутренних незахваченных гекс
     if (innerHexes.length > 0) {
       innerHexes.forEach(arr => {
-        innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => arr.some(el => el.id === id) || this.getHexByID(id) === null || this.getHexByID(id).color === color || this.getHexByID(id).class === 'rock') && hex.col < this.cols - 1)
+        innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => arr.some(el => el.id === id) || this.getHexByID(id) === null || this.getHexByID(id).color === color || this.getHexByID(id).class === 'rock') && hex.col < this.world.cols - 1)
         if (innerHexesIsClosed) arr.forEach(hex => hex.clame(color))
       })
     }
   }
 
   private nextColHexesBetween(topHex: Hex, botHex: Hex = topHex): Hex[] {
-    if (topHex.col < this.cols - 1) {
+    if (topHex.col < this.world.cols - 1) {
       topHex = this.findTopRightHex(topHex)
       botHex = this.findBottomRightHex(botHex)
 
@@ -487,7 +442,7 @@ export default class Game extends Phaser.Scene {
           else break
         }
     
-        for (let i = botHex.row; i < this.rows - 1; i++) {
+        for (let i = botHex.row; i < this.world.rows - 1; i++) {
           const lowerHex = this.hexes.find(hex => hex.col === botHex.col && hex.row === i + 1)
           if (lowerHex.color === this.player.color) botHex = lowerHex
           else break
@@ -506,14 +461,19 @@ export default class Game extends Phaser.Scene {
 
   private findBottomRightHex(hex: Hex): Hex {
     let nextColHex = this.hexes.find(el => el.col === hex.col + 1 && el.row === hex.row)
-    if (hex.y > nextColHex.y && hex.row < this.rows - 1) nextColHex = this.hexes.find(el => el.col === hex.col + 1 && el.row === hex.row + 1)
+    if (hex.y > nextColHex.y && hex.row < this.world.rows - 1) nextColHex = this.hexes.find(el => el.col === hex.col + 1 && el.row === hex.row + 1)
     return nextColHex
   }
 
-  public getHexByID(id: string): Hex {
-    return this.hexes.find(hex => hex.id === id) || null
+  public getHexByID(id: string): Hex { return this.hexes.find(hex => hex.id === id) }
+  public playerHexes(): Hex[] { return this.hexes.filter(hex => hex?.color === this.player.color) }
+  public nearbyHexes(hex: Hex): Hex[] { if (hex) return Object.values(hex?.nearby).map(id => { if (this.isValidID(id)) return this.getHexByID(id) }) }
+  public outerPlayerHexes(): Hex[] { return this.playerHexes().filter(hex => { if (hex) return this.nearbyHexes(hex).some(el => el?.color !== this.player.color) }) }
+  public isValidID(id: string): boolean {
+    let counter = 0
+    for (let i = 0; i < id.length; i++) if (id[i] === '-') counter++
+    return counter < 2
   }
-
 
   public centerCamera(x: number, y: number, duration: number = 1500, ease: string = 'Power2'): void {
     this.camera.stopFollow()
@@ -563,20 +523,21 @@ export default class Game extends Phaser.Scene {
 
 
   public update(): void {
-    if (!this.input.pointer2.isDown && this.dragOrZoom) {
-      this.holdCounter++
-      this.physics.moveToObject(this.vector, this.midPoint, 120)
-
-      if (this.holdCounter > 10) {
-        this.vector.setPosition(this.midPoint.x, this.midPoint.y)
-        this.distanceX = 0
-        this.distanceY = 0
+    if (this.isLaunched) {
+      if (!this.input.pointer2.isDown && this.dragOrZoom) {
+        this.holdCounter++
+        this.physics.moveToObject(this.vector, this.midPoint, 120)
+  
+        if (this.holdCounter > 10) {
+          this.vector.setPosition(this.midPoint.x, this.midPoint.y)
+          this.distanceX = 0
+          this.distanceY = 0
+          this.vector.body.stop()
+        } 
+  
+      } else {
         this.vector.body.stop()
-      } 
-
-    } else {
-      this.vector.body.stop()
+      }
     }
-
   }
 }

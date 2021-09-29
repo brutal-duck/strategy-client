@@ -31,7 +31,7 @@ window.onload = (): void => {
       },
     },
     render: { transparent: true },
-    scene: [ Boot, Preload, MainMenu, Game, Hud, Modal ],
+    scene: [ Boot, Preload, Game, MainMenu, Hud, Modal ],
   }
   
   const game: Phaser.Game = new Phaser.Game(config);

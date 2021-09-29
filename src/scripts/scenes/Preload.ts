@@ -44,7 +44,7 @@ class Preload extends Phaser.Scene {
 
   public create(): void {
     this.scene.stop()
-    // this.scene.start('Game', this.state)
+    this.scene.start('Game', this.state)
     // this.scene.start('Hud', this.state)
     this.scene.start('MainMenu', this.state)
   }

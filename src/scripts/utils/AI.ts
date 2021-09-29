@@ -9,9 +9,10 @@ export default class AI {
   private side: string
   private cicle: Phaser.Time.TimerEvent
   private priority: string
-  // private tasks: boolean[]
   private paths: Hex[][]
-  private enemyBase: Hex
+  private playerBase: Hex
+  private holdCounter: number
+  private clameTry: number
 
   constructor(scene: Game) {
     this.scene = scene
@@ -20,24 +21,18 @@ export default class AI {
   public init(): void {
     this.launched = false
     this.color = this.scene.player.color === 'red' ? 'blue' : 'red'
-    console.log('init ~ this.color', this.color)
-    this.side = this.AIHexes().find(hex => hex.class === 'base').col > this.scene.cols / 2 ? 'right' : 'left'
+    this.side = this.AIHexes().find(hex => hex.class === 'base').col > this.scene.world.cols / 2 ? 'right' : 'left'
     this.paths = [[],[],[]]
-    this.enemyBase = this.scene.hexes.find(hex => hex.color === this.scene.player.color && hex.class === 'base')
-    // this.tasks = [ false, false, false ]
-    // this.path1 = []
-    // this.path2 = []
-    // this.path3 = []
-    // this.task1 = false
-    // this.task2 = false
-    // this.task3 = false
+    this.playerBase = this.scene.hexes.find(hex => hex.own === this.scene.player.color && hex.class === 'base')
+    this.holdCounter = 7
+    this.clameTry = 0
   
-    console.log('init ~ this.side', this.side)
+    // console.log('init ~ AI', this.color, this.side)
     this.priority = 'resources'
     if (!this.launched) {
       this.launched = true
       this.cicle = this.scene.time.addEvent({
-        delay: 1100,
+        delay: 3000,
         callback: (): void => { this.turn() },
         loop: true
       })
@@ -49,13 +44,18 @@ export default class AI {
     if (!this.scene.gameIsOver) {
       const resourceHexes = this.AIHexes().filter(hex => hex.class === 'x1' || hex.class === 'x3').length
       const tiles = this.scene[this.color].hexes
+      const playerHexes = this.scene.hexes.filter(hex => hex.own === this.scene.player.color).length
+      const totalCaptured = playerHexes + this.AIHexes().length
+      const AIcapturedPercent = Math.round(100 / totalCaptured * this.AIHexes().length)
 
       if (resourceHexes === 0) this.priority = 'resources'
+      else if (this.scene[this.color].hexes < 5 || AIcapturedPercent > 40 || this.priority === 'hold') this.priority = 'hold'
       else this.priority = 'expanse'
 
 
       if (this.priority === 'resources') this.getResources()
-      // else if (this.priority === 'expanse') this.expanse()
+      else if (this.priority === 'hold') this.hold()
+      else if (this.priority === 'expanse') this.expanse()
 
 
       this.paths.forEach((path, i) => { if (path.length !== 0) this.clame(i, tiles) })
@@ -63,23 +63,26 @@ export default class AI {
     }
   }
 
+
   private clame(i: number, tiles: number): void {
+    this.clameTry++
     const claming = this.scene.time.addEvent({
-      delay: 50 + (100 * i),
+      delay: 50 + (200 * i),
       callback: (): void => {
         let hex = this.paths[i][0]
-        console.log('clame ~ hex', hex.id, this.paths.map(el => el.map(hex => hex.id)))
+        // console.log('clame ~ hex', hex.id, this.paths.map(el => el.map(hex => hex.id)))
 
-        if (!hex?.clamingAni?.isPlaying() && hex?.color === this.color) {
+        if (!hex?.clamingAni?.isPlaying() && hex?.own === this.color) {
           this.paths[i].splice(0, 1)
           hex = this.paths[i][0]
         }
 
         if (
           !hex?.clamingAni?.isPlaying() &&
-          hex?.color !== this.color &&
+          hex?.own !== this.color &&
+          hex?.class !== 'base' &&
           ((hex?.own === 'neutral' && tiles > 0) || tiles > 1)
-        ) hex?.setClaming(this.color)
+        ) this.AIClame(hex)
         
         claming.remove()
       },
@@ -108,18 +111,29 @@ export default class AI {
     const outerAIHexes: Hex[] = this.outerAIHexes()
 
     for (let i = 0; i < outerAIHexes.length; i++) {
-      resourceHex = this.nearbyHexes(outerAIHexes[i]).find(hex => hex?.color !== this.color && (hex?.class === 'x1' || hex?.class === 'x3'))
+      resourceHex = this.nearbyHexes(outerAIHexes[i]).find(hex => hex?.own !== this.color && (hex?.class === 'x1' || hex?.class === 'x3'))
       if (resourceHex) {
         this.setPath([resourceHex])
         break
       }
     }
     
-    outerAIHexes.forEach(from => { distances.push({ from, to: this.enemyBase, distance: this.getDistance(from, this.enemyBase) }) })
+    outerAIHexes.forEach(from => {
+      if (!this.nearbyHexes(from).every(hex => hex.own === this.color || hex.landscape)) distances.push({ from, to: this.playerBase, distance: this.getDistance(from, this.playerBase) })
+    })
     distances.sort((a, b) => a.distance - b.distance)
-    console.log('expanse ~ distances', distances.map(el => { return { from: el.from.id, to: el.to.id, distance: el.distance } }))
+    // console.log('expanse ~ distances', distances.map(el => { return { from: el.from.id, to: el.to.id, distance: el.distance } }))
 
-    for (let i = 0; i < 3; i++) { this.setPath(this.findPath(distances[i].from, this.enemyBase, 3)) }
+    for (let i = 0; i < 1; i++) { this.setPath(this.findPath(distances[i].from, this.playerBase, 3)) }
+  }
+
+
+  private hold(): void {
+    this.holdCounter--
+    if (this.holdCounter <= 0) {
+      this.priority = 'expanse'
+      this.holdCounter = 7
+    }
   }
 
 
@@ -141,7 +155,7 @@ export default class AI {
       let col = lastHex.col
       let row = lastHex.row
 
-      if (horizontal) {
+      if (horizontal && this.clameTry < 6) {
         col = horizontal === '+' ? lastHex.col + 1 : lastHex.col - 1
         if (col === to.col) horizontal = ''
       }
@@ -152,10 +166,12 @@ export default class AI {
       }
 
       const step: Hex = this.scene.getHexByID(`${col}-${row}`)
-      if (!step.landscape) path.push(step)
+      if (step.id === lastHex.id) break
+      else if (!step.landscape) path.push(step)
       else {
         let distances: { fromNew: Hex, length: number }[] = []
-        let ways = this.nearbyHexes(lastHex).filter(hex => !hex.landscape && hex.id !== step.id)
+        let ways = this.nearbyHexes(lastHex).filter(hex => !hex.landscape && hex.id !== step.id && hex.own !== this.color)
+        // console.log('findPath ~ ways', ways.map(el => el.id))
         ways.forEach(fromNew => distances.push({ fromNew, length: this.getDistance(fromNew, to) }))
         distances.sort((a, b) => a.length - b.length)
 
@@ -170,6 +186,21 @@ export default class AI {
     return path
   }
 
+
+  private AIClame(hex: Hex): void {
+    if (hex && this.nearbyHexes(hex).some(el => el?.own === this.color)) {
+      if (hex.own === 'neutral') {
+        this.scene[this.color].hexes--
+        hex.setClaming(this.color)
+  
+      } else if (hex.own === this.scene.player.color) {
+        this.scene[this.color].hexes -= 2
+        hex.setClearClame(this.color)
+      }
+      this.clameTry = 0
+    }
+  }
+
   private setPath(path: Hex[]): void {
     for (let i = 0; i < this.paths.length; i++) {
       if (this.paths[i].length === 0) {
@@ -180,8 +211,8 @@ export default class AI {
   }
 
 
-  private AIHexes(): Hex[] { return this.scene.hexes.filter(hex => hex.color === this.color) }
-  private outerAIHexes(): Hex[] { return this.AIHexes().filter(hex => this.nearbyHexes(hex).some(el => el.color !== this.color)) }
+  private AIHexes(): Hex[] { return this.scene.hexes.filter(hex => hex.own === this.color) }
+  private outerAIHexes(): Hex[] { return this.AIHexes().filter(hex => this.nearbyHexes(hex).some(el => el.own !== this.color)) }
   private nearbyHexes(hex: Hex): Hex[] { return Object.values(hex.nearby).map(id => this.scene.getHexByID(id)) }
   private topRow(): number { return this.outerAIHexes().sort((a, b) => a.row - b.row)[0].row }
   private botRow(): number { return this.outerAIHexes().sort((a, b) => b.row - a.row)[0].row }

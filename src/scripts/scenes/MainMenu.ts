@@ -1,5 +1,6 @@
 import MainMenuBtn from "../components/buttons/MainMenuBtn"
 import langs from "../langs"
+import Game from "./Game"
 
 export default class MainMenu extends Phaser.Scene {
   constructor() {
@@ -10,11 +11,10 @@ export default class MainMenu extends Phaser.Scene {
   public lang: any
 
   private camera: Phaser.Cameras.Scene2D.BaseCamera
-  private AI: boolean
+  public gameScene: Game
 
   private title: Phaser.GameObjects.Text
   private newGame: MainMenuBtn
-
   private AIcheckBox: Phaser.GameObjects.Sprite
   private AIcheckBoxCross: Phaser.GameObjects.Sprite
   private AIcheckBoxText: Phaser.GameObjects.Text
@@ -24,10 +24,11 @@ export default class MainMenu extends Phaser.Scene {
     this.state = state
     this.lang = langs.ru
     this.camera = this.cameras.main
-    // this.AI = this.state.game.AI
+    this.gameScene = this.game.scene.getScene('Game') as Game
   }
 
   public create(): void {
+    this.add.tileSprite(0, 0, this.camera.width, this.camera.height, 'pixel').setOrigin(0).setTint(0x000000).setAlpha(0.4)
     this.title = this.add.text(this.camera.centerX, this.camera.centerY - 200, this.lang.gameName, {
       font: '40px Molot', align: 'center', color: 'white'
     }).setOrigin(0.5, 0).setStroke('black', 4)
@@ -53,16 +54,16 @@ export default class MainMenu extends Phaser.Scene {
   private matchMaking(): void {
     this.state.player.color = Phaser.Math.Between(0, 1) === 0 ? 'red' : 'blue'
     this.scene.stop()
-    this.scene.start('Game', this.state)
     this.scene.start('Hud', this.state)
+    this.gameScene.launch(this.state)
   }
 
 
   public resize(): void {
     this.title.setPosition(this.camera.centerX, this.camera.centerY - 200)
     this.newGame.setPosition(this.camera.centerX, this.title.y + 200)
-    this.AIcheckBox.setPosition(this.newGame.x - 5, this.newGame.y + 100)
-    this.AIcheckBoxText.setPosition(this.newGame.x + 5, this.AIcheckBox.y)
+    this.AIcheckBox.setPosition(this.newGame.border.x - 5, this.newGame.border.y + 100)
+    this.AIcheckBoxText.setPosition(this.newGame.border.x + 5, this.AIcheckBox.y)
     this.AIcheckBoxCross.setPosition(this.AIcheckBox.getCenter().x, this.AIcheckBox.getCenter().y)
   }
 }

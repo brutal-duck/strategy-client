@@ -6,7 +6,7 @@ let state: Istate = {
     id: '',
   },
   game: {
-    AI: true
+    AI: false
   },
   platform: ''
 };
