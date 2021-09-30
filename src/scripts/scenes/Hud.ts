@@ -88,7 +88,7 @@ export default class Hud extends Phaser.Scene {
     this.allElements.push(this.bg, this.timer.minutes, this.timer.seconds, this.timer.colon, this.menuBtn.border, this.menuBtn.mid, this.menuBtn.text)
 
     if (!this.state.game.AI) this.createColorSwitcher()
-    this.debugText = this.add.text(-26, this.camera.height + 10, '', { font: '10px Molot', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-9).setOrigin(0, 1)
+    this.debugText = this.add.text(-26, this.camera.height, '', { font: '10px Molot', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-9).setOrigin(0, 1)
   }
 
 
@@ -172,7 +172,7 @@ export default class Hud extends Phaser.Scene {
     this.warnBg.on('pointerup', (): void => {
       if (this.warnLogs.length > 0) {
         const { x, y } = this.warnLogs[this.warnLogs.length - 1]
-        this.gameScene.centerCamera(x, y, 1000)
+        this.gameScene.centerCamera(x, y, false, 1000)
         this.warnLogs.pop()
 
         if (this.warnLogs.length > 0) {
@@ -347,9 +347,11 @@ export default class Hud extends Phaser.Scene {
       height:  ${this.gameScene?.camera.height}\n
       worldView_width:  ${this.gameScene?.camera.worldView.width}\n
       worldView_height:  ${this.gameScene?.camera.worldView.height}\n
+      worldView_x:  ${this.gameScene?.camera.midPoint.x}\n
+      worldView_y:  ${this.gameScene?.camera.midPoint.y}\n
+      zoom:  ${this.gameScene?.camera.zoom}\n
       own: ${this.gameScene?.pointerHex?.own}
     `
-
 
     // worldView_height:  ${this.gameScene?.camera.worldView.height}\n
     // zoom:  ${this.gameScene?.camera.zoom}\n

@@ -119,10 +119,12 @@ export default class AI {
     }
     
     outerAIHexes.forEach(from => {
-      if (!this.nearbyHexes(from).every(hex => hex.own === this.color || hex.landscape)) distances.push({ from, to: this.playerBase, distance: this.getDistance(from, this.playerBase) })
+      if (!this.nearbyHexes(from).every(hex => hex.own === this.color || hex.landscape)) {
+        distances.push({ from, to: this.playerBase, distance: this.getDistance(from, this.playerBase) })
+      }
     })
     distances.sort((a, b) => a.distance - b.distance)
-    // console.log('expanse ~ distances', distances.map(el => { return { from: el.from.id, to: el.to.id, distance: el.distance } }))
+    console.log('expanse ~ distances', distances.map(el => { return { from: el.from.id, to: el.to.id, distance: el.distance } }))
 
     for (let i = 0; i < 1; i++) { this.setPath(this.findPath(distances[i].from, this.playerBase, 3)) }
   }
@@ -171,7 +173,6 @@ export default class AI {
       else {
         let distances: { fromNew: Hex, length: number }[] = []
         let ways = this.nearbyHexes(lastHex).filter(hex => !hex.landscape && hex.id !== step.id && hex.own !== this.color)
-        // console.log('findPath ~ ways', ways.map(el => el.id))
         ways.forEach(fromNew => distances.push({ fromNew, length: this.getDistance(fromNew, to) }))
         distances.sort((a, b) => a.length - b.length)
 
@@ -223,5 +224,17 @@ export default class AI {
     const colDist = Math.abs(a.col - b.col)
     const rowDist = Math.abs(a.row - b.row)
     return colDist + rowDist
+  }
+
+
+  public remove(): void {
+    this.launched = false
+    this.color = ''
+    this.side = ''
+    this.paths = [[],[],[]]
+    this.playerBase = null
+    this.holdCounter = 7
+    this.clameTry = 0
+    this.cicle.remove()
   }
 }

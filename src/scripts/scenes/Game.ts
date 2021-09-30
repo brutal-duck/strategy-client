@@ -27,6 +27,7 @@ export default class Game extends Phaser.Scene {
 
   public camera: Phaser.Cameras.Scene2D.Camera
   public pan: Phaser.Cameras.Scene2D.Effects.Pan
+  private flyAni: Phaser.Tweens.Tween
   public midPoint: Phaser.Physics.Arcade.Sprite
   public vector: Phaser.Physics.Arcade.Sprite
   public distanceX: number
@@ -37,13 +38,6 @@ export default class Game extends Phaser.Scene {
   public worldViewBorders: { x1: number, x2: number, y1: number, y2: number }
   public worldWidth: number
   public worldHeight: number
-
-  // public hexWidth: number
-  // public hexHeight: number
-  // private startX: number
-  // private startY: number
-  // public rows: number
-  // public cols: number
 
   private worldBG: Phaser.GameObjects.TileSprite
   public hexes: Hex[]
@@ -56,67 +50,56 @@ export default class Game extends Phaser.Scene {
   public init(state: Istate) {
     this.state = state
     this.lang = langs.ru
-    // this.isLaunched = false
-
-
-    this.red = Object.assign({}, config)
-    this.blue = Object.assign({}, config)
-    this.claming = []
+    this.hud = this.game.scene.getScene('Hud') as Hud
 
     this.worldWidth = 2048
     this.worldHeight = 2048
     this.camera = this.cameras.main
     this.camera.setBounds(0, 0, this.worldWidth, this.worldHeight)
-    this.distanceX = 0
-    this.distanceY = 0
-    this.holdCounter = 0
+    this.camera.centerOn(500, 600)
     this.scale.lockOrientation('landscape-primary')
 
     this.hexes = []
-    // this.hexWidth = 100
-    // this.hexHeight = 70
-    // this.startX = 340
-    // this.startY = 340
-    // this.rows = 12
-    // this.cols = 17
-  
+
+    new Zoom(this)
     this.debuging = true
-    if (this.state.game.AI) this.AI = new AI(this)
+
+    this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', 'red') })
   }
 
 
   public create(): void {
     this.add.sprite(0, 0, 'bg').setOrigin(0)
-    
-    this.createWorld()
-    this.world = new World(this)
+    this.worldBG = this.add.tileSprite(0, 0, this.camera.getBounds().width, this.camera.getBounds().height, 'pixel').setOrigin(0).setAlpha(0.001).setInteractive({ draggable: true })
+    this.world = new World(this, this.isLaunched)
+    this.setInput()
+    this.setEvents()
   }
 
-  private createWorld(): void {
-    this.worldBG = this.add.tileSprite(0, 0, this.camera.getBounds().width, this.camera.getBounds().height, 'pixel').setOrigin(0).setAlpha(0.001).setInteractive({ draggable: true })
-  }
 
 
   public launch(state: Istate): void {
     this.state = state
     this.isLaunched = true
     this.player = state.player
-    // this.player.color = 'red'
-    this.hud = this.game.scene.getScene('Hud') as Hud
+    this.red = Object.assign({}, config)
+    this.blue = Object.assign({}, config)
+    this.claming = []
+
+    this.distanceX = 0
+    this.distanceY = 0
+    this.holdCounter = 0
     this.twoPointerZoom = false
     this.dragOrZoom = false
     this.gameIsOver = false
-    new Zoom(this)
 
-    // this.world.createBase()
-    this.setInput()
-    this.setHexInteractive()
-    this.setEvents()
+    this.world.recreate(this.isLaunched)
 
-    if (this.AI) this.AI.init()
+    if (this.state.game.AI) {
+      this.AI = new AI(this)
+      this.AI.init()
+    }
 
-    this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', 'red') })
-    
     console.log('init ~ this.camera', this.camera)
     console.log('create ~ this.input', this.input)
   }
@@ -140,6 +123,13 @@ export default class Game extends Phaser.Scene {
     this.worldBG.on('dragstart', (pointer): void => {
       ani?.remove()
       this.camera.panEffect.reset()
+      this.camera.zoomEffect.reset()
+      this.worldViewBorders = {
+        x1: this.camera.worldView.width / 2,
+        x2: this.camera.getBounds().width - this.camera.worldView.width / 2,
+        y1: this.camera.worldView.height / 2,
+        y2: this.camera.getBounds().height - this.camera.worldView.height / 2,
+      }
 
       holdedPoint.x = pointer.x
       holdedPoint.y = pointer.y
@@ -221,7 +211,7 @@ export default class Game extends Phaser.Scene {
   }
 
 
-  private setHexInteractive(): void {
+  public setHexInteractive(): void {
     this.hexes.forEach(hex => {
       hex.on('pointerover', (): void => { this.pointerHex = hex })
       hex.on('pointerup', (): void => {
@@ -475,12 +465,51 @@ export default class Game extends Phaser.Scene {
     return counter < 2
   }
 
-  public centerCamera(x: number, y: number, duration: number = 1500, ease: string = 'Power2'): void {
+
+  public centerCamera(x: number, y: number, zoom: boolean = false, duration: number = 1500, ease: string = 'Power2'): void {
     this.camera.stopFollow()
     this.camera.panEffect.reset()
+    this.camera.zoomEffect.reset()
     this.camera.pan(x, y, duration, ease)
+    if (zoom) this.camera.zoomTo(1.6, duration, ease)
   }
 
+  public cameraFly(fly: boolean = true): void {
+    this.flyAni?.remove()
+    this.camera.stopFollow()
+    this.camera.panEffect.reset()
+    this.camera.zoomEffect.reset()
+
+    if (fly) {
+      this.centerCamera(500, 600, true, 2500, 'Quad.easeOut')
+      this.midPoint.setPosition(500, 600)
+      this.flyAni = this.tweens.add({
+        onStart: (): void => { this.camera.startFollow(this.midPoint) },
+        targets: this.midPoint,
+        x: 1600, y: 800,
+        duration: 30000,
+        delay: 3500,
+        ease: 'Quad.easeInOut',
+        onComplete: (): void => {
+          this.tweens.add({
+            targets: this.midPoint,
+            x: 1000, y: 1400,
+            duration: 30000,
+            ease: 'Quad.easeInOut',
+            onComplete: (): void => {
+              this.tweens.add({
+                targets: this.midPoint,
+                x: 500, y: 600,
+                duration: 30000,
+                ease: 'Quad.easeInOut',
+                onComplete: (): void => { this.cameraFly() }
+              })
+            }
+          })
+        }
+      })
+    }
+  }
 
   public gameOverCheck(color): void {
     const hexes = this.hexes.filter(hex => hex.color === color)
@@ -517,6 +546,8 @@ export default class Game extends Phaser.Scene {
       }
       
       const win = winner === this.player.color
+      if (this.AI) this.AI.remove()
+      this.isLaunched = false
       this.scene.launch('Modal', { state: this.state, type: 'gameOver', info: { win, winner, reason } })
     }
   }

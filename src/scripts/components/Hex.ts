@@ -10,17 +10,19 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   public col: number
   public sprite: string
 
-  public segment: string
+  public segCol: number
+  public segRow: number
   public segmentID: string
 
   public id: string
   public own: string
   public class: string // '' / base / x1 / x3 / tower / water / rock
   public color: string
+  public landscape: boolean
   public dark: boolean
   public fog: boolean
   public fogSprite: Phaser.GameObjects.Sprite
-  public landscape: boolean
+  public classText: Phaser.GameObjects.Text
   // public claming: boolean
   public clamingAni: Phaser.Tweens.Tween
   private productionTimer: Phaser.Time.TimerEvent
@@ -84,9 +86,10 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     // @ts-ignore
     const hitArea: Phaser.Geom.Polygon = new Phaser.Geom.Polygon(vectors)
     this.setDepth(1).setOrigin(0).setInteractive(hitArea, Phaser.Geom.Polygon.Contains)
-    this.fogSprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y - 6, 'hex').setAlpha(0).setScale(1.01).setDepth(this.depth + 10).setTint(0x000000)
+    this.fogSprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y - 6, 'fog').setAlpha(1).setScale(1.05, 1.12).setDepth(this.depth + 10).setTint(0x000000)
+    this.classText = this.scene.add.text(this.getCenter().x, this.getCenter().y + 10, '', { font: '17px Molot', color: 'black' }).setOrigin(0.5, 0).setDepth(10).setStroke('#ffffff', 2)
 
-    if (this.scene.debuging) this.debug()
+    // if (this.scene.debuging) this.debug()
   }
 
 
@@ -170,8 +173,9 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   }
 
 
-  public setClass(newClass?: string, color?: string): this {
+  public setClass(newClass: string, color?: string): this {
     this.class = newClass
+    this.removeProduceHexes()
 
     if (newClass === 'base') {
       this.setColor(color)
@@ -182,8 +186,18 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       this.setColor(newClass)
     }
 
-    this.scene.add.text(this.getCenter().x, this.getCenter().y + 10, newClass, { font: '17px Molot', color: 'black' }).setOrigin(0.5, 0).setDepth(10).setStroke('#ffffff', 2)
+    this.classText.setText(newClass)
+
     return this
+  }
+
+  
+  public removeClass(): void {
+    this.own = 'neutral'
+    this.color = 'neutral'
+    this.removeProduceHexes()
+    this.class = ''
+    this.classText.setText(this.class)
   }
 
   private checkVisibility(): void {
@@ -207,14 +221,26 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
   public setFog(dark: boolean = false): this {
     const alpha = dark ? 1 : 0.7
-    this.fogSprite.setAlpha(alpha)
+    if (!dark) {
+      this.scene.tweens.add({
+        targets: this.fogSprite,
+        alpha,
+        duration: 400
+      })
+    } else this.fogSprite.setAlpha(alpha)
+
     this.fog = true
+    if (dark) this.dark = true
     return this
   }
 
 
   public removeFog(layerPlus?): this {
-    this.fogSprite?.setAlpha(0)
+    this.scene.tweens.add({
+      targets: this.fogSprite,
+      alpha: 0,
+      duration: 400
+    })
     this.fog = false
 
     if (this.dark) this.dark = false
@@ -247,10 +273,6 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       else this.setTint(colors[this.class])
     } else this.setTint(colors[color])
 
-    // if (this.class === '' && color === 'neutral') 
-    // else if (this.own === 'neutral') 
-    // else this.setTint(colors[color])
-
     this.color = color
     return this
   }
@@ -260,7 +282,6 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     const output = this.class === 'x3' ? 3 : 1
     const delay = this.scene[this.own].hexProductionSpeed
 
-    this.productionTimer?.remove()
     this.productionTimer = this.scene.time.addEvent({
       delay,
       callback: (): void => {
@@ -272,9 +293,18 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     })
   }
 
+  private removeProduceHexes(): void { this.productionTimer?.remove() }
+
   private giveSuperHex(color): void {
     if (color === this.scene.player.color) new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y, '+1', 'green', 'purple')
     this.scene[color].superHex++
+  }
+
+
+  public setSegmentID(segCol: number, segRow: number): void {
+    this.segCol = segCol
+    this.segRow = segRow
+    this.segmentID = `${segCol}-${segRow}`
   }
 
 

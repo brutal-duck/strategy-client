@@ -25,10 +25,11 @@ export default class MainMenu extends Phaser.Scene {
     this.lang = langs.ru
     this.camera = this.cameras.main
     this.gameScene = this.game.scene.getScene('Game') as Game
+    this.gameScene.cameraFly()
   }
 
   public create(): void {
-    this.add.tileSprite(0, 0, this.camera.width, this.camera.height, 'pixel').setOrigin(0).setTint(0x000000).setAlpha(0.4)
+    this.add.tileSprite(0, 0, this.camera.width, this.camera.height, 'pixel').setOrigin(0).setTint(0x000000).setAlpha(0.4).setInteractive()
     this.title = this.add.text(this.camera.centerX, this.camera.centerY - 200, this.lang.gameName, {
       font: '40px Molot', align: 'center', color: 'white'
     }).setOrigin(0.5, 0).setStroke('black', 4)
@@ -38,6 +39,7 @@ export default class MainMenu extends Phaser.Scene {
 
     this.createAICheckBox()
   }
+
 
   private createAICheckBox(): void {
     this.AIcheckBox = this.add.sprite(this.newGame.x - 5, this.newGame.y + 100, 'block').setScale(0.225).setTint(0xc6ff98).setOrigin(1, 0.5).setInteractive()
@@ -53,6 +55,7 @@ export default class MainMenu extends Phaser.Scene {
 
   private matchMaking(): void {
     this.state.player.color = Phaser.Math.Between(0, 1) === 0 ? 'red' : 'blue'
+    this.gameScene.cameraFly(false)
     this.scene.stop()
     this.scene.start('Hud', this.state)
     this.gameScene.launch(this.state)

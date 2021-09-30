@@ -2,6 +2,7 @@
 const block: any = require("./../../assets/images/block-rounded.png");
 const world: any = require("./../../assets/images/world.png");
 const hex: any = require("./../../assets/images/hex.png");
+const fog: any = require("./../../assets/images/fog.png");
 const warning: any = require("./../../assets/images/warning.png");
 const blink: any = require("./../../assets/images/blink-line.png");
 const grade: any = require("./../../assets/images/grade.png");
@@ -32,6 +33,7 @@ class Preload extends Phaser.Scene {
     this.load.image('block', block)
     this.load.image('bg', world)
     this.load.image('hex', hex)
+    this.load.image('fog', fog)
     this.load.image('warning', warning)
     this.load.image('grade', grade)
     this.load.image('blink', blink)

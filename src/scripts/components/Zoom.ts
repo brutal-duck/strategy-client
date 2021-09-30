@@ -90,7 +90,9 @@ class Zoom extends Phaser.GameObjects.Sprite {
 
 
   private zooming(inOrOut: string) {
+    if (this.zoom !== this.scene.camera.zoom) this.zoom = this.scene.camera.zoom
     this.scene.dragOrZoom = true
+    this.scene.camera.zoomEffect.reset()
     const widthZoom = this.scene.camera.width / this.scene.worldWidth
     const heightZoom = this.scene.camera.height / this.scene.worldHeight
     this.minZoom = this.scene.camera.width > this.scene.camera.height ? widthZoom : heightZoom

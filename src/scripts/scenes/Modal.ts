@@ -70,7 +70,8 @@ export default class Modal extends Phaser.Scene {
     leaveBtn.border.on('pointerup', (): void => {
       this.scene.stop()
       this.gameScene.hud.scene.stop()
-      this.gameScene.scene.stop()
+      this.gameScene.world.recreate(false)
+      // this.gameScene.scene.stop()
       this.scene.start('MainMenu')
     })
   }
@@ -206,7 +207,8 @@ export default class Modal extends Phaser.Scene {
       btn.border.on('pointerup', (): void => {
         this.scene.stop()
         this.gameScene.hud.scene.stop()
-        this.gameScene.scene.stop()
+        this.gameScene.world.recreate(false)
+        // this.gameScene.scene.stop()
         this.scene.start('MainMenu', this.state)
       })
 
