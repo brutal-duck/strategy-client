@@ -122,7 +122,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
   public setClaming(color: string) {
     const bgColor = color === 'green' ? 0x95ffa4 : 0x9ffffc
-    const lineColor = color === 'green' ? 0x42e359 : 0x39e1db
+    const lineColor = color === 'green' ? 0x42e359 : 0x61c3fb
 
     const lineBg: Phaser.GameObjects.TileSprite = this.scene.add.tileSprite(this.getCenter().x, this.getCenter().y, 50, 5, 'pixel').setTint(bgColor).setDepth(this.depth + 2)
     const line: Phaser.GameObjects.TileSprite = this.scene.add.tileSprite(lineBg.getLeftCenter().x, lineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(this.depth + 2)
@@ -268,7 +268,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       super: 0xa785ff,
       water: 0x80d4ff,
       green: 0x42e359,
-      blue: 0x39e1db,
+      blue: 0x61c3fb,
     }
 
     if (color === 'neutral') {

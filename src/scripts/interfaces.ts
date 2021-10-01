@@ -4,6 +4,7 @@ interface Istate {
   platform: string
 }
 interface Iplayer {
+  name: string
   color: string
   vk_id?: string
   ok_id?: string
@@ -13,6 +14,7 @@ interface IGame {
   AI: boolean
 }
 interface Iconfig {
+  name: string
   hexes: number
   superHex: number
   hexProductionSpeed: number

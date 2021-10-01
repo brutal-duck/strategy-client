@@ -78,13 +78,14 @@ export default class Game extends Phaser.Scene {
   }
 
 
-
   public launch(state: Istate): void {
     this.state = state
     this.isLaunched = true
     this.player = state.player
     this.green = Object.assign({}, config)
     this.blue = Object.assign({}, config)
+    this.green.name = 'player1'
+    this.blue.name = 'player2'
     this.claming = []
 
     this.distanceX = 0

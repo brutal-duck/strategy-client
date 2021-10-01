@@ -34,15 +34,17 @@ export default class World {
   private sidePreset2: string[][]
   private centerPreset: string[][]
 
+  private baseIndex: number
   private greenBaseID: string
   private blueBaseID: string
+
+  private seed: string
 
   constructor(scene: Game, game: boolean) {
     this.scene = scene
     this.game = game
     this.init()
   }
-
   
   private init(): void {
     this.startX = 0
@@ -67,6 +69,8 @@ export default class World {
     this.sideSegments1 = []
     this.sideSegments2 = []
 
+    this.seed = ''
+
     this.anglePreset1 = this.getTLAnglePresets()[Phaser.Math.Between(0, this.getTLAnglePresets().length - 1)]
     this.anglePreset2 = this.getBLAnglePresets()[Phaser.Math.Between(0, this.getBLAnglePresets().length - 1)]
     this.sidePreset1 = this.getVertSidePresets()[Phaser.Math.Between(0, this.getVertSidePresets().length - 1)]
@@ -76,6 +80,7 @@ export default class World {
 
     this.greenBaseID = ''
     this.blueBaseID = ''
+
 
     this.create()
   }
@@ -149,8 +154,11 @@ export default class World {
   }
 
 
-  public recreate(game: boolean): void {
+  public recreate(game: boolean, seed?: string): void {
     this.game = game
+    this.generateSeed(seed)
+    this.parseSeed()
+
     this.anglePreset1 = this.getTLAnglePresets()[Phaser.Math.Between(0, this.getTLAnglePresets().length - 1)]
     this.anglePreset2 = this.getBLAnglePresets()[Phaser.Math.Between(0, this.getBLAnglePresets().length - 1)]
     this.sidePreset1 = this.getVertSidePresets()[Phaser.Math.Between(0, this.getVertSidePresets().length - 1)]
@@ -159,7 +167,6 @@ export default class World {
     this.spawnPresets = [ this.anglePreset1, this.anglePreset2, this.sidePreset1, this.sidePreset2 ]
     this.greenBaseID = ''
     this.blueBaseID = ''
-
     
     this.scene.hexes.forEach(hex => hex.removeClass())
     this.createWorld()
@@ -187,8 +194,48 @@ export default class World {
     }
   }
 
-  private generateSeed(): void {
+  private generateSeed(seed?: string): void {
+    if (seed) this.seed = seed
+    else {
+      this.seed = ''
+      const base = Phaser.Math.Between(0, 3)
+      const segments = [
+        [Phaser.Math.Between(0, this.getTLAnglePresets().length - 1)],
+        [Phaser.Math.Between(0, this.getBLAnglePresets().length - 1)],
+        [Phaser.Math.Between(0, this.getVertSidePresets().length - 1)],
+        [Phaser.Math.Between(0, this.getCenterPresets().length - 1)],
+        [Phaser.Math.Between(0, this.getCenterPresets().length - 1)]
+      ]
 
+      for (let i = 0; i < 5; i++) {
+        this.seed += segments[i]
+        if (base === i) this.seed += 'b'
+        if (i < 4) this.seed += '-'
+      }
+      console.log('generateSeed ~ this.seed', this.seed)
+    }
+  }
+
+  private parseSeed(): void {
+    const segments: string[] = []
+    let element = ''
+    for (let i = 0; i < this.seed.length; i++) {
+      if (this.seed[i] !== '-') element += this.seed[i]
+      else {
+        segments.push(element)
+        element = ''
+      }
+    }
+
+    if (element !== '') segments.push(element)
+    console.log('parseSeed ~ segments', segments)
+
+    segments.forEach((el, i) => {
+      if (el.indexOf('b') !== -1) {
+        this.baseIndex = i
+        el.replace('b', '')
+      }
+    })
   }
 
 

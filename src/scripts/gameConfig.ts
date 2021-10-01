@@ -1,4 +1,5 @@
 const config: Iconfig = {
+  name: '',
   hexes: 10,
   superHex: 1,
   hexProductionSpeed: 10000,

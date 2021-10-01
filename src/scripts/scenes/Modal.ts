@@ -117,7 +117,7 @@ export default class Modal extends Phaser.Scene {
     const greenLine: Phaser.GameObjects.TileSprite = this.add.tileSprite(lineBg.getLeftCenter().x, lineBg.getLeftCenter().y, greenLineWidth, 20, 'pixel').setTint(0x95ffa4).setDepth(2).setOrigin(0, 0.5).setAlpha(0)
     const blueLine: Phaser.GameObjects.TileSprite = this.add.tileSprite(lineBg.getRightCenter().x, lineBg.getRightCenter().y, blueLineWidth, 20, 'pixel').setTint(0x9ffffc).setDepth(2).setOrigin(1, 0.5).setAlpha(0)
     const greenSum: Phaser.GameObjects.Text = this.add.text(lineBg.getBottomLeft().x + 10, lineBg.getBottomLeft().y + 4, `${greenHexes}`, { font: '26px Molot', color: '#42e359' }).setAlpha(0)
-    const blueSum: Phaser.GameObjects.Text = this.add.text(lineBg.getBottomRight().x - 10, lineBg.getBottomRight().y + 4, `${blueHexes}`, { font: '26px Molot', color: '#39e1db' }).setOrigin(1, 0).setAlpha(0)
+    const blueSum: Phaser.GameObjects.Text = this.add.text(lineBg.getBottomRight().x - 10, lineBg.getBottomRight().y + 4, `${blueHexes}`, { font: '26px Molot', color: '#61c3fb' }).setOrigin(1, 0).setAlpha(0)
 
     const hex: Phaser.GameObjects.Sprite = this.add.sprite(x - 40, y, 'hex').setTint(playerColor === 'green' ? 0x95ffa4 : 0x9ffffc).setScale(0.6).setAlpha(0)
     const hexSum: Phaser.GameObjects.Text = this.add.text(hex.getCenter().x, y, `${this.gameScene[playerColor].hexes}`, {
@@ -221,7 +221,7 @@ export default class Modal extends Phaser.Scene {
             if (this.info.reason !== 'timeIsUp' && i === 1) {
               const glow: Phaser.GameObjects.Sprite = this.add.sprite(x, y, 'glow').setDepth(2).setAlpha(0)
               if (this.info.winner === 'green') glow.setPosition(greenLine.getCenter().x, greenLine.getCenter().y).setDisplaySize(greenLine.width + 2, greenLine.height + 24).setTint(0x42e359)
-              else if (this.info.winner === 'blue') glow.setPosition(blueLine.getCenter().x, blueLine.getCenter().y).setDisplaySize(blueLine.width + 2, blueLine.height + 24).setTint(0x39e1db)
+              else if (this.info.winner === 'blue') glow.setPosition(blueLine.getCenter().x, blueLine.getCenter().y).setDisplaySize(blueLine.width + 2, blueLine.height + 24).setTint(0x61c3fb)
               this.tweens.add({
                 targets: glow,
                 alpha: 1,
