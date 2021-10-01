@@ -24,11 +24,14 @@ class Preload extends Phaser.Scene {
   }
 
   public preload(): void {
-    // this.load.on('progress', (value: number): void => {
-    //   let percent: number = Math.round(value * 100);
-    //   let onePercent: number = (300) / 100;
-    //   let width: number = Math.round(percent * onePercent);
-    // });
+    const line: Phaser.GameObjects.TileSprite = this.add.tileSprite(this.cameras.main.centerX - 200, this.cameras.main.centerY, 1, 20, 'pixel').setOrigin(0, 0.5).setTint(0x61ef93)
+
+    this.load.on('progress', (value: number): void => {
+      let percent: number = Math.round(value * 100);
+      let onePercent: number = 400 / 100;
+      let width: number = Math.round(percent * onePercent);
+      line.setSize(width, line.height)
+    });
 
     this.load.image('block', block)
     this.load.image('bg', world)
@@ -47,7 +50,6 @@ class Preload extends Phaser.Scene {
   public create(): void {
     this.scene.stop()
     this.scene.start('Game', this.state)
-    // this.scene.start('Hud', this.state)
     this.scene.start('MainMenu', this.state)
   }
 }

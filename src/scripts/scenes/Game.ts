@@ -22,7 +22,7 @@ export default class Game extends Phaser.Scene {
   public debuging: boolean
   private AI: AI
 
-  public red: Iconfig
+  public green: Iconfig
   public blue: Iconfig
 
   public camera: Phaser.Cameras.Scene2D.Camera
@@ -64,7 +64,8 @@ export default class Game extends Phaser.Scene {
     new Zoom(this)
     this.debuging = true
 
-    this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', 'red') })
+    // this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', 'green') })
+    this.input.keyboard.addKey('W').on('up', (): void => { this.hexes.forEach(hex => hex.removeFog()) })
   }
 
 
@@ -82,7 +83,7 @@ export default class Game extends Phaser.Scene {
     this.state = state
     this.isLaunched = true
     this.player = state.player
-    this.red = Object.assign({}, config)
+    this.green = Object.assign({}, config)
     this.blue = Object.assign({}, config)
     this.claming = []
 
@@ -414,7 +415,7 @@ export default class Game extends Phaser.Scene {
     // 3. Проверка на замыкание внутренних незахваченных гекс
     if (innerHexes.length > 0) {
       innerHexes.forEach(arr => {
-        innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => arr.some(el => el.id === id) || this.getHexByID(id) === null || this.getHexByID(id).color === color || this.getHexByID(id).class === 'rock') && hex.col < this.world.cols - 1)
+        innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => arr.some(el => el.id === id) || this.getHexByID(id) === null || this.getHexByID(id).color === color || this.getHexByID(id).landscape) && hex.col < this.world.cols - 1)
         if (innerHexesIsClosed) arr.forEach(hex => hex.clame(color))
       })
     }
@@ -467,28 +468,51 @@ export default class Game extends Phaser.Scene {
 
 
   public centerCamera(x: number, y: number, zoom: boolean = false, duration: number = 1500, ease: string = 'Power2'): void {
+    console.log('centerCamera ~ x', x)
+    // debugger
+    // this.camera.setBounds(0, 0, this.worldWidth, this.worldHeight)
+
     this.camera.stopFollow()
+    console.log('6- cameraFly ~ this.camera', this.camera.getBounds().x)
+
     this.camera.panEffect.reset()
+    console.log('7 -cameraFly ~ this.camera', this.camera.getBounds().x)
+
     this.camera.zoomEffect.reset()
+    console.log('8 cameraFly ~ this.camera', this.camera.getBounds().x)
     this.camera.pan(x, y, duration, ease)
     if (zoom) this.camera.zoomTo(1.6, duration, ease)
   }
 
   public cameraFly(fly: boolean = true): void {
+    console.log('1- cameraFly ~ this.camera', this.camera.getBounds().x)
+
     this.flyAni?.remove()
+    console.log('2 cameraFly ~ this.camera', this.camera.getBounds().x)
+
     this.camera.stopFollow()
+    console.log('3 cameraFly ~ this.camera', this.camera.getBounds().x)
+
     this.camera.panEffect.reset()
+    console.log('4 cameraFly ~ this.camera', this.camera.getBounds().x)
+
     this.camera.zoomEffect.reset()
+    console.log('5 cameraFly ~ this.camera', this.camera.getBounds().x)
+
 
     if (fly) {
-      this.centerCamera(500, 600, true, 2500, 'Quad.easeOut')
-      this.midPoint.setPosition(500, 600)
+      this.centerCamera(this.camera.worldView.width / 2, 600, true, 2500, 'Quad.easeOut')
+      // this.camera.centerOn(this.camera.worldView.width / 2, 600)
+      // console.log('cameraFly ~ this.camera', this.camera)
       this.flyAni = this.tweens.add({
-        onStart: (): void => { this.camera.startFollow(this.midPoint) },
+        onStart: (): void => {
+          this.midPoint.setPosition(Math.floor(this.camera.midPoint.x), 600)
+          this.camera.startFollow(this.midPoint)
+        },
         targets: this.midPoint,
-        x: 1600, y: 800,
+        x: this.worldWidth - this.camera.worldView.width / 2, y: 800,
         duration: 30000,
-        delay: 3500,
+        delay: 2000,
         ease: 'Quad.easeInOut',
         onComplete: (): void => {
           this.tweens.add({
@@ -499,7 +523,7 @@ export default class Game extends Phaser.Scene {
             onComplete: (): void => {
               this.tweens.add({
                 targets: this.midPoint,
-                x: 500, y: 600,
+                x: this.camera.worldView.width / 2, y: 600,
                 duration: 30000,
                 ease: 'Quad.easeInOut',
                 onComplete: (): void => { this.cameraFly() }
@@ -511,6 +535,7 @@ export default class Game extends Phaser.Scene {
     }
   }
 
+  
   public gameOverCheck(color): void {
     const hexes = this.hexes.filter(hex => hex.color === color)
 
@@ -519,7 +544,7 @@ export default class Game extends Phaser.Scene {
       this[color].hexes === 0 && this[color].superHex === 0 &&
       !hexes.some(hex => hex.class === 'x1' || hex.class === 'x3') &&
       this.claming.length === 0
-    ) this.gameOver('youOutOfHexes', color === 'red' ? 'blue' : color)
+    ) this.gameOver('youOutOfHexes', color === 'green' ? 'blue' : color)
   }
 
 
@@ -532,14 +557,14 @@ export default class Game extends Phaser.Scene {
         console.log('game over', winner, reason);
   
       } else {
-        const red = this.hexes.filter(hex => hex.color === 'red').length
+        const green = this.hexes.filter(hex => hex.color === 'green').length
         const blue = this.hexes.filter(hex => hex.color === 'blue').length
   
-        if (red === blue) {
+        if (green === blue) {
           console.log('game over tie', reason);
           winner = null
-        } else if (red > blue) {
-          console.log('game over red', reason);
+        } else if (green > blue) {
+          console.log('game over green', reason);
         } else {
           console.log('game over blue', reason);
         }
@@ -550,6 +575,18 @@ export default class Game extends Phaser.Scene {
       this.isLaunched = false
       this.scene.launch('Modal', { state: this.state, type: 'gameOver', info: { win, winner, reason } })
     }
+  }
+
+  public stopGame(): void {
+    console.log('11- cameraFly ~ this.camera', this.camera.getBounds().x)
+
+    this.hud.scene.stop()
+    console.log('12- cameraFly ~ this.camera', this.camera.getBounds().x)
+
+    this.world.recreate(false)
+    console.log('13- cameraFly ~ this.camera', this.camera.getBounds().x)
+
+    this.scene.start('MainMenu', this.state)
   }
 
 
