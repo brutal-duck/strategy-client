@@ -20,7 +20,7 @@ export default class AI {
 
   public init(): void {
     this.launched = false
-    this.color = this.scene.player.color === 'red' ? 'blue' : 'red'
+    this.color = this.scene.player.color === 'green' ? 'blue' : 'green'
     this.side = this.AIHexes().find(hex => hex.class === 'base').col > this.scene.world.cols / 2 ? 'right' : 'left'
     this.paths = [[],[],[]]
     this.playerBase = this.scene.hexes.find(hex => hex.own === this.scene.player.color && hex.class === 'base')
@@ -70,7 +70,7 @@ export default class AI {
       delay: 50 + (200 * i),
       callback: (): void => {
         let hex = this.paths[i][0]
-        // console.log('clame ~ hex', hex.id, this.paths.map(el => el.map(hex => hex.id)))
+        console.log('clame ~ hex', hex.id, this.paths.map(el => el.map(hex => hex.id)))
 
         if (!hex?.clamingAni?.isPlaying() && hex?.own === this.color) {
           this.paths[i].splice(0, 1)
@@ -98,7 +98,7 @@ export default class AI {
     distances.sort((a, b) => a.distance - b.distance)
 
     this.paths.forEach((path, i) => {
-      if (distances[i] && distances[i].distance <= 3 && path.length === 0) this.paths[i] = this.findPath(distances[i].from, distances[i].to)
+      if (distances[i] && distances[i].distance <= 4 && path.length === 0) this.paths[i] = this.findPath(distances[i].from, distances[i].to)
     })
 
     // console.log(this.paths.map(el => el.map(hex => hex.id)));
@@ -189,6 +189,7 @@ export default class AI {
 
 
   private AIClame(hex: Hex): void {
+    console.log('AIClame')
     if (hex && this.nearbyHexes(hex).some(el => el?.own === this.color)) {
       if (hex.own === 'neutral') {
         this.scene[this.color].hexes--
@@ -204,7 +205,7 @@ export default class AI {
 
   private setPath(path: Hex[]): void {
     for (let i = 0; i < this.paths.length; i++) {
-      if (this.paths[i].length === 0) {
+      if (this.paths[i].length === 0 || this.clameTry > 5) {
         this.paths[i] = path
         break
       }

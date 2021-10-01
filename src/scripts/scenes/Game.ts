@@ -22,7 +22,7 @@ export default class Game extends Phaser.Scene {
   public debuging: boolean
   private AI: AI
 
-  public red: Iconfig
+  public green: Iconfig
   public blue: Iconfig
 
   public camera: Phaser.Cameras.Scene2D.Camera
@@ -64,7 +64,8 @@ export default class Game extends Phaser.Scene {
     new Zoom(this)
     this.debuging = true
 
-    this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', 'red') })
+    // this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', 'green') })
+    this.input.keyboard.addKey('W').on('up', (): void => { this.hexes.forEach(hex => hex.removeFog()) })
   }
 
 
@@ -82,7 +83,7 @@ export default class Game extends Phaser.Scene {
     this.state = state
     this.isLaunched = true
     this.player = state.player
-    this.red = Object.assign({}, config)
+    this.green = Object.assign({}, config)
     this.blue = Object.assign({}, config)
     this.claming = []
 
@@ -414,7 +415,10 @@ export default class Game extends Phaser.Scene {
     // 3. Проверка на замыкание внутренних незахваченных гекс
     if (innerHexes.length > 0) {
       innerHexes.forEach(arr => {
-        innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => arr.some(el => el.id === id) || this.getHexByID(id) === null || this.getHexByID(id).color === color || this.getHexByID(id).class === 'rock') && hex.col < this.world.cols - 1)
+        innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => 
+          arr.some(el => el.id === id) || this.getHexByID(id) === null ||
+          this.getHexByID(id).color === color || this.getHexByID(id).landscape
+        ) && hex.col < this.world.cols - 1)
         if (innerHexesIsClosed) arr.forEach(hex => hex.clame(color))
       })
     }
@@ -481,12 +485,15 @@ export default class Game extends Phaser.Scene {
     this.camera.zoomEffect.reset()
 
     if (fly) {
-      this.centerCamera(500, 600, true, 2500, 'Quad.easeOut')
-      this.midPoint.setPosition(500, 600)
+      const worldViewWidth = this.camera.worldView.width / 2 > 0 ? this.camera.worldView.width / 2 : 600
+      this.centerCamera(worldViewWidth + 60, 600, true, 2500, 'Quad.easeOut')
       this.flyAni = this.tweens.add({
-        onStart: (): void => { this.camera.startFollow(this.midPoint) },
+        onStart: (): void => {
+          this.midPoint.setPosition(this.camera.midPoint.x, 600)
+          this.camera.startFollow(this.midPoint)
+        },
         targets: this.midPoint,
-        x: 1600, y: 800,
+        x: this.worldWidth - worldViewWidth - 60, y: 800,
         duration: 30000,
         delay: 3500,
         ease: 'Quad.easeInOut',
@@ -499,7 +506,7 @@ export default class Game extends Phaser.Scene {
             onComplete: (): void => {
               this.tweens.add({
                 targets: this.midPoint,
-                x: 500, y: 600,
+                x: worldViewWidth + 60, y: 600,
                 duration: 30000,
                 ease: 'Quad.easeInOut',
                 onComplete: (): void => { this.cameraFly() }
@@ -511,15 +518,10 @@ export default class Game extends Phaser.Scene {
     }
   }
 
+  
   public gameOverCheck(color): void {
     const hexes = this.hexes.filter(hex => hex.color === color)
-
     if (hexes.filter(hex => hex.class === 'base').length > 1) this.gameOver('enemyBaseHasCaptured', color)
-    else if (
-      this[color].hexes === 0 && this[color].superHex === 0 &&
-      !hexes.some(hex => hex.class === 'x1' || hex.class === 'x3') &&
-      this.claming.length === 0
-    ) this.gameOver('youOutOfHexes', color === 'red' ? 'blue' : color)
   }
 
 
@@ -532,14 +534,14 @@ export default class Game extends Phaser.Scene {
         console.log('game over', winner, reason);
   
       } else {
-        const red = this.hexes.filter(hex => hex.color === 'red').length
+        const green = this.hexes.filter(hex => hex.color === 'green').length
         const blue = this.hexes.filter(hex => hex.color === 'blue').length
   
-        if (red === blue) {
+        if (green === blue) {
           console.log('game over tie', reason);
           winner = null
-        } else if (red > blue) {
-          console.log('game over red', reason);
+        } else if (green > blue) {
+          console.log('game over green', reason);
         } else {
           console.log('game over blue', reason);
         }
@@ -552,7 +554,7 @@ export default class Game extends Phaser.Scene {
     }
   }
 
-
+  
   public update(): void {
     if (this.isLaunched) {
       if (!this.input.pointer2.isDown && this.dragOrZoom) {

@@ -86,15 +86,16 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     // @ts-ignore
     const hitArea: Phaser.Geom.Polygon = new Phaser.Geom.Polygon(vectors)
     this.setDepth(1).setOrigin(0).setInteractive(hitArea, Phaser.Geom.Polygon.Contains)
-    this.fogSprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y - 6, 'fog').setAlpha(1).setScale(1.05, 1.12).setDepth(this.depth + 10).setTint(0x000000)
     this.classText = this.scene.add.text(this.getCenter().x, this.getCenter().y + 10, '', { font: '17px Molot', color: 'black' }).setOrigin(0.5, 0).setDepth(10).setStroke('#ffffff', 2)
+    this.fogSprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y - 6, 'fog').setAlpha(1).setScale(1.01).setDepth(this.depth + 10)
+    // if (this.col === 0) this.scene.add.sprite(this.x + w / 4 + 1, this.y + h / 2 - 7, 'fog').setOrigin(1, 0).setScale(this.fogSprite.scale).setDepth(this.fogSprite.depth + 1)
 
     // if (this.scene.debuging) this.debug()
   }
 
 
   public setClearClame(color: string) {
-    const lineColor = color === 'red' ? 0xD68780 : 0x909CD1
+    const lineColor = color === 'green' ? 0x95ffa4 : 0x9ffffc
     const line: Phaser.GameObjects.TileSprite = this.scene.add.tileSprite(this.getCenter().x - 25, this.getCenter().y, 50, 5, 'pixel').setOrigin(0, 0.5).setTint(lineColor).setDepth(this.depth + 2)
     // this.claming = true
     this.scene.claming.push(this.id)
@@ -108,7 +109,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.clamingAni = this.scene.tweens.add({
       targets: line,
       width: 1,
-      duration: this.scene.red.clameTime,
+      duration: this.scene.green.clameTime,
       onComplete: (): void => {
         this.productionTimer?.remove()
         line.destroy()
@@ -120,8 +121,8 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
 
   public setClaming(color: string) {
-    const bgColor = color === 'red' ? 0xD68780 : 0x909CD1
-    const lineColor = color === 'red' ? 0xD80000 : 0x3E3BD6
+    const bgColor = color === 'green' ? 0x95ffa4 : 0x9ffffc
+    const lineColor = color === 'green' ? 0x42e359 : 0x39e1db
 
     const lineBg: Phaser.GameObjects.TileSprite = this.scene.add.tileSprite(this.getCenter().x, this.getCenter().y, 50, 5, 'pixel').setTint(bgColor).setDepth(this.depth + 2)
     const line: Phaser.GameObjects.TileSprite = this.scene.add.tileSprite(lineBg.getLeftCenter().x, lineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(this.depth + 2)
@@ -132,7 +133,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.clamingAni = this.scene.tweens.add({
       targets: line,
       width: lineBg.width,
-      duration: this.scene.red.clameTime,
+      duration: this.scene.green.clameTime,
       onComplete: (): void => {
         this.clame(color)
         this.scene.multiClameCheck(color)
@@ -195,13 +196,15 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   public removeClass(): void {
     this.own = 'neutral'
     this.color = 'neutral'
+    this.landscape = false
     this.removeProduceHexes()
+    this.clamingAni?.remove()
     this.class = ''
     this.classText.setText(this.class)
   }
 
   private checkVisibility(): void {
-    const exploredGround = this.scene.hexes.filter(hex => !hex.dark)
+    const explogreenGround = this.scene.hexes.filter(hex => !hex.dark)
     const playerVisibleGround = []
     this.scene.outerPlayerHexes().forEach(outerHex => {
       if (outerHex) {
@@ -216,7 +219,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       }
     })
 
-    exploredGround.forEach(explHex => { if (playerVisibleGround.every(hex => hex?.id !== explHex?.id)) explHex?.setFog() })
+    explogreenGround.forEach(explHex => { if (playerVisibleGround.every(hex => hex?.id !== explHex?.id)) explHex?.setFog() })
   }
 
   public setFog(dark: boolean = false): this {
@@ -260,12 +263,12 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     const colors = {
       gray: 0xAAADAF,
       rock: 0x333333,
-      x1: 0x91ff96,
-      x3: 0xffdc73,
+      x1: 0xffdc73,
+      x3: 0xde9f32,
       super: 0xa785ff,
       water: 0x80d4ff,
-      red: 0xD80000,
-      blue: 0x3E3BD6,
+      green: 0x42e359,
+      blue: 0x39e1db,
     }
 
     if (color === 'neutral') {
