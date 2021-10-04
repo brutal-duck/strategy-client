@@ -13,6 +13,7 @@ export default class AI {
   private playerBase: Hex
   private holdCounter: number
   private clameTry: number
+  private lastPaths: { from: Hex, to: Hex, distance: number }[]
 
   constructor(scene: Game) {
     this.scene = scene
@@ -24,8 +25,9 @@ export default class AI {
     this.side = this.AIHexes().find(hex => hex.class === 'base').col > this.scene.world.cols / 2 ? 'right' : 'left'
     this.paths = [[],[],[]]
     this.playerBase = this.scene.hexes.find(hex => hex.own === this.scene.player.color && hex.class === 'base')
-    this.holdCounter = 7
+    this.holdCounter = 6
     this.clameTry = 0
+    this.lastPaths = []
   
     // console.log('init ~ AI', this.color, this.side)
     this.priority = 'resources'
@@ -59,7 +61,7 @@ export default class AI {
 
 
       this.paths.forEach((path, i) => { if (path.length !== 0) this.clame(i, tiles) })
-      console.log('turn ~ this.priority ', this.priority)
+      console.log('turn ~ this.priority ', this.priority, this.clameTry)
     }
   }
 
@@ -124,9 +126,11 @@ export default class AI {
       }
     })
     distances.sort((a, b) => a.distance - b.distance)
-    console.log('expanse ~ distances', distances.map(el => { return { from: el.from.id, to: el.to.id, distance: el.distance } }))
-
+    console.log('~ distances', this.lastPaths[0]?.from === distances[0].from, distances.map(el => { return { from: el.from.id, to: el.to.id, distance: el.distance } }))
+    
     for (let i = 0; i < 1; i++) { this.setPath(this.findPath(distances[i].from, this.playerBase, 3)) }
+    if (this.lastPaths[0]?.from === distances[0].from && this.lastPaths[0]?.to === distances[0].to && this.clameTry > 5) this.clameRandomHex()
+    this.lastPaths = distances
   }
 
 
@@ -134,8 +138,16 @@ export default class AI {
     this.holdCounter--
     if (this.holdCounter <= 0) {
       this.priority = 'expanse'
-      this.holdCounter = 7
+      this.holdCounter = 6
     }
+  }
+
+
+  private clameRandomHex(): void {
+    const outerHex = this.outerAIHexes()[Phaser.Math.Between(0, this.outerAIHexes().length - 1)]
+    const randomNearbyHexes = this.nearbyHexes(outerHex).filter(hex => !hex.landscape)
+    console.log('clameRandomHex ~ randomNearbyHexes', randomNearbyHexes)
+    if (randomNearbyHexes.length > 0) this.paths[0] = [randomNearbyHexes[Phaser.Math.Between(0, randomNearbyHexes.length - 1)]]
   }
 
 
@@ -177,7 +189,10 @@ export default class AI {
         distances.sort((a, b) => a.length - b.length)
 
         if (distances.length > 0) path.push(distances[0].fromNew)
-        else return []
+        else {
+          this.clameTry++
+          return []
+        }
       }
 
       if (step.id === to.id) break

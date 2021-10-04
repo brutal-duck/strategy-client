@@ -69,8 +69,9 @@ class Zoom extends Phaser.GameObjects.Sprite {
 
 
   public preUpdate(): void {
-    if (this.scene.input.pointer1.isDown && this.scene.input.pointer2.isDown) {
+    if (this.scene.input.pointer1.isDown && this.scene.input.pointer2.isDown && this.scene.isLaunched) {
       this.scene.twoPointerZoom = true
+      this.scene.draged = true
       
       const distance: number = Phaser.Math.Distance.Between(
         this.scene.input.pointer1.x,
@@ -91,7 +92,7 @@ class Zoom extends Phaser.GameObjects.Sprite {
 
   private zooming(inOrOut: string) {
     if (this.zoom !== this.scene.camera.zoom) this.zoom = this.scene.camera.zoom
-    this.scene.dragOrZoom = true
+    this.scene.zoomed = true
     this.scene.camera.zoomEffect.reset()
     const widthZoom = this.scene.camera.width / this.scene.worldWidth
     const heightZoom = this.scene.camera.height / this.scene.worldHeight

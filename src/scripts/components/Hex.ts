@@ -1,8 +1,14 @@
 import Game from "../scenes/Game";
 import FlyAwayMsg from "./FlyAwayMsg";
 
-export default class Hex extends Phaser.GameObjects.Sprite {
-  
+const greenLightStr = '#95ffa4'
+const greenLight = 0x95ffa4
+const green = 0x42e359
+const blueLightStr = '#9ffffc'
+const blueLight = 0x9ffffc
+const blue = 0x61c3fb
+
+export default class Hex extends Phaser.GameObjects.Sprite {  
   public scene: Game
   public x: number
   public y: number
@@ -19,11 +25,13 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   public class: string // '' / base / x1 / x3 / tower / water / rock
   public color: string
   public landscape: boolean
+  public haveSuper: boolean
   public super: boolean
   public dark: boolean
   public fog: boolean
   public fogSprite: Phaser.GameObjects.Sprite
   public classText: Phaser.GameObjects.Text
+  private nearbyMark: Phaser.GameObjects.Sprite
   // public claming: boolean
   public clamingAni: Phaser.Tweens.Tween
   private lineBg: Phaser.GameObjects.TileSprite
@@ -60,6 +68,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.dark = true
     // this.claming = false
     this.landscape = false
+    this.haveSuper = false
     this.super = false
     this.nearby = {
       top: `${this.col}-${this.row - 1}`,
@@ -92,6 +101,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.setDepth(1).setOrigin(0).setInteractive(hitArea, Phaser.Geom.Polygon.Contains)
     this.classText = this.scene.add.text(this.getCenter().x, this.getCenter().y + 10, '', { font: '17px Molot', color: 'black' }).setOrigin(0.5, 0).setDepth(10).setStroke('#ffffff', 2)
     this.fogSprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y - 6, 'fog').setAlpha(1).setScale(1.01).setDepth(this.depth + 10)
+    this.nearbyMark = this.scene.add.sprite(this.getCenter().x, this.getCenter().y, 'hex-border').setDepth(10).setScale(0.95).setVisible(false)
     // if (this.col === 0) this.scene.add.sprite(this.x + w / 4 + 1, this.y + h / 2 - 7, 'fog').setOrigin(1, 0).setScale(this.fogSprite.scale).setDepth(this.fogSprite.depth + 1)
 
     // if (this.scene.debuging) this.debug()
@@ -101,7 +111,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   public setClearClame(color: string, superHex: boolean = false) {
     const lineColor = color === 'green' ? 0x95ffa4 : 0x9ffffc
     this.clamingAniRemove()
-    this.line = this.scene.add.tileSprite(this.getCenter().x - 25, this.getCenter().y, 50, 5, 'pixel').setOrigin(0, 0.5).setTint(lineColor).setDepth(this.depth + 2)
+    this.line = this.scene.add.tileSprite(this.getCenter().x - 25, this.getCenter().y + 10, 50, 5, 'pixel').setOrigin(0, 0.5).setTint(lineColor).setDepth(this.depth + 2)
     this.scene.claming.push(this.id)
     // this.claming = true
 
@@ -118,6 +128,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
         this.clamingAniRemove()
         this.productionTimer?.remove()
         this.setColor('neutral')
+        this.own = 'neutral'
         this.setClaming(color, superHex)
       }
     })
@@ -129,7 +140,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     const lineColor = color === 'green' ? 0x42e359 : 0x61c3fb
     this.clamingAniRemove()
 
-    this.lineBg = this.scene.add.tileSprite(this.getCenter().x, this.getCenter().y, 50, 5, 'pixel').setTint(bgColor).setDepth(this.depth + 2)
+    this.lineBg = this.scene.add.tileSprite(this.getCenter().x, this.getCenter().y + 10, 50, 5, 'pixel').setTint(bgColor).setDepth(this.depth + 2)
     this.line = this.scene.add.tileSprite(this.lineBg.getLeftCenter().x, this.lineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(this.depth + 2)
     if (!this.scene.claming.find(id => id === this.id)) this.scene.claming.push(this.id)
     // this.claming = true
@@ -158,15 +169,20 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
 
   public clame(color: string, superHex: boolean = false) {
-    if (this?.own === 'neutral' && this.class === 'super') this.giveSuperHex(color)
+    if (this.haveSuper) {
+      this.giveSuperHex(color)
+      this.haveSuper = false
+    }
     if (!this.dark) this.setColor(color)
     if (superHex) {
       this.super = true
       this.classText.setText(this.class + ' S')
     }
-    this.own = color
 
-    if (color === this.scene.player.color) {      
+    this.own = color
+    this.setNearbyMark()
+
+    if (color === this.scene.player.color) {   
       Object.values(this.nearby).forEach(id => {
         const hex = this.scene.getHexByID(id)
         if (hex) {
@@ -179,12 +195,10 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       })
     }
 
-    
     if (this?.own !== 'neutral' && (this?.class === 'x1' || this?.class === 'x3')) this.produceHexes()
     Phaser.Utils.Array.Remove(this.scene.claming, this.id)
     this.checkVisibility()
   }
-
 
   public setClass(newClass: string, color?: string): this {
     this.class = newClass
@@ -193,12 +207,14 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     if (newClass === 'base') {
       this.setColor(color)
       this.own = color
+      this.setNearbyMark()
       this.produceHexes()
     } else {
       if (newClass === 'rock' || newClass === 'water') this.landscape = true
       if (!color) this.setColor(newClass)
     }
 
+    if (newClass === 'super') this.haveSuper = true
     this.classText.setText(newClass)
     return this
   }
@@ -208,8 +224,11 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.own = 'neutral'
     this.color = 'neutral'
     this.landscape = false
+    this.super = false
+    this.haveSuper = false
     this.produceHexesRemove()
     this.clamingAniRemove()
+    this.showNearbyMark(false)
     this.class = ''
     this.classText.setText(this.class)
   }
@@ -232,6 +251,8 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
     explogreenGround.forEach(explHex => { if (playerVisibleGround.every(hex => hex?.id !== explHex?.id)) explHex?.setFog() })
   }
+
+  
 
   public setFog(dark: boolean = false): this {
     const alpha = dark ? 1 : 0.7
@@ -291,6 +312,22 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     return this
   }
 
+  private setNearbyMark(): void {
+    this.scene.hexes.forEach(hex => {
+      hex.showNearbyMark(false)
+      hex.nearbyMark.setTint(this.scene.player?.color === 'green' ? greenLight : blueLight)
+    })
+    
+    this.scene.outerPlayerHexes().forEach(hex => {
+      this.scene.nearbyHexes(hex).forEach(nearbyHex => {
+        if (!nearbyHex.landscape && nearbyHex.own !== this.scene.player.color) nearbyHex.showNearbyMark()
+      })
+    })
+  }
+
+  public showNearbyMark(show: boolean = true): void {
+    this.nearbyMark.setVisible(show)
+  }
 
   private produceHexes(): void {
     const output = this.class === 'x3' ? 3 : 1
@@ -314,16 +351,14 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.scene[color].superHex++
   }
 
-
   public setSegmentID(segCol: number, segRow: number): void {
     this.segCol = segCol
     this.segRow = segRow
     this.segmentID = `${segCol}-${segRow}`
   }
 
-
   public debug(): void {
     // this.scene.input.enableDebug(this, 0xff00ff);
-    this.scene.add.text(this.getCenter().x, this.getCenter().y - 6, `col:  ${this.col}\nrow:  ${this.row}`, { font: '14px Molot', align: 'left', color: 'black' }).setOrigin(0.5).setDepth(10)
+    this.scene.add.text(this.getCenter().x, this.getCenter().y - 6, `col:  ${this.col}\nrow:  ${this.row}`, { font: '12px Molot', align: 'left', color: 'black' }).setOrigin(0.5).setDepth(10)
   }
 }

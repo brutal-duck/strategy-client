@@ -34,7 +34,8 @@ export default class Game extends Phaser.Scene {
   public distanceX: number
   public distanceY: number
   public holdCounter: number
-  public dragOrZoom: boolean
+  public zoomed: boolean
+  public draged: boolean
   public twoPointerZoom: boolean
   public worldViewBorders: { x1: number, x2: number, y1: number, y2: number }
   public worldWidth: number
@@ -67,6 +68,7 @@ export default class Game extends Phaser.Scene {
 
     this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', 'green') })
     this.input.keyboard.addKey('S').on('up', (): void => { this.hexes.forEach(hex => hex.removeFog()) })
+    this.input.keyboard.addKey('Z').on('up', (): void => { console.log(this.pointerHex) })
   }
 
 
@@ -94,7 +96,8 @@ export default class Game extends Phaser.Scene {
     this.distanceY = 0
     this.holdCounter = 0
     this.twoPointerZoom = false
-    this.dragOrZoom = false
+    this.draged = false
+    this.zoomed = false
     this.gameIsOver = false
 
     this.world.recreate(this.isLaunched)
@@ -147,12 +150,12 @@ export default class Game extends Phaser.Scene {
       pointerPoint.setPosition(pointer.worldX, pointer.worldY)
       
       this.camera.startFollow(this.midPoint)
-      this.dragOrZoom = true
+      this.draged = true
     })
 
 
     this.worldBG.on('drag', (pointer): void => {
-      if (!this.input.pointer2.isDown && this.dragOrZoom) {
+      if (!this.input.pointer2.isDown && (this.draged || this.zoomed)) {
         this.holdCounter = 0
 
         const diffrenceX = holdedPoint.x - pointer.x
@@ -169,7 +172,6 @@ export default class Game extends Phaser.Scene {
         
         if (diffrenceY > 0) this.distanceY += vectorStep
         else if (diffrenceY < 0) this.distanceY -= vectorStep
-
 
         this.vector.setPosition(chechBordersX(x + this.distanceX), chechBordersY(y + this.distanceY))
         this.midPoint.setPosition(chechBordersX(x), chechBordersY(y))
@@ -221,8 +223,10 @@ export default class Game extends Phaser.Scene {
     this.hexes.forEach(hex => {
       hex.on('pointerover', (): void => { this.pointerHex = hex })
       hex.on('pointerup', (): void => {
-        if (this.dragOrZoom) this.dragOrZoom = false
-        else if (this.twoPointerZoom) this.twoPointerZoom = false
+        if (this.draged) {
+          this.draged = false
+          // this.zoomed = false
+        } else if (this.twoPointerZoom) this.twoPointerZoom = false
         else {
           // console.log('hex.on ~', hex)
           const x = hex.getCenter().x
@@ -269,10 +273,9 @@ export default class Game extends Phaser.Scene {
     let innerHexes: Array<Hex[]> = []
     let innerHexesIsClosed = false
 
-
     // Пушит новые найденые гексы в массив внутренних гексов
     const pushNewInnerHexes = (nextCol: Hex[], top: Hex, bot: Hex): void => {
-      const filtered = nextCol.filter(hex => hex.row > top.row && hex.row < bot.row && hex.color !== color && !hex.landscape)
+      const filtered = nextCol.filter(hex => hex.row > top.row && hex.row < bot.row && (hex.color !== color || hex.landscape))
       const length = filtered.length
 
       for (let i = 0; i < length; i++) {
@@ -425,10 +428,9 @@ export default class Game extends Phaser.Scene {
       // console.log('multiClameCheck ~ innerHexes', innerHexes.map(arr => arr.map(hex => hex.id)))
       innerHexes.forEach(arr => {
         innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => 
-          arr.some(el => el.id === id) || this.getHexByID(id) === null ||
-          this.getHexByID(id).color === color || this.getHexByID(id).landscape
+          arr.some(el => el.id === id) || this.getHexByID(id) === null || this.getHexByID(id).own === color
         ) && hex.col < this.world.cols - 1)
-        if (innerHexesIsClosed) arr.forEach(hex => hex.clame(color))
+        if (innerHexesIsClosed) arr.forEach(hex => { if (!hex.landscape) hex.clame(color) })
       })
     }
   }
@@ -471,7 +473,7 @@ export default class Game extends Phaser.Scene {
   public getHexByID(id: string): Hex { return this.hexes.find(hex => hex.id === id) }
   public playerHexes(): Hex[] { return this.hexes.filter(hex => hex?.color === this.player.color) }
   public nearbyHexes(hex: Hex): Hex[] { if (hex) return Object.values(hex?.nearby).map(id => { if (this.isValidID(id)) return this.getHexByID(id) }) }
-  public outerPlayerHexes(): Hex[] { return this.playerHexes().filter(hex => { if (hex) return this.nearbyHexes(hex).some(el => el?.color !== this.player.color) }) }
+  public outerPlayerHexes(): Hex[] { return this.playerHexes().filter(hex => { if (hex) return this.nearbyHexes(hex).some(el => el?.own !== this.player.color) }) }
   public isValidID(id: string): boolean {
     let counter = 0
     for (let i = 0; i < id.length; i++) if (id[i] === '-') counter++
@@ -558,7 +560,7 @@ export default class Game extends Phaser.Scene {
   
   public update(): void {
     if (this.isLaunched) {
-      if (!this.input.pointer2.isDown && this.dragOrZoom) {
+      if (!this.input.pointer2.isDown && (this.draged || this.zoomed)) {
         this.holdCounter++
         this.physics.moveToObject(this.vector, this.midPoint, 120)
   

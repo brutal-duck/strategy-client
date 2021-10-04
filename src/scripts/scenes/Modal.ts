@@ -220,12 +220,11 @@ export default class Modal extends Phaser.Scene {
           onComplete: (): void => {
             if (i === 1) {
               const glow: Phaser.GameObjects.Sprite = this.add.sprite(x, y, 'glow').setDepth(2).setAlpha(0)
-              console.log('targets.forEach ~ this.info.winner', this.info.winner)
               if (this.info.winner === 'green') glow.setPosition(greenLine.getCenter().x, greenLine.getCenter().y).setDisplaySize(greenLine.width + 2, greenLine.height + 24).setTint(0x42e359)
               else if (this.info.winner === 'blue') glow.setPosition(blueLine.getCenter().x, blueLine.getCenter().y).setDisplaySize(blueLine.width + 2, blueLine.height + 24).setTint(0x61c3fb)
               this.tweens.add({
                 targets: glow,
-                alpha: 1,
+                alpha: 0.75,
                 duration: 400
               })
             }

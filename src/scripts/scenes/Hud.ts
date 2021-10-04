@@ -152,8 +152,8 @@ export default class Hud extends Phaser.Scene {
     this.player1StatusBarBg = this.add.tileSprite(this.worldStatusBar.getLeftCenter().x, this.worldStatusBar.getLeftCenter().y, 1, this.worldStatusBar.height, 'pixel').setTint(this.greenPlayerAlt).setDepth(3).setOrigin(0, 0.5).setVisible(false)
     this.player2StatusBarBg = this.add.tileSprite(this.worldStatusBar.getRightCenter().x, this.worldStatusBar.getRightCenter().y, 1, this.worldStatusBar.height, 'pixel').setTint(this.bluePlayerAlt).setDepth(3).setOrigin(1, 0.5).setVisible(false)
 
-    const greenHexes: number = this.gameScene.hexes.filter(hex => hex.own === 'green').length
-    const blueHexes: number = this.gameScene.hexes.filter(hex => hex.own === 'blue').length
+    // const greenHexes: number = this.gameScene.hexes.filter(hex => hex.own === 'green').length
+    // const blueHexes: number = this.gameScene.hexes.filter(hex => hex.own === 'blue').length
 
     // this.playerClamedHexCounter = this.add.text(this.worldStatusBar.getCenter().x - 40, this.worldStatusBar.getBottomCenter().y + 2, `${greenHexes}`, {
     //   font: '24px Molot', align: 'right', color: '#D80000'
@@ -169,7 +169,7 @@ export default class Hud extends Phaser.Scene {
 
 
   private createWarningBar(): void {
-    this.warnBg = this.add.sprite(this.worldStatusBar.getBottomRight().x - 10, this.worldStatusBar.getBottomRight().y + 10, 'block').setOrigin(1, 0).setTint(0x000000).setAlpha(0).setDisplaySize(180, 30).setInteractive()
+    this.warnBg = this.add.sprite(this.camera.width - 6, this.worldStatusBar.getBottomRight().y + 10, 'block').setOrigin(1, 0).setTint(0x000000).setAlpha(0).setDisplaySize(180, 30).setInteractive()
     this.warnIcon = this.add.sprite(this.warnBg.getLeftCenter().x + 6, this.warnBg.getLeftCenter().y, 'warning').setOrigin(0, 0.5).setScale(0.3).setAlpha(0)
     this.warnText = this.add.text(this.warnIcon.getRightCenter().x + 6, this.warnIcon.getRightCenter().y, '', {
       font: '14px Molot', color: '#d8ae1c'
@@ -305,12 +305,12 @@ export default class Hud extends Phaser.Scene {
     const greenHexes: number = this.gameScene?.hexes.filter(hex => hex.own === 'green').length
     const blueHexes: number = this.gameScene?.hexes.filter(hex => hex.own === 'blue').length
 
-    this.bg.setPosition(0, 0).setSize(this.camera.width, this.bg.height)
-    this.menuBtn.setPosition(this.camera.width - 2, 1)
+    this.bg?.setPosition(0, 0).setSize(this.camera.width, this.bg.height)
+    this.menuBtn?.setPosition(this.camera.width - 2, 1)
     this.switcher?.setPosition(this.camera.width / 2, this.camera.height)
 
-    this.player1Name.setPosition(this.camera.width / 2 - 10, 4)
-    this.player2Name.setPosition(this.camera.width / 2 + 10, 4)
+    this.player1Name?.setPosition(this.camera.width / 2 - 10, 4)
+    this.player2Name?.setPosition(this.camera.width / 2 + 10, 4)
 
     this.worldStatusBar?.setPosition(this.camera.width / 2, this.worldStatusBar.y).setSize(this.camera.width / 2.5, 20)
     this.player1StatusBar?.setPosition(this.worldStatusBar.getLeftCenter().x, this.worldStatusBar.getLeftCenter().y).setSize(this.getLineWidth(greenHexes), this.worldStatusBar.height)
@@ -318,7 +318,11 @@ export default class Hud extends Phaser.Scene {
     this.player1StatusBarBg?.setPosition(this.worldStatusBar.getLeftCenter().x, this.worldStatusBar.getLeftCenter().y).setSize(this.getLineWidth(greenHexes), this.worldStatusBar.height)
     this.player2StatusBarBg?.setPosition(this.worldStatusBar.getRightCenter().x, this.worldStatusBar.getRightCenter().y).setSize(this.getLineWidth(blueHexes), this.worldStatusBar.height)
     this.timer?.setPosition(this.worldStatusBar.getCenter().x, this.worldStatusBar.getBottomCenter().y + 2)
-
+    
+    this.warnBg.setPosition(this.camera.width - 6, this.worldStatusBar.getBottomRight().y + 10)
+    this.warnIcon.setPosition(this.warnBg.getLeftCenter().x + 6, this.warnBg.getLeftCenter().y)
+    this.warnText.setPosition(this.warnIcon.getRightCenter().x + 6, this.warnIcon.getRightCenter().y)
+    
     // this.playerClamedHexCounter?.setPosition(this.worldStatusBar.getCenter().x - 40, this.worldStatusBar.getBottomCenter().y + 2)
     // this.enemyHexCounter?.setPosition(this.worldStatusBar.getCenter().x + 40, this.worldStatusBar.getBottomCenter().y + 2)
 
@@ -361,10 +365,13 @@ export default class Hud extends Phaser.Scene {
       worldView_x:  ${this.gameScene?.camera.midPoint.x}\n
       worldView_y:  ${this.gameScene?.camera.midPoint.y}\n
       zoom:  ${this.gameScene?.camera.zoom}\n
-      own:  ${this.gameScene?.pointerHex?.own}\n
-      own:  ${this.gameScene?.pointerHex?.landscape}\n
     `
 
+    // zoomed:  ${this.gameScene?.zoomed}\n
+    // draged:  ${this.gameScene?.draged}\n
+    // twoPointerZoom:  ${this.gameScene?.twoPointerZoom}\n
+    // own:  ${this.gameScene?.pointerHex?.own}\n
+    // landscape:  ${this.gameScene?.pointerHex?.landscape}\n
     // worldView_height:  ${this.gameScene?.camera.worldView.height}\n
     // zoom:  ${this.gameScene?.camera.zoom}\n
     // rows:  ${this.gameScene?.rows}\n
