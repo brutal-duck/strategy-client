@@ -106,8 +106,8 @@ export default class Modal extends Phaser.Scene {
     const result: Phaser.GameObjects.Text = this.add.text(mid.getTopCenter().x, y, this.lang.result, { font: '20px Molot', color: 'black' }).setOrigin(0.5).setAlpha(0)
     const tilesLeft: Phaser.GameObjects.Text = this.add.text(mid.getTopCenter().x, y, this.lang.tilesLeft, { font: '20px Molot', color: 'black' }).setOrigin(0.5).setAlpha(0)
 
-    const greenHexes: number = this.gameScene?.hexes.filter(hex => hex.color === 'green').length
-    const blueHexes: number = this.gameScene?.hexes.filter(hex => hex.color === 'blue').length
+    const greenHexes: number = this.gameScene?.hexes.filter(hex => hex.own === 'green').length
+    const blueHexes: number = this.gameScene?.hexes.filter(hex => hex.own === 'blue').length
     const totalHexes = greenHexes + blueHexes
     const lineWidth = windowWidth - 40
     const greenLineWidth = lineWidth / totalHexes * greenHexes
@@ -218,8 +218,9 @@ export default class Modal extends Phaser.Scene {
           delay: delay * i,
           ease: 'Power2',
           onComplete: (): void => {
-            if (this.info.reason !== 'timeIsUp' && i === 1) {
+            if (i === 1) {
               const glow: Phaser.GameObjects.Sprite = this.add.sprite(x, y, 'glow').setDepth(2).setAlpha(0)
+              console.log('targets.forEach ~ this.info.winner', this.info.winner)
               if (this.info.winner === 'green') glow.setPosition(greenLine.getCenter().x, greenLine.getCenter().y).setDisplaySize(greenLine.width + 2, greenLine.height + 24).setTint(0x42e359)
               else if (this.info.winner === 'blue') glow.setPosition(blueLine.getCenter().x, blueLine.getCenter().y).setDisplaySize(blueLine.width + 2, blueLine.height + 24).setTint(0x61c3fb)
               this.tweens.add({
@@ -289,6 +290,7 @@ export default class Modal extends Phaser.Scene {
     this.close()
     this.gameScene.hud.scene.stop()
     this.gameScene.world.recreate(false)
+    if (this.state.game.AI) this.gameScene.AI.remove()
     this.scene.start('MainMenu', this.state)
   }
 

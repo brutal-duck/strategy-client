@@ -5,6 +5,7 @@ import { config } from "../gameConfig"
 import langs from "../langs"
 import AI from "../utils/AI"
 import World from "../utils/World"
+import WorldTest from "../utils/WorldTest"
 import Hud from "./Hud"
 
 export default class Game extends Phaser.Scene {
@@ -17,10 +18,10 @@ export default class Game extends Phaser.Scene {
   public isLaunched: boolean = false
   public player: Iplayer
   public hud: Hud
-  public world: World
+  public world: World | WorldTest
   public gameIsOver: boolean
   public debuging: boolean
-  private AI: AI
+  public AI: AI
 
   public green: Iconfig
   public blue: Iconfig
@@ -64,8 +65,8 @@ export default class Game extends Phaser.Scene {
     new Zoom(this)
     this.debuging = true
 
-    // this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', 'green') })
-    this.input.keyboard.addKey('W').on('up', (): void => { this.hexes.forEach(hex => hex.removeFog()) })
+    this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', 'green') })
+    this.input.keyboard.addKey('S').on('up', (): void => { this.hexes.forEach(hex => hex.removeFog()) })
   }
 
 
@@ -73,6 +74,7 @@ export default class Game extends Phaser.Scene {
     this.add.sprite(0, 0, 'bg').setOrigin(0)
     this.worldBG = this.add.tileSprite(0, 0, this.camera.getBounds().width, this.camera.getBounds().height, 'pixel').setOrigin(0).setAlpha(0.001).setInteractive({ draggable: true })
     this.world = new World(this, this.isLaunched)
+    // this.world = new WorldTest(this, this.isLaunched)
     this.setInput()
     this.setEvents()
   }
@@ -124,6 +126,8 @@ export default class Game extends Phaser.Scene {
 
     this.worldBG.on('dragstart', (pointer): void => {
       ani?.remove()
+      console.log('~ this.flyAni', this.flyAni.isPlaying())
+      if (this.flyAni?.isPlaying()) this.flyAni.remove()
       this.camera.panEffect.reset()
       this.camera.zoomEffect.reset()
       this.worldViewBorders = {
@@ -244,8 +248,8 @@ export default class Game extends Phaser.Scene {
                 new FlyAwayMsg(this, x, y, '-1', 'red', 'purple')
                 this[`${this.player.color}`].superHex--
   
-                if (hex.own === 'neutral') hex.setClaming(this.player.color)
-                else hex.setClearClame(this.player.color)
+                if (hex.own === 'neutral') hex.setClaming(this.player.color, true)
+                else hex.setClearClame(this.player.color, true)
 
               } else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', 'purple')
             }
@@ -376,7 +380,7 @@ export default class Game extends Phaser.Scene {
         let botHex = array[array.length - 1]
   
         // следующая колонка
-        const nextCol = this.nextColHexesBetween(topHex, botHex).sort((a, b) => a.row - b.row)  
+        const nextCol = this.nextColHexesBetween(topHex, botHex).sort((a, b) => a.row - b.row)
         const nextColCheck = nextCol.filter(hex => hex.color === color).length < 2 || nextCol.every(hex => hex.color === color) || nextCol.every(hex => hex.color !== color)
         if (nextColCheck) return
         
@@ -392,8 +396,9 @@ export default class Game extends Phaser.Scene {
 
 
     // 1. Поиск цепочек захваченых гексов
-    for (let i = 0; i < this.world.cols; i++) {      
+    for (let i = 0; i < this.world.cols; i++) {
       const colHexes: Hex[] = this.hexes.filter(hex => hex.col === i && hex.color === color).sort((a, b) => a.row - b.row)
+      // const colHexes: Hex[] = this.hexes.filter(hex => hex.col === i && (hex.color === color || hex.landscape)).sort((a, b) => a.row - b.row)
       chain = []
 
       if (colHexes.length > 1) {
@@ -411,10 +416,13 @@ export default class Game extends Phaser.Scene {
     }
     
     // 2. Поиск внутренних незахваченных гекс
+    // chains.forEach((arr, i) => { if (arr.every(hex => hex.landscape)) chains.splice(i, 1) })
     chains.forEach(arr => findInnerHexes(arr))
+    // console.log('multiClameCheck ~ chains', chains.map(arr => arr.map(hex => hex.id)))
 
     // 3. Проверка на замыкание внутренних незахваченных гекс
     if (innerHexes.length > 0) {
+      // console.log('multiClameCheck ~ innerHexes', innerHexes.map(arr => arr.map(hex => hex.id)))
       innerHexes.forEach(arr => {
         innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => 
           arr.some(el => el.id === id) || this.getHexByID(id) === null ||
@@ -531,21 +539,13 @@ export default class Game extends Phaser.Scene {
       this.gameIsOver = true
       this.hud.hide()
   
-      if (winner) {
-        console.log('game over', winner, reason);
-  
-      } else {
+      if (!winner) {
         const green = this.hexes.filter(hex => hex.color === 'green').length
         const blue = this.hexes.filter(hex => hex.color === 'blue').length
   
-        if (green === blue) {
-          console.log('game over tie', reason);
-          winner = null
-        } else if (green > blue) {
-          console.log('game over green', reason);
-        } else {
-          console.log('game over blue', reason);
-        }
+        if (green === blue) winner = null
+        else if (green > blue) winner = 'green'
+        else winner = 'blue'
       }
       
       const win = winner === this.player.color

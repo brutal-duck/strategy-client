@@ -5,7 +5,7 @@ const config: Iconfig = {
   hexProductionSpeed: 10000,
   clameTime: 2000,
   superReclameTime: 4000,
-  matchTime: 10 * 60000
+  matchTime: 1 * 60000
 }
 
 export { config }

@@ -163,7 +163,7 @@ export default class Hud extends Phaser.Scene {
     //   font: '24px Molot', align: 'left', color: '#3E3BD6'
     // }).setOrigin(0).setStroke('black', 3)
 
-    this.allElements.push(this.worldStatusBar, this.player1StatusBar, this.player2StatusBar, this.player1StatusBarBg, this.player2StatusBarBg, this.playerClamedHexCounter, this.enemyHexCounter)
+    this.allElements.push(this.player1Name, this.player2Name, this.worldStatusBar, this.player1StatusBar, this.player2StatusBar, this.player1StatusBarBg, this.player2StatusBarBg)
     this.updateWorldStatusBar()
   }
 
@@ -361,7 +361,8 @@ export default class Hud extends Phaser.Scene {
       worldView_x:  ${this.gameScene?.camera.midPoint.x}\n
       worldView_y:  ${this.gameScene?.camera.midPoint.y}\n
       zoom:  ${this.gameScene?.camera.zoom}\n
-      own: ${this.gameScene?.pointerHex?.own}
+      own:  ${this.gameScene?.pointerHex?.own}\n
+      own:  ${this.gameScene?.pointerHex?.landscape}\n
     `
 
     // worldView_height:  ${this.gameScene?.camera.worldView.height}\n

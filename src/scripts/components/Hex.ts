@@ -19,12 +19,15 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   public class: string // '' / base / x1 / x3 / tower / water / rock
   public color: string
   public landscape: boolean
+  public super: boolean
   public dark: boolean
   public fog: boolean
   public fogSprite: Phaser.GameObjects.Sprite
   public classText: Phaser.GameObjects.Text
   // public claming: boolean
   public clamingAni: Phaser.Tweens.Tween
+  private lineBg: Phaser.GameObjects.TileSprite
+  private line: Phaser.GameObjects.TileSprite
   private productionTimer: Phaser.Time.TimerEvent
   public nearby: {
     top: string
@@ -57,6 +60,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.dark = true
     // this.claming = false
     this.landscape = false
+    this.super = false
     this.nearby = {
       top: `${this.col}-${this.row - 1}`,
       topRight: this.col % 2 === 0 ? `${this.col + 1}-${this.row - 1}` : `${this.col + 1}-${this.row}`,
@@ -94,64 +98,72 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   }
 
 
-  public setClearClame(color: string) {
+  public setClearClame(color: string, superHex: boolean = false) {
     const lineColor = color === 'green' ? 0x95ffa4 : 0x9ffffc
-    const line: Phaser.GameObjects.TileSprite = this.scene.add.tileSprite(this.getCenter().x - 25, this.getCenter().y, 50, 5, 'pixel').setOrigin(0, 0.5).setTint(lineColor).setDepth(this.depth + 2)
-    // this.claming = true
+    this.clamingAniRemove()
+    this.line = this.scene.add.tileSprite(this.getCenter().x - 25, this.getCenter().y, 50, 5, 'pixel').setOrigin(0, 0.5).setTint(lineColor).setDepth(this.depth + 2)
     this.scene.claming.push(this.id)
+    // this.claming = true
 
     if (color !== this.scene.player.color) {
       new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y + 20, '', 'yellow', 'warning', 7000)
       this.scene.hud.setWarning(this.getCenter().x, this.getCenter().y, this.id)
     }
 
-    this.clamingAni?.remove()
     this.clamingAni = this.scene.tweens.add({
-      targets: line,
+      targets: this.line,
       width: 1,
-      duration: this.scene.green.clameTime,
+      duration: this.super ? this.scene.green.superReclameTime : this.scene.green.clameTime,
       onComplete: (): void => {
+        this.clamingAniRemove()
         this.productionTimer?.remove()
-        line.destroy()
         this.setColor('neutral')
-        this.setClaming(color)
+        this.setClaming(color, superHex)
       }
     })
   }
 
 
-  public setClaming(color: string) {
+  public setClaming(color: string, superHex: boolean = false) {
     const bgColor = color === 'green' ? 0x95ffa4 : 0x9ffffc
     const lineColor = color === 'green' ? 0x42e359 : 0x61c3fb
+    this.clamingAniRemove()
 
-    const lineBg: Phaser.GameObjects.TileSprite = this.scene.add.tileSprite(this.getCenter().x, this.getCenter().y, 50, 5, 'pixel').setTint(bgColor).setDepth(this.depth + 2)
-    const line: Phaser.GameObjects.TileSprite = this.scene.add.tileSprite(lineBg.getLeftCenter().x, lineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(this.depth + 2)
-    // this.claming = true
+    this.lineBg = this.scene.add.tileSprite(this.getCenter().x, this.getCenter().y, 50, 5, 'pixel').setTint(bgColor).setDepth(this.depth + 2)
+    this.line = this.scene.add.tileSprite(this.lineBg.getLeftCenter().x, this.lineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(this.depth + 2)
     if (!this.scene.claming.find(id => id === this.id)) this.scene.claming.push(this.id)
+    // this.claming = true
 
-    this.clamingAni?.remove()
     this.clamingAni = this.scene.tweens.add({
-      targets: line,
-      width: lineBg.width,
+      targets: this.line,
+      width: this.lineBg.width,
       duration: this.scene.green.clameTime,
       onComplete: (): void => {
-        this.clame(color)
+        this.clamingAniRemove()
+        this.clame(color, superHex)
         this.scene.multiClameCheck(color)
         this.scene.hud.updateWorldStatusBar()
         this.scene.gameOverCheck(color)
-
         // this.claming = false
-        lineBg.destroy()
-        line.destroy()
       }
     })
   }
 
 
-  public clame(color: string) {
-    if (this?.own === 'neutral' && this.class === 'super') this.giveSuperHex(color)
+  private clamingAniRemove(): void {
+    this.clamingAni?.remove()
+    this.line?.destroy()
+    this.lineBg?.destroy()
+  }
 
+
+  public clame(color: string, superHex: boolean = false) {
+    if (this?.own === 'neutral' && this.class === 'super') this.giveSuperHex(color)
     if (!this.dark) this.setColor(color)
+    if (superHex) {
+      this.super = true
+      this.classText.setText(this.class + ' S')
+    }
     this.own = color
 
     if (color === this.scene.player.color) {      
@@ -176,7 +188,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
   public setClass(newClass: string, color?: string): this {
     this.class = newClass
-    this.removeProduceHexes()
+    this.produceHexesRemove()
 
     if (newClass === 'base') {
       this.setColor(color)
@@ -184,11 +196,10 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       this.produceHexes()
     } else {
       if (newClass === 'rock' || newClass === 'water') this.landscape = true
-      this.setColor(newClass)
+      if (!color) this.setColor(newClass)
     }
 
     this.classText.setText(newClass)
-
     return this
   }
 
@@ -197,8 +208,8 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.own = 'neutral'
     this.color = 'neutral'
     this.landscape = false
-    this.removeProduceHexes()
-    this.clamingAni?.remove()
+    this.produceHexesRemove()
+    this.clamingAniRemove()
     this.class = ''
     this.classText.setText(this.class)
   }
@@ -266,7 +277,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       x1: 0xffdc73,
       x3: 0xde9f32,
       super: 0xa785ff,
-      water: 0x80d4ff,
+      water: 0xC6F0FF,
       green: 0x42e359,
       blue: 0x61c3fb,
     }
@@ -296,7 +307,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     })
   }
 
-  private removeProduceHexes(): void { this.productionTimer?.remove() }
+  private produceHexesRemove(): void { this.productionTimer?.remove() }
 
   private giveSuperHex(color): void {
     if (color === this.scene.player.color) new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y, '+1', 'green', 'purple')

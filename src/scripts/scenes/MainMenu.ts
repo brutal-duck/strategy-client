@@ -39,7 +39,6 @@ export default class MainMenu extends Phaser.Scene {
     this.newGame = new MainMenuBtn(this, this.camera.centerX, this.title.y + 200)
     this.newGame.border.on('pointerup', (): void => { this.matchMaking() })
 
-
     // this.debug = this.add.text(this.title.x, this.title.y, '', { font: '24px Molot', align: 'left', color: 'black' }).setOrigin(0, 1)
     this.createAICheckBox()
   }
@@ -49,7 +48,7 @@ export default class MainMenu extends Phaser.Scene {
     this.AIcheckBox = this.add.sprite(this.newGame.x - 5, this.newGame.y + 100, 'block').setScale(0.225).setTint(0xc6ff98).setOrigin(1, 0.5).setInteractive()
     this.AIcheckBoxText = this.add.text(this.newGame.x + 5, this.AIcheckBox.y, this.lang.ai, { font: '32px Molot', color: 'white' }).setOrigin(0, 0.5).setStroke('black', 3)
     this.AIcheckBoxCross = this.add.sprite(this.AIcheckBox.getCenter().x, this.AIcheckBox.getCenter().y, 'cross').setScale(0.6).setTint(0x00c441).setVisible(this.state.game.AI)
-
+    
     this.AIcheckBox.on('pointerup', (): void => {
       this.state.game.AI = !this.state.game.AI
       this.AIcheckBoxCross.setVisible(this.state.game.AI)

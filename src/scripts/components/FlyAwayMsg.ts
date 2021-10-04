@@ -40,7 +40,7 @@ export default class FlyAwayMsg {
 
   private init(): void {
     this.colors = { red: '#bc2626', yellow: '#dfe13b', green: '#5ee13b' }
-    this.tint = { green: 0x95ffa4, blue: 0x909CD1, purple: 0xb879ff }
+    this.tint = { green: 0x95ffa4, blue: 0x9ffffc, purple: 0xb879ff }
     this.create()
   }
 
