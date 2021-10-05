@@ -31,7 +31,7 @@ export default class MainMenu extends Phaser.Scene {
   }
 
   public create(): void {
-    this.add.tileSprite(0, 0, this.camera.width, this.camera.height, 'pixel').setOrigin(0).setTint(0x000000).setAlpha(0.4).setInteractive()
+    this.add.tileSprite(0, 0, this.camera.width, this.camera.height, 'pixel').setOrigin(0).setTint(0x000000).setAlpha(0.001).setInteractive()
     this.title = this.add.text(this.camera.centerX, this.camera.centerY - 200, this.lang.gameName, {
       font: '40px Molot', align: 'center', color: 'white'
     }).setOrigin(0.5, 0).setStroke('black', 4)
@@ -45,9 +45,9 @@ export default class MainMenu extends Phaser.Scene {
 
 
   private createAICheckBox(): void {
-    this.AIcheckBox = this.add.sprite(this.newGame.x - 5, this.newGame.y + 100, 'block').setScale(0.225).setTint(0xc6ff98).setOrigin(1, 0.5).setInteractive()
+    this.AIcheckBox = this.add.sprite(this.newGame.x - 5, this.newGame.y + 100, 'block').setScale(0.225).setTint(0xef8e8e).setOrigin(1, 0.5).setInteractive()
     this.AIcheckBoxText = this.add.text(this.newGame.x + 5, this.AIcheckBox.y, this.lang.ai, { font: '32px Molot', color: 'white' }).setOrigin(0, 0.5).setStroke('black', 3)
-    this.AIcheckBoxCross = this.add.sprite(this.AIcheckBox.getCenter().x, this.AIcheckBox.getCenter().y, 'cross').setScale(0.6).setTint(0x00c441).setVisible(this.state.game.AI)
+    this.AIcheckBoxCross = this.add.sprite(this.AIcheckBox.getCenter().x, this.AIcheckBox.getCenter().y, 'cross').setScale(0.6).setTint(0xc54242).setVisible(this.state.game.AI)
     
     this.AIcheckBox.on('pointerup', (): void => {
       this.state.game.AI = !this.state.game.AI
@@ -57,7 +57,7 @@ export default class MainMenu extends Phaser.Scene {
 
 
   private matchMaking(): void {
-    this.state.player.color = Phaser.Math.Between(0, 1) === 0 ? 'green' : 'blue'
+    this.state.player.color = Phaser.Math.Between(0, 1) === 0 ? 'green' : 'red'
     this.gameScene.cameraFly(false)
     this.scene.stop()
     this.scene.start('Hud', this.state)

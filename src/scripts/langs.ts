@@ -3,6 +3,7 @@ export default {
     index: 'ru',
     gameName: 'просто\nстратегия',
     map1: 'карта 1',
+    play: 'играть',
     ai: 'ИИ',
     target: 'цель',
     targetDiscr: 'Найдите и захватите столичную клетку противника',

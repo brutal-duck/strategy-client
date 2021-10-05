@@ -26,7 +26,7 @@ export default class MainMenuBtn {
   public create(): void {
     this.border = this.scene.add.sprite(this.x, this.y, 'border-1').setTint(0x909090).setScale(2).setDepth(2).setInteractive()
     this.mid = this.scene.add.tileSprite(this.border.getCenter().x, this.border.getCenter().y, this.border.getBounds().width - 8, this.border.getBounds().height - 8, 'pixel').setTint(0xc8c8c8)
-    this.text = this.scene.add.text(this.border.getCenter().x, this.border.getCenter().y, this.scene.lang.map1, { font: '24px Molot', color: 'black' }).setOrigin(0.5)
+    this.text = this.scene.add.text(this.border.getCenter().x, this.border.getCenter().y, this.scene.lang.play, { font: '24px Molot', color: 'black' }).setOrigin(0.5)
     this.elements.push(this.border, this.mid, this.text)
   }
 

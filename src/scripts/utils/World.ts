@@ -36,7 +36,7 @@ export default class World {
 
   private baseIndex: number
   private greenBaseID: string
-  private blueBaseID: string
+  private redBaseID: string
 
   private seed: string
   private parsedSeed: string[]
@@ -50,10 +50,10 @@ export default class World {
   private init(): void {
     this.startX = 0
     this.startY = 240
-    this.segmentRows = 7
-    this.segmentCols = 9
-    this.rows = this.segmentRows * 3
-    this.cols = this.segmentCols * 3
+    this.segmentRows = this.scene.segmentRows
+    this.segmentCols = this.scene.segmentCols
+    this.rows = this.scene.rows
+    this.cols = this.scene.cols
 
     this.tlSeg = []
     this.tSeg = []
@@ -82,8 +82,7 @@ export default class World {
     this.spawnPresets = [ this.anglePreset1, this.anglePreset2, this.sidePreset1, this.sidePreset2, this.centerPreset ]
 
     this.greenBaseID = ''
-    this.blueBaseID = ''
-
+    this.redBaseID = ''
 
     this.create()
   }
@@ -164,6 +163,7 @@ export default class World {
 
   public recreate(game: boolean, seed?: string): void {
     this.game = game
+    this.scene.hexes.forEach(hex => hex.removeClass())
     this.generateSeed(seed)
     this.parseSeed()
 
@@ -176,9 +176,7 @@ export default class World {
     ]
 
     this.greenBaseID = ''
-    this.blueBaseID = ''
-    
-    this.scene.hexes.forEach(hex => hex.removeClass())
+    this.redBaseID = ''
     this.createWorld()
   }
 
@@ -197,8 +195,14 @@ export default class World {
         
         if (hexClass === 'base') {
           if (this.greenBaseID === '') this.greenBaseID = hex.id
-          else if (this.blueBaseID === '') this.blueBaseID = hex.id
+          else if (this.redBaseID === '') this.redBaseID = hex.id
         } else if (hexClass !== 'spawn') hex.setClass(hexClass)
+
+        if (!this.game) {
+          if (hex.col < (this.cols - 3) / 2) hex.setWorldTexture('green')
+          else if (hex.col > (this.cols - 3) / 2) hex.setWorldTexture('red')
+          else hex.setWorldTexture(Phaser.Math.Between(0, 1) === 0 ? 'red' : 'green')
+        }
       }
     }
   }
@@ -245,7 +249,7 @@ export default class World {
       } else return el
     })
 
-    console.log('~ this.parsedSeed', this.parsedSeed)
+    // console.log('~ this.parsedSeed', this.parsedSeed)
   }
 
 
@@ -287,7 +291,7 @@ export default class World {
         ['water','water','water','water','water','water','water','water','water'],
       ],
       [
-        ['water','water','water','','','','x1','',''],
+        ['water','water','water','','','x1','','',''],
         ['water','water','water','','','','','spawn',''],
         ['water','water','water','','','','','',''],
         ['water','water','water','water','','','','x1',''],
@@ -308,9 +312,9 @@ export default class World {
         ['water','water','water','water','water','water','water','water','water'],
         ['','','','','','','','',''],
         ['','','','','','','','',''],
-        ['','','x1','','spawn','','x1','',''],
+        ['','','x1','','spawn','','x1','','water'],
         ['','','','','','','','',''],
-        ['','rock','rock','','','','','',''],
+        ['','','rock','rock','rock','rock','','','water'],
       ],
       [
         ['water','water','water','water','water','water','water','water','water'],
@@ -344,7 +348,7 @@ export default class World {
         ['water','water','','','','','','','water'],
         ['water','water','x1','','','spawn','','x1','water'],
         ['water','water','','','','','','','water'],
-        ['water','water','rock','','','','','','water'],
+        ['water','water','rock','','','','','',''],
         ['water','water','rock','rock','','','','water','water'],
       ],
     ]
@@ -356,20 +360,20 @@ export default class World {
   private getCenterPresets(): string[][][] {
     const presets = [
       [
-        ['','','','','','','water','water',''],
+        ['super','','','','','','water','water',''],
         ['','rock','','','','','','water','water'],
         ['','','','','','','','',''],
-        ['','','','','super','','','',''],
+        ['','','','','x3','','','',''],
         ['water','','','','','','','',''],
         ['water','water','','','','','','rock',''],
-        ['','water','','','','','','',''],
+        ['','water','','','','','','','super'],
       ],
       [
         ['','','','','','','','','rock'],
         ['','','','','','','','',''],
-        ['','','','rock','rock','rock','','',''],
-        ['','','','rock','rock','rock','','',''],
-        ['','','','rock','rock','rock','','',''],
+        ['','','rock','rock','x3','rock','rock','',''],
+        ['','','super','','','','super','',''],
+        ['','','rock','rock','','rock','rock','',''],
         ['','','','','','','','',''],
         ['rock','','','','','','','',''],
       ],
@@ -404,8 +408,8 @@ export default class World {
 
   public createBase(): void {
     const greenBase = this.scene.hexes.find(hex => hex.id === this.greenBaseID).setClass('base', 'green')
-    const blueBase = this.scene.hexes.find(hex => hex.id === this.blueBaseID).setClass('base', 'blue')
-    const playerBase = this.scene.player.color === 'green' ? greenBase : blueBase
+    const redBase = this.scene.hexes.find(hex => hex.id === this.redBaseID).setClass('base', 'red')
+    const playerBase = this.scene.player.color === 'green' ? greenBase : redBase
 
     playerBase.removeFog()
     Object.values(playerBase.nearby).forEach(id => this.scene.getHexByID(id).removeFog(true))

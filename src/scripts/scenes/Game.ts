@@ -24,7 +24,7 @@ export default class Game extends Phaser.Scene {
   public AI: AI
 
   public green: Iconfig
-  public blue: Iconfig
+  public red: Iconfig
 
   public camera: Phaser.Cameras.Scene2D.Camera
   public pan: Phaser.Cameras.Scene2D.Effects.Pan
@@ -40,6 +40,10 @@ export default class Game extends Phaser.Scene {
   public worldViewBorders: { x1: number, x2: number, y1: number, y2: number }
   public worldWidth: number
   public worldHeight: number
+  public segmentRows: number
+  public segmentCols: number
+  public rows: number
+  public cols: number
 
   private worldBG: Phaser.GameObjects.TileSprite
   public hexes: Hex[]
@@ -53,9 +57,15 @@ export default class Game extends Phaser.Scene {
     this.state = state
     this.lang = langs.ru
     this.hud = this.game.scene.getScene('Hud') as Hud
+    this.gameIsOver = true
 
     this.worldWidth = 2048
     this.worldHeight = 2048
+    this.segmentRows = 7
+    this.segmentCols = 9
+    this.rows = this.segmentRows * 3
+    this.cols = this.segmentCols * 3
+
     this.camera = this.cameras.main
     this.camera.setBounds(0, 0, this.worldWidth, this.worldHeight)
     this.camera.centerOn(500, 600)
@@ -87,9 +97,9 @@ export default class Game extends Phaser.Scene {
     this.isLaunched = true
     this.player = state.player
     this.green = Object.assign({}, config)
-    this.blue = Object.assign({}, config)
+    this.red = Object.assign({}, config)
     this.green.name = 'player1'
-    this.blue.name = 'player2'
+    this.red.name = 'player2'
     this.claming = []
 
     this.distanceX = 0
@@ -98,10 +108,10 @@ export default class Game extends Phaser.Scene {
     this.twoPointerZoom = false
     this.draged = false
     this.zoomed = false
-    this.gameIsOver = false
-
+    
     this.world.recreate(this.isLaunched)
-
+    this.gameIsOver = false
+    
     if (this.state.game.AI) {
       this.AI = new AI(this)
       this.AI.init()
@@ -129,7 +139,7 @@ export default class Game extends Phaser.Scene {
 
     this.worldBG.on('dragstart', (pointer): void => {
       ani?.remove()
-      console.log('~ this.flyAni', this.flyAni.isPlaying())
+      // console.log('~ this.flyAni', this.flyAni.isPlaying()) // !
       if (this.flyAni?.isPlaying()) this.flyAni.remove()
       this.camera.panEffect.reset()
       this.camera.zoomEffect.reset()
@@ -430,7 +440,10 @@ export default class Game extends Phaser.Scene {
         innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => 
           arr.some(el => el.id === id) || this.getHexByID(id) === null || this.getHexByID(id).own === color
         ) && hex.col < this.world.cols - 1)
-        if (innerHexesIsClosed) arr.forEach(hex => { if (!hex.landscape) hex.clame(color) })
+        if (innerHexesIsClosed) arr.forEach(hex => {
+          if (!hex.landscape) hex.clame(color)
+          else if (hex.class === 'rock') hex.setWorldTexture(color)
+        })
       })
     }
   }
@@ -471,7 +484,7 @@ export default class Game extends Phaser.Scene {
   }
 
   public getHexByID(id: string): Hex { return this.hexes.find(hex => hex.id === id) }
-  public playerHexes(): Hex[] { return this.hexes.filter(hex => hex?.color === this.player.color) }
+  public playerHexes(): Hex[] { return this.hexes.filter(hex => hex?.own === this.player.color) }
   public nearbyHexes(hex: Hex): Hex[] { if (hex) return Object.values(hex?.nearby).map(id => { if (this.isValidID(id)) return this.getHexByID(id) }) }
   public outerPlayerHexes(): Hex[] { return this.playerHexes().filter(hex => { if (hex) return this.nearbyHexes(hex).some(el => el?.own !== this.player.color) }) }
   public isValidID(id: string): boolean {
@@ -543,11 +556,11 @@ export default class Game extends Phaser.Scene {
   
       if (!winner) {
         const green = this.hexes.filter(hex => hex.color === 'green').length
-        const blue = this.hexes.filter(hex => hex.color === 'blue').length
+        const red = this.hexes.filter(hex => hex.color === 'red').length
   
-        if (green === blue) winner = null
-        else if (green > blue) winner = 'green'
-        else winner = 'blue'
+        if (green === red) winner = null
+        else if (green > red) winner = 'green'
+        else winner = 'red'
       }
       
       const win = winner === this.player.color

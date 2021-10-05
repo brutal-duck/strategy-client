@@ -3,6 +3,13 @@ import MatchOverBtn from "../components/buttons/MatchOverBtn"
 import langs from "../langs"
 import Game from "./Game"
 
+const greenLightStr = '#95ffa4'
+const greenLight = 0x95ffa4
+const green = 0x42e359
+const redLightStr = '#ffe595'
+const redLight = 0xffe595
+const red = 0xe3b742
+
 export default class Modal extends Phaser.Scene {
   constructor() {
     super('Modal')
@@ -107,19 +114,19 @@ export default class Modal extends Phaser.Scene {
     const tilesLeft: Phaser.GameObjects.Text = this.add.text(mid.getTopCenter().x, y, this.lang.tilesLeft, { font: '20px Molot', color: 'black' }).setOrigin(0.5).setAlpha(0)
 
     const greenHexes: number = this.gameScene?.hexes.filter(hex => hex.own === 'green').length
-    const blueHexes: number = this.gameScene?.hexes.filter(hex => hex.own === 'blue').length
-    const totalHexes = greenHexes + blueHexes
+    const redHexes: number = this.gameScene?.hexes.filter(hex => hex.own === 'red').length
+    const totalHexes = greenHexes + redHexes
     const lineWidth = windowWidth - 40
     const greenLineWidth = lineWidth / totalHexes * greenHexes
-    const blueLineWidth = lineWidth / totalHexes * blueHexes
+    const redLineWidth = lineWidth / totalHexes * redHexes
 
     const lineBg: Phaser.GameObjects.TileSprite = this.add.tileSprite(mid.getTopCenter().x, y + 40, lineWidth, 20, 'pixel').setOrigin(0.5, 0).setAlpha(0)
-    const greenLine: Phaser.GameObjects.TileSprite = this.add.tileSprite(lineBg.getLeftCenter().x, lineBg.getLeftCenter().y, greenLineWidth, 20, 'pixel').setTint(0x95ffa4).setDepth(2).setOrigin(0, 0.5).setAlpha(0)
-    const blueLine: Phaser.GameObjects.TileSprite = this.add.tileSprite(lineBg.getRightCenter().x, lineBg.getRightCenter().y, blueLineWidth, 20, 'pixel').setTint(0x9ffffc).setDepth(2).setOrigin(1, 0.5).setAlpha(0)
+    const greenLine: Phaser.GameObjects.TileSprite = this.add.tileSprite(lineBg.getLeftCenter().x, lineBg.getLeftCenter().y, greenLineWidth, 20, 'pixel').setTint(green).setDepth(2).setOrigin(0, 0.5).setAlpha(0)
+    const redLine: Phaser.GameObjects.TileSprite = this.add.tileSprite(lineBg.getRightCenter().x, lineBg.getRightCenter().y, redLineWidth, 20, 'pixel').setTint(red).setDepth(2).setOrigin(1, 0.5).setAlpha(0)
     const greenSum: Phaser.GameObjects.Text = this.add.text(lineBg.getBottomLeft().x + 10, lineBg.getBottomLeft().y + 4, `${greenHexes}`, { font: '26px Molot', color: '#42e359' }).setAlpha(0)
-    const blueSum: Phaser.GameObjects.Text = this.add.text(lineBg.getBottomRight().x - 10, lineBg.getBottomRight().y + 4, `${blueHexes}`, { font: '26px Molot', color: '#61c3fb' }).setOrigin(1, 0).setAlpha(0)
+    const redSum: Phaser.GameObjects.Text = this.add.text(lineBg.getBottomRight().x - 10, lineBg.getBottomRight().y + 4, `${redHexes}`, { font: '26px Molot', color: '#e3b742' }).setOrigin(1, 0).setAlpha(0)
 
-    const hex: Phaser.GameObjects.Sprite = this.add.sprite(x - 40, y, 'hex').setTint(playerColor === 'green' ? 0x95ffa4 : 0x9ffffc).setScale(0.6).setAlpha(0)
+    const hex: Phaser.GameObjects.Sprite = this.add.sprite(x - 40, y, 'hex').setTint(playerColor === 'green' ? green : red).setScale(0.6).setAlpha(0)
     const hexSum: Phaser.GameObjects.Text = this.add.text(hex.getCenter().x, y, `${this.gameScene[playerColor].hexes}`, {
       font: '26px Molot', color: '#BED3C0'
     }).setOrigin(0.5).setAlpha(0)
@@ -187,9 +194,9 @@ export default class Modal extends Phaser.Scene {
       result.setY(y - 75)
       lineBg.setPosition(mid.getTopCenter().x, y - 55)
       greenLine.setPosition(lineBg.getLeftCenter().x, lineBg.getLeftCenter().y)
-      blueLine.setPosition(lineBg.getRightCenter().x, lineBg.getRightCenter().y)
+      redLine.setPosition(lineBg.getRightCenter().x, lineBg.getRightCenter().y)
       greenSum.setPosition(lineBg.getBottomLeft().x + 20, lineBg.getBottomLeft().y + 15)
-      blueSum.setPosition(lineBg.getBottomRight().x - 20, lineBg.getBottomRight().y + 15)
+      redSum.setPosition(lineBg.getBottomRight().x - 20, lineBg.getBottomRight().y + 15)
       
       tilesLeft.setY(y + 30)
       hex.setY(y + 70)
@@ -202,8 +209,8 @@ export default class Modal extends Phaser.Scene {
 
       const targets = [
         [result],
-        [lineBg, greenLine, blueLine],
-        [greenSum, blueSum],
+        [lineBg, greenLine, redLine],
+        [greenSum, redSum],
         [tilesLeft],
         [hex, hexSum, purpleHex, purpleHexSum],
         btn.elements
@@ -221,7 +228,7 @@ export default class Modal extends Phaser.Scene {
             if (i === 1) {
               const glow: Phaser.GameObjects.Sprite = this.add.sprite(x, y, 'glow').setDepth(2).setAlpha(0)
               if (this.info.winner === 'green') glow.setPosition(greenLine.getCenter().x, greenLine.getCenter().y).setDisplaySize(greenLine.width + 2, greenLine.height + 24).setTint(0x42e359)
-              else if (this.info.winner === 'blue') glow.setPosition(blueLine.getCenter().x, blueLine.getCenter().y).setDisplaySize(blueLine.width + 2, blueLine.height + 24).setTint(0x61c3fb)
+              else if (this.info.winner === 'red') glow.setPosition(redLine.getCenter().x, redLine.getCenter().y).setDisplaySize(redLine.width + 2, redLine.height + 24).setTint(0x61c3fb)
               this.tweens.add({
                 targets: glow,
                 alpha: 0.75,

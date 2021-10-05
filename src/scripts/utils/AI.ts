@@ -21,7 +21,7 @@ export default class AI {
 
   public init(): void {
     this.launched = false
-    this.color = this.scene.player.color === 'green' ? 'blue' : 'green'
+    this.color = this.scene.player.color === 'green' ? 'red' : 'green'
     this.side = this.AIHexes().find(hex => hex.class === 'base').col > this.scene.world.cols / 2 ? 'right' : 'left'
     this.paths = [[],[],[]]
     this.playerBase = this.scene.hexes.find(hex => hex.own === this.scene.player.color && hex.class === 'base')

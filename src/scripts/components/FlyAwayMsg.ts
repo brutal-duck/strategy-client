@@ -13,7 +13,7 @@ export default class FlyAwayMsg {
   public msg: Phaser.GameObjects.Text
   public hex: Phaser.GameObjects.Sprite
   private colors: { red: string, yellow: string, green: string }
-  private tint: { green: number, blue: number, purple: number }
+  private tint: { green: number, red: number, purple: number }
 
   /**
    * 
@@ -40,7 +40,7 @@ export default class FlyAwayMsg {
 
   private init(): void {
     this.colors = { red: '#bc2626', yellow: '#dfe13b', green: '#5ee13b' }
-    this.tint = { green: 0x95ffa4, blue: 0x9ffffc, purple: 0xb879ff }
+    this.tint = { green: 0x95ffa4, red: 0xffe595, purple: 0xb879ff }
     this.create()
   }
 

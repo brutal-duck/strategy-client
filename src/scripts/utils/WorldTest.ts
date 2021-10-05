@@ -36,7 +36,7 @@ export default class WorldTest {
 
   private baseIndex: number
   private greenBaseID: string
-  private blueBaseID: string
+  private redBaseID: string
 
   private seed: string
 
@@ -47,7 +47,7 @@ export default class WorldTest {
   }
   
   private init(): void {
-    this.startX = 0
+    this.startX = 600
     this.startY = 600
     this.segmentRows = 4
     this.segmentCols = 3
@@ -79,7 +79,7 @@ export default class WorldTest {
     this.spawnPresets = [ this.anglePreset1, this.anglePreset2, this.sidePreset1, this.sidePreset2 ]
 
     this.greenBaseID = ''
-    this.blueBaseID = ''
+    this.redBaseID = ''
 
 
     this.create()
@@ -166,7 +166,7 @@ export default class WorldTest {
     this.centerPreset = this.getCenterPresets()[Phaser.Math.Between(0, this.getCenterPresets().length - 1)]
     this.spawnPresets = [ this.anglePreset1, this.anglePreset2, this.sidePreset1, this.sidePreset2 ]
     this.greenBaseID = ''
-    this.blueBaseID = ''
+    this.redBaseID = ''
     
     this.scene.hexes.forEach(hex => hex.removeClass())
     this.createWorld()
@@ -188,7 +188,7 @@ export default class WorldTest {
         
         if (hexClass === 'base') {
           if (this.greenBaseID === '') this.greenBaseID = hex.id
-          else if (this.blueBaseID === '') this.blueBaseID = hex.id
+          else if (this.redBaseID === '') this.redBaseID = hex.id
         } else if (hexClass !== 'spawn') hex.setClass(hexClass)
       }
     }
@@ -300,8 +300,8 @@ export default class WorldTest {
     const presets = [
       [
         ['','',''],
-        ['','',''],
-        ['','',''],
+        ['','water',''],
+        ['rock','water','rock'],
         ['','',''],
       ],
     ]
@@ -313,8 +313,8 @@ export default class WorldTest {
 
   public createBase(): void {
     const greenBase = this.scene.hexes.find(hex => hex.id === this.greenBaseID).setClass('base', 'green')
-    const blueBase = this.scene.hexes.find(hex => hex.id === this.blueBaseID).setClass('base', 'blue')
-    const playerBase = this.scene.player.color === 'green' ? greenBase : blueBase
+    const redBase = this.scene.hexes.find(hex => hex.id === this.redBaseID).setClass('base', 'red')
+    const playerBase = this.scene.player.color === 'green' ? greenBase : redBase
 
     playerBase.removeFog()
     Object.values(playerBase.nearby).forEach(id => this.scene.getHexByID(id).removeFog(true))
