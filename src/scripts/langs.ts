@@ -8,6 +8,7 @@ export default {
     target: 'цель',
     targetDiscr: 'Найдите и захватите столичную клетку противника',
     notEnought: 'недостаточно',
+    wrongPlace: 'неподходящее\nместо',
     underAtack: 'на нас напали',
     surroundBase: 'окружите столицу для захвата',
     win: 'победа',
@@ -28,6 +29,9 @@ export default {
     surrenderAndLeave: 'сдаться и выйти',
     tiles: 'плиток',
     superTiles: 'супер-плиток',
+    landTroops: 'высадить войска?',
+    yes: 'да',
+    no: 'нет'
   },
   en: {
     index: 'ru',

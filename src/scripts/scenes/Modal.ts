@@ -1,3 +1,4 @@
+import AskBtn from "../components/buttons/AskBtn"
 import MatchMenuBtn from "../components/buttons/MatchMenuBtn"
 import MatchOverBtn from "../components/buttons/MatchOverBtn"
 import langs from "../langs"
@@ -5,10 +6,10 @@ import Game from "./Game"
 
 const greenLightStr = '#95ffa4'
 const greenLight = 0x95ffa4
-const green = 0x42e359
+const green = 0x8fe06b
 const redLightStr = '#ffe595'
 const redLight = 0xffe595
-const red = 0xe3b742
+const red = 0xe4b742
 
 export default class Modal extends Phaser.Scene {
   constructor() {
@@ -47,6 +48,10 @@ export default class Modal extends Phaser.Scene {
         this.matchMenuWindow()
         break
 
+      case 'landing':
+        this.landingConfirmWindow()
+        break
+
       case 'gameOver':
         this.gameOverWindow()
         break
@@ -75,6 +80,24 @@ export default class Modal extends Phaser.Scene {
 
     const leaveBtn = new MatchMenuBtn(this, x, mid.getCenter().y + 60).setScale(1.8, 1.5).setText(this.lang.surrenderAndLeave)
     leaveBtn.border.on('pointerup', (): void => { this.stopGame() })
+  }
+
+  private landingConfirmWindow(): void {
+    const x = this.bg.getCenter().x
+    const y = this.bg.getCenter().y
+    const windowHeight = 100
+    const windowWidth = 280
+
+    const top: Phaser.GameObjects.Sprite = this.add.sprite(x, y - 100, 'side').setOrigin(0.5, 0).setFlipY(true).setDisplaySize(windowWidth, 15)
+    const mid: Phaser.GameObjects.TileSprite = this.add.tileSprite(top.getBottomCenter().x, top.getBottomCenter().y, windowWidth, windowHeight, 'pixel').setOrigin(0.5, 0)
+    const bot: Phaser.GameObjects.Sprite = this.add.sprite(mid.getBottomCenter().x, mid.getBottomCenter().y, 'side').setOrigin(0.5, 0).setDisplaySize(windowWidth, 15)
+
+    const title: Phaser.GameObjects.Text = this.add.text(x, top.getTopCenter().y + 10, this.lang.landTroops, { font: '26px Molot', color: 'black' }).setOrigin(0.5, 0).setDepth(2)
+
+    // const superHex
+
+    const no = new AskBtn(this, x - 60, title.getBottomCenter().y + 60, `${this.lang.no}`)
+    const yes = new AskBtn(this, x + 60, title.getBottomCenter().y + 60, `${this.lang.yes}`, true)
   }
 
   private gameOverWindow(): void {
@@ -227,11 +250,11 @@ export default class Modal extends Phaser.Scene {
           onComplete: (): void => {
             if (i === 1) {
               const glow: Phaser.GameObjects.Sprite = this.add.sprite(x, y, 'glow').setDepth(2).setAlpha(0)
-              if (this.info.winner === 'green') glow.setPosition(greenLine.getCenter().x, greenLine.getCenter().y).setDisplaySize(greenLine.width + 2, greenLine.height + 24).setTint(0x42e359)
-              else if (this.info.winner === 'red') glow.setPosition(redLine.getCenter().x, redLine.getCenter().y).setDisplaySize(redLine.width + 2, redLine.height + 24).setTint(0x61c3fb)
+              if (this.info.winner === 'green') glow.setPosition(greenLine.getCenter().x, greenLine.getCenter().y).setDisplaySize(greenLine.width + 2, greenLine.height + 24).setTint(green)
+              else if (this.info.winner === 'red') glow.setPosition(redLine.getCenter().x, redLine.getCenter().y).setDisplaySize(redLine.width + 2, redLine.height + 24).setTint(red)
               this.tweens.add({
                 targets: glow,
-                alpha: 0.75,
+                alpha: 1,
                 duration: 400
               })
             }
@@ -294,8 +317,9 @@ export default class Modal extends Phaser.Scene {
 
   public stopGame(): void {
     this.close()
+    this.gameScene.gameIsOn = false
     this.gameScene.hud.scene.stop()
-    this.gameScene.world.recreate(false)
+    this.gameScene.world.recreate(this.gameScene.gameIsOn)
     if (this.state.game.AI) this.gameScene.AI.remove()
     this.scene.start('MainMenu', this.state)
   }

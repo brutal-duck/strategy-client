@@ -55,6 +55,18 @@ const greenX32: any = require("./../../assets/images/landscape/green-x3-2.png");
 const baseRed: any = require("./../../assets/images/landscape/base-red.png");
 const baseGreen: any = require("./../../assets/images/landscape/base-green.png");
 
+const greenSuper1: any = require("./../../assets/images/landscape/green-super-1.png");
+const greenSuper2: any = require("./../../assets/images/landscape/green-super-2.png");
+const redSuper1: any = require("./../../assets/images/landscape/red-super-1.png");
+const redSuper2: any = require("./../../assets/images/landscape/red-super-2.png");
+const graySuper1: any = require("./../../assets/images/landscape/gray-super-1.png");
+const graySuper2: any = require("./../../assets/images/landscape/gray-super-2.png");
+const greenFort1: any = require("./../../assets/images/landscape/green-fort-1.png");
+const greenFort2: any = require("./../../assets/images/landscape/green-fort-2.png");
+const redFort1: any = require("./../../assets/images/landscape/red-fort-1.png");
+const redFort2: any = require("./../../assets/images/landscape/red-fort-2.png");
+
+
 
 
 class Preload extends Phaser.Scene {
@@ -133,6 +145,16 @@ class Preload extends Phaser.Scene {
     this.load.image('green-x3-2', greenX32)
     this.load.image('base-green', baseGreen)
     this.load.image('base-red', baseRed)
+    this.load.image('green-super-1', greenSuper1)
+    this.load.image('green-super-2', greenSuper2)
+    this.load.image('red-super-1', redSuper1)
+    this.load.image('red-super-2', redSuper2)
+    this.load.image('gray-super-1', graySuper1)
+    this.load.image('gray-super-2', graySuper2)
+    this.load.image('green-fort-1', greenFort1)
+    this.load.image('green-fort-2', greenFort2)
+    this.load.image('red-fort-1', redFort1)
+    this.load.image('red-fort-2', redFort2)
 
   }
 

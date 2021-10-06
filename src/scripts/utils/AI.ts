@@ -43,7 +43,7 @@ export default class AI {
 
 
   private turn(): void {
-    if (!this.scene.gameIsOver) {
+    if (this.scene.gameIsOn) {
       const resourceHexes = this.AIHexes().filter(hex => hex.class === 'x1' || hex.class === 'x3').length
       const tiles = this.scene[this.color].hexes
       const playerHexes = this.scene.hexes.filter(hex => hex.own === this.scene.player.color).length
@@ -72,7 +72,7 @@ export default class AI {
       delay: 50 + (200 * i),
       callback: (): void => {
         let hex = this.paths[i][0]
-        console.log('clame ~ hex', hex.id, this.paths.map(el => el.map(hex => hex.id)))
+        console.log('clame ~ hex', hex?.id, this.paths.map(el => el?.map(hex => hex?.id)))
 
         if (!hex?.clamingAni?.isPlaying() && hex?.own === this.color) {
           this.paths[i].splice(0, 1)

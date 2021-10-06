@@ -15,11 +15,11 @@ export default class Game extends Phaser.Scene {
 
   public state: Istate
   public lang: any
-  public isLaunched: boolean = false
+  // public isLaunched: boolean = false
   public player: Iplayer
   public hud: Hud
   public world: World | WorldTest
-  public gameIsOver: boolean
+  public gameIsOn: boolean = false
   public debuging: boolean
   public AI: AI
 
@@ -28,7 +28,9 @@ export default class Game extends Phaser.Scene {
 
   public camera: Phaser.Cameras.Scene2D.Camera
   public pan: Phaser.Cameras.Scene2D.Effects.Pan
-  private flyAni: Phaser.Tweens.Tween
+  private flyAni1: Phaser.Tweens.Tween
+  private flyAni2: Phaser.Tweens.Tween
+  private flyAni3: Phaser.Tweens.Tween
   public midPoint: Phaser.Physics.Arcade.Sprite
   public vector: Phaser.Physics.Arcade.Sprite
   public distanceX: number
@@ -57,7 +59,7 @@ export default class Game extends Phaser.Scene {
     this.state = state
     this.lang = langs.ru
     this.hud = this.game.scene.getScene('Hud') as Hud
-    this.gameIsOver = true
+    this.gameIsOn = false
 
     this.worldWidth = 2048
     this.worldHeight = 2048
@@ -79,14 +81,15 @@ export default class Game extends Phaser.Scene {
     this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', 'green') })
     this.input.keyboard.addKey('S').on('up', (): void => { this.hexes.forEach(hex => hex.removeFog()) })
     this.input.keyboard.addKey('Z').on('up', (): void => { console.log(this.pointerHex) })
+    this.input.keyboard.addKey('C').on('up', (): void => { this.scene.launch('Modal', { state: this.state, type: 'landing' }) })
   }
 
 
   public create(): void {
     this.add.sprite(0, 0, 'bg').setOrigin(0)
     this.worldBG = this.add.tileSprite(0, 0, this.camera.getBounds().width, this.camera.getBounds().height, 'pixel').setOrigin(0).setAlpha(0.001).setInteractive({ draggable: true })
-    this.world = new World(this, this.isLaunched)
-    // this.world = new WorldTest(this, this.isLaunched)
+    this.world = new World(this, this.gameIsOn)
+    // this.world = new WorldTest(this, this.gameIsOn)
     this.setInput()
     this.setEvents()
   }
@@ -94,7 +97,6 @@ export default class Game extends Phaser.Scene {
 
   public launch(state: Istate): void {
     this.state = state
-    this.isLaunched = true
     this.player = state.player
     this.green = Object.assign({}, config)
     this.red = Object.assign({}, config)
@@ -109,8 +111,8 @@ export default class Game extends Phaser.Scene {
     this.draged = false
     this.zoomed = false
     
-    this.world.recreate(this.isLaunched)
-    this.gameIsOver = false
+    this.gameIsOn = true
+    this.world.recreate(this.gameIsOn)
     
     if (this.state.game.AI) {
       this.AI = new AI(this)
@@ -139,8 +141,6 @@ export default class Game extends Phaser.Scene {
 
     this.worldBG.on('dragstart', (pointer): void => {
       ani?.remove()
-      // console.log('~ this.flyAni', this.flyAni.isPlaying()) // !
-      if (this.flyAni?.isPlaying()) this.flyAni.remove()
       this.camera.panEffect.reset()
       this.camera.zoomEffect.reset()
       this.worldViewBorders = {
@@ -242,35 +242,54 @@ export default class Game extends Phaser.Scene {
           const x = hex.getCenter().x
           const y = hex.getCenter().y
           
-          if (hex.own !== this.player.color && hex.class !== 'base' && !hex.landscape && !hex.clamingAni?.isPlaying()) {
+          if (
+            hex.own !== this.player.color && hex.class !== 'base' &&
+            !hex.landscape && !hex.clamingAni?.isPlaying() &&
+            this.nearbyHexes(hex).some(el => el?.own === this.player.color)
+          ) {
 
-            if (Object.values(hex.nearby).some(id => this.getHexByID(id)?.own === this.player.color)) {
-              if (hex.own === 'neutral' && this[`${this.player.color}`].hexes > 0) {
-                new FlyAwayMsg(this, x, y, '-1', 'red', this.player.color)
-                this[`${this.player.color}`].hexes--
-                hex.setClaming(this.player.color)
+            if (hex.own === 'neutral' && this[`${this.player.color}`].hexes >= hex.defence) {
+              new FlyAwayMsg(this, x, y, `-${hex.defence}`, 'red', this.player.color)
+              this[`${this.player.color}`].hexes -= hex.defence
+              hex.setClaming(this.player.color)
 
-              } else if (this[`${this.player.color}`].hexes > 1) {
-                new FlyAwayMsg(this, x, y, '-2', 'red', this.player.color)
-                this[`${this.player.color}`].hexes -= 2
-                hex.setClearClame(this.player.color)
+            } else if (this[`${this.player.color}`].hexes >= hex.defence + 1) {
+              new FlyAwayMsg(this, x, y, `-${hex.defence + 1}`, 'red', this.player.color)
+              this[`${this.player.color}`].hexes -= hex.defence + 1
+              hex.setClearClame(this.player.color)
 
-              } else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', this.player.color)
-
-            } else if (!hex.fog) {
-              if (this[`${this.player.color}`].superHex > 0) {
-                new FlyAwayMsg(this, x, y, '-1', 'red', 'purple')
-                this[`${this.player.color}`].superHex--
-  
-                if (hex.own === 'neutral') hex.setClaming(this.player.color, true)
-                else hex.setClearClame(this.player.color, true)
-
-              } else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', 'purple')
-            }
+            } else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', this.player.color)
 
             this.hud.updateHexCounter()
 
-          } else if (hex.class === 'base' && hex.color !== this.player.color) new FlyAwayMsg(this, x, y, this.lang.surroundBase, 'yellow', '', 2000)
+          } else if (
+            hex.own === this.player.color && hex.class === 'grass' && this[`${this.player.color}`].hexes >= hex.defence + 1 &&
+            !hex.clamingAni?.isPlaying() && !hex.upgradeAni?.isPlaying()
+          ) {
+            this[`${this.player.color}`].hexes -= hex.defence + 1
+            new FlyAwayMsg(this, x, y, `-${hex.defence + 1}`, 'red', this.player.color)
+            hex.upgradeDefence()
+            
+          } else if (hex.own !== this.player.color && hex.class !== 'base') {
+
+            if (this[`${this.player.color}`].superHex > 0 && !hex.clamingAni?.isPlaying()) {
+  
+              if (hex.own !== this.player.color && !hex.landscape && hex.class !== 'base' && !hex.clamingAni?.isPlaying()) {
+                new FlyAwayMsg(this, x, y, '-1', 'red', 'purple')
+                hex.removeFog()
+                this[`${this.player.color}`].superHex--
+                this.hud.updateHexCounter()
+
+                if (hex.own === 'neutral') hex.setClaming(this.player.color, true)
+                else hex.setClearClame(this.player.color, true)
+
+              } else if (hex.class !== 'base' || (hex.landscape && hex.dark)) new FlyAwayMsg(this, x, y, this.lang.wrongPlace, 'red', '', 1000)
+  
+            } else if (hex.dark || !hex.landscape) new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', 'purple')
+
+          } else if (hex.class === 'base' && !hex.dark && hex.own !== this.player.color) {
+            new FlyAwayMsg(this, x, y, this.lang.surroundBase, 'yellow', '', 2000)
+          } 
         }
       })
     })
@@ -368,17 +387,17 @@ export default class Game extends Phaser.Scene {
       let top = array[0]
       let bot = array[array.length - 1]
 
-      while (top.color !== color && array.length > 3) {
+      while (top.own !== color && array.length > 3) {
         array.shift()
         top = array[0]
       }
 
-      while (bot.color !== color && array.length > 3) {
+      while (bot.own !== color && array.length > 3) {
         array.pop()
         bot = array[array.length - 1]
       }
 
-      const nonPlayerHexes = array.filter(hex => hex.color !== color).sort((a, b) => a.row - b.row)
+      const nonPlayerHexes = array.filter(hex => hex.own !== color).sort((a, b) => a.row - b.row)
       top = array.find(hex => hex.row === nonPlayerHexes[0]?.row - 1)
       bot = array.find(hex => hex.row === nonPlayerHexes[nonPlayerHexes.length - 1]?.row + 1)
       return { top, bot }
@@ -394,7 +413,7 @@ export default class Game extends Phaser.Scene {
   
         // следующая колонка
         const nextCol = this.nextColHexesBetween(topHex, botHex).sort((a, b) => a.row - b.row)
-        const nextColCheck = nextCol.filter(hex => hex.color === color).length < 2 || nextCol.every(hex => hex.color === color) || nextCol.every(hex => hex.color !== color)
+        const nextColCheck = nextCol.filter(hex => hex.own === color).length < 2 || nextCol.every(hex => hex.own === color) || nextCol.every(hex => hex.own !== color)
         if (nextColCheck) return
         
         const { top, bot } = findTopAndBotPlayerHexes(nextCol)        
@@ -410,7 +429,7 @@ export default class Game extends Phaser.Scene {
 
     // 1. Поиск цепочек захваченых гексов
     for (let i = 0; i < this.world.cols; i++) {
-      const colHexes: Hex[] = this.hexes.filter(hex => hex.col === i && hex.color === color).sort((a, b) => a.row - b.row)
+      const colHexes: Hex[] = this.hexes.filter(hex => hex.col === i && hex.own === color).sort((a, b) => a.row - b.row)
       // const colHexes: Hex[] = this.hexes.filter(hex => hex.col === i && (hex.color === color || hex.landscape)).sort((a, b) => a.row - b.row)
       chain = []
 
@@ -441,6 +460,7 @@ export default class Game extends Phaser.Scene {
           arr.some(el => el.id === id) || this.getHexByID(id) === null || this.getHexByID(id).own === color
         ) && hex.col < this.world.cols - 1)
         if (innerHexesIsClosed) arr.forEach(hex => {
+          hex.removeFog()
           if (!hex.landscape) hex.clame(color)
           else if (hex.class === 'rock') hex.setWorldTexture(color)
         })
@@ -503,7 +523,9 @@ export default class Game extends Phaser.Scene {
   }
 
   public cameraFly(fly: boolean = true): void {
-    this.flyAni?.remove()
+    this.flyAni1?.remove()
+    this.flyAni2?.remove()
+    this.flyAni3?.remove()
     this.camera.stopFollow()
     this.camera.panEffect.reset()
     this.camera.zoomEffect.reset()
@@ -511,7 +533,7 @@ export default class Game extends Phaser.Scene {
     if (fly) {
       const worldViewWidth = this.camera.worldView.width / 2 > 0 ? this.camera.worldView.width / 2 : 600
       this.centerCamera(worldViewWidth + 60, 600, true, 2500, 'Quad.easeOut')
-      this.flyAni = this.tweens.add({
+      this.flyAni1 = this.tweens.add({
         onStart: (): void => {
           this.midPoint.setPosition(this.camera.midPoint.x, 600)
           this.camera.startFollow(this.midPoint)
@@ -522,13 +544,13 @@ export default class Game extends Phaser.Scene {
         delay: 3500,
         ease: 'Quad.easeInOut',
         onComplete: (): void => {
-          this.tweens.add({
+          this.flyAni2 = this.tweens.add({
             targets: this.midPoint,
             x: 1000, y: 1400,
             duration: 30000,
             ease: 'Quad.easeInOut',
             onComplete: (): void => {
-              this.tweens.add({
+              this.flyAni3 = this.tweens.add({
                 targets: this.midPoint,
                 x: worldViewWidth + 60, y: 600,
                 duration: 30000,
@@ -550,8 +572,8 @@ export default class Game extends Phaser.Scene {
 
 
   public gameOver(reason: string, winner?: string): void {
-    if (!this.gameIsOver) {
-      this.gameIsOver = true
+    if (this.gameIsOn) {
+      this.gameIsOn = false
       this.hud.hide()
   
       if (!winner) {
@@ -565,14 +587,13 @@ export default class Game extends Phaser.Scene {
       
       const win = winner === this.player.color
       if (this.AI) this.AI.remove()
-      this.isLaunched = false
       this.scene.launch('Modal', { state: this.state, type: 'gameOver', info: { win, winner, reason } })
     }
   }
 
   
   public update(): void {
-    if (this.isLaunched) {
+    if (this.gameIsOn) {
       if (!this.input.pointer2.isDown && (this.draged || this.zoomed)) {
         this.holdCounter++
         this.physics.moveToObject(this.vector, this.midPoint, 120)
@@ -587,6 +608,8 @@ export default class Game extends Phaser.Scene {
       } else {
         this.vector.body.stop()
       }
+
+      // if (this.flyAni?.isPlaying()) this.flyAni.remove()
     }
   }
 }

@@ -5,10 +5,10 @@ import Game from "./Game"
 
 const greenLightStr = '#95ffa4'
 const greenLight = 0x95ffa4
-const green = 0x42e359
+const green = 0x8fe06b
 const redLightStr = '#ffe595'
 const redLight = 0xffe595
-const red = 0xe3b742
+const red = 0xe4b742
 
 export default class Hud extends Phaser.Scene {
   constructor() {
@@ -88,8 +88,10 @@ export default class Hud extends Phaser.Scene {
     this.timer = new Timer(this, this.worldStatusBar.getCenter().x, this.worldStatusBar.getBottomCenter().y + 2, this.gameScene.green.matchTime)
     this.allElements.push(this.bg, this.timer.minutes, this.timer.seconds, this.timer.colon, this.menuBtn.border, this.menuBtn.mid, this.menuBtn.text)
 
+    // debug // !
     if (!this.state.game.AI) this.createColorSwitcher()
-    this.debugText = this.add.text(-26, this.camera.height, '', { font: '10px Molot', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-9).setOrigin(0, 1)
+    this.debugText = this.add.text(-26, this.camera.height, '', { font: '10px Molot', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-9).setOrigin(0, 1).setVisible(false)
+    this.input.keyboard.addKey('A').on('up', (): void => { this.debugText.setVisible(!this.debugText.visible) })
   }
 
   private createMainBar(): void {

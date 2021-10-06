@@ -196,9 +196,11 @@ export default class World {
         if (hexClass === 'base') {
           if (this.greenBaseID === '') this.greenBaseID = hex.id
           else if (this.redBaseID === '') this.redBaseID = hex.id
+          
         } else if (hexClass !== 'spawn') hex.setClass(hexClass)
 
         if (!this.game) {
+          if (hexClass === 'base') hex.class = 'base'
           if (hex.col < (this.cols - 3) / 2) hex.setWorldTexture('green')
           else if (hex.col > (this.cols - 3) / 2) hex.setWorldTexture('red')
           else hex.setWorldTexture(Phaser.Math.Between(0, 1) === 0 ? 'red' : 'green')
@@ -412,7 +414,7 @@ export default class World {
     const playerBase = this.scene.player.color === 'green' ? greenBase : redBase
 
     playerBase.removeFog()
-    Object.values(playerBase.nearby).forEach(id => this.scene.getHexByID(id).removeFog(true))
-    this.scene.centerCamera(playerBase.getCenter().x, playerBase.getCenter().y, true)
+    Object.values(playerBase.nearby).forEach(id => this.scene.getHexByID(id).removeFog())
+    this.scene.centerCamera(playerBase.getCenter().x, playerBase.getCenter().y, true, 100)
   }
 }
