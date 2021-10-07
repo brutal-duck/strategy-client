@@ -1,3 +1,4 @@
+import langs from "../langs";
 
 const block: any = require("./../../assets/images/block-rounded.png");
 const world: any = require("./../../assets/images/world.png");
@@ -68,26 +69,31 @@ const redFort2: any = require("./../../assets/images/landscape/red-fort-2.png");
 
 
 
-
 class Preload extends Phaser.Scene {
   constructor() {
     super('Preload');
   }
 
   public state: Istate
+  private lang
+  private progressText: Phaser.GameObjects.Text
 
   public init(state: Istate): void {
     this.state = state
+    this.lang = langs.ru
   }
 
   public preload(): void {
-    const line: Phaser.GameObjects.TileSprite = this.add.tileSprite(this.cameras.main.centerX - 200, this.cameras.main.centerY, 1, 20, 'pixel').setOrigin(0, 0.5).setTint(0x61ef93)
-
+    const lineLength = this.cameras.main.width
+    const line: Phaser.GameObjects.TileSprite = this.add.tileSprite(0, this.cameras.main.height, 1, 20, 'pixel').setOrigin(0, 1).setTint(0x61ef93)
+    this.progressText = this.add.text(this.cameras.main.width / 2, line.getTopCenter().y, this.lang.loadTextures, { font: '16px Molot', color: '#61ef93' }).setOrigin(0.5, 1)
+    
     this.load.on('progress', (value: number): void => {
       let percent: number = Math.round(value * 100);
-      let onePercent: number = 400 / 100;
+      let onePercent: number = lineLength / 100;
       let width: number = Math.round(percent * onePercent);
       line.setSize(width, line.height)
+      // if (percent >= 90) this.progressText.setText(this.lang.loadWorld)
     });
 
     this.load.image('block', block)
@@ -155,13 +161,29 @@ class Preload extends Phaser.Scene {
     this.load.image('green-fort-2', greenFort2)
     this.load.image('red-fort-1', redFort1)
     this.load.image('red-fort-2', redFort2)
-
   }
-
+  
   public create(): void {
-    this.scene.stop()
-    this.scene.start('Game', this.state)
-    this.scene.start('MainMenu', this.state)
+    // new Promise((resolve, reject) => {
+    //   this.progressText.setText(this.lang.loadWorld)
+    //   if (this.progressText.text === this.lang.loadWorld) resolve('ok');
+    //   console.log('newPromise ~ this.progressText', this.progressText)
+    // }).then(() => {
+    //   this.scene.stop()
+    //   this.scene.start('Game', this.state)
+    //   this.scene.start('MainMenu', this.state)
+    // })
+
+    this.progressText.setText(this.lang.loadWorld)
+    this.time.addEvent({
+      delay: 1,
+      callback: (): void => {
+        this.scene.stop()
+        this.scene.start('Game', this.state)
+        this.scene.start('MainMenu', this.state)
+      },
+      loop: false
+    })
   }
 }
 

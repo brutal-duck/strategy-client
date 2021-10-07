@@ -1,6 +1,8 @@
 export default {
   ru: {
     index: 'ru',
+    loadTextures: 'загрузка текстур',
+    loadWorld: 'загрузка мира',
     gameName: 'просто\nстратегия',
     map1: 'карта 1',
     play: 'играть',

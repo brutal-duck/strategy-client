@@ -54,7 +54,6 @@ export default class Game extends Phaser.Scene {
 
   public claming: string[]
 
-
   public init(state: Istate) {
     this.state = state
     this.lang = langs.ru
@@ -65,8 +64,8 @@ export default class Game extends Phaser.Scene {
     this.worldHeight = 2048
     this.segmentRows = 7
     this.segmentCols = 9
-    this.rows = this.segmentRows * 3
-    this.cols = this.segmentCols * 3
+    this.cols = this.segmentCols * 3 // общее количество колонок
+    this.rows = this.segmentRows * 3 // общее количество рядов
 
     this.camera = this.cameras.main
     this.camera.setBounds(0, 0, this.worldWidth, this.worldHeight)
@@ -100,9 +99,9 @@ export default class Game extends Phaser.Scene {
     this.player = state.player
     this.green = Object.assign({}, config)
     this.red = Object.assign({}, config)
-    this.green.name = 'player1'
-    this.red.name = 'player2'
-    this.claming = []
+    this.green.name = 'green_player'
+    this.red.name = 'red_player'
+    this.claming = [] // массив захватываемых в данный момент клеток
 
     this.distanceX = 0
     this.distanceY = 0
@@ -111,7 +110,7 @@ export default class Game extends Phaser.Scene {
     this.draged = false
     this.zoomed = false
     
-    this.gameIsOn = true
+    this.gameIsOn = true // запущен ли матч
     this.world.recreate(this.gameIsOn)
     
     if (this.state.game.AI) {
@@ -239,6 +238,7 @@ export default class Game extends Phaser.Scene {
         } else if (this.twoPointerZoom) this.twoPointerZoom = false
         else {
           // console.log('hex.on ~', hex)
+          this.chosenHex = hex
           const x = hex.getCenter().x
           const y = hex.getCenter().y
           
@@ -275,13 +275,7 @@ export default class Game extends Phaser.Scene {
             if (this[`${this.player.color}`].superHex > 0 && !hex.clamingAni?.isPlaying()) {
   
               if (hex.own !== this.player.color && !hex.landscape && hex.class !== 'base' && !hex.clamingAni?.isPlaying()) {
-                new FlyAwayMsg(this, x, y, '-1', 'red', 'purple')
-                hex.removeFog()
-                this[`${this.player.color}`].superHex--
-                this.hud.updateHexCounter()
-
-                if (hex.own === 'neutral') hex.setClaming(this.player.color, true)
-                else hex.setClearClame(this.player.color, true)
+                this.scene.launch('Modal', { state: this.state, type: 'landing' })
 
               } else if (hex.class !== 'base' || (hex.landscape && hex.dark)) new FlyAwayMsg(this, x, y, this.lang.wrongPlace, 'red', '', 1000)
   
@@ -293,6 +287,16 @@ export default class Game extends Phaser.Scene {
         }
       })
     })
+  }
+
+  public superHexClameConfirmed(): void {
+    new FlyAwayMsg(this, this.chosenHex.getCenter().x, this.chosenHex.getCenter().y, '-1', 'red', 'purple')
+    this.chosenHex.removeFog()
+    this[`${this.player.color}`].superHex--
+    this.hud.updateHexCounter()
+
+    if (this.chosenHex.own === 'neutral') this.chosenHex.setClaming(this.player.color, true)
+    else this.chosenHex.setClearClame(this.player.color, true)
   }
   
 
@@ -577,9 +581,11 @@ export default class Game extends Phaser.Scene {
       this.hud.hide()
   
       if (!winner) {
-        const green = this.hexes.filter(hex => hex.color === 'green').length
-        const red = this.hexes.filter(hex => hex.color === 'red').length
-  
+        const green = this.hexes.filter(hex => hex.own === 'green').length
+        console.log('gameOver ~ green', green)
+        const red = this.hexes.filter(hex => hex.own === 'red').length
+        console.log('gameOver ~ red', red)
+
         if (green === red) winner = null
         else if (green > red) winner = 'green'
         else winner = 'red'

@@ -148,7 +148,7 @@ export default class WorldTest {
     this.setPreset(this.cSeg, this.centerPreset)
 
     if (this.game) {
-      this.scene.hexes.forEach(hex => hex.setFog(true))
+      this.scene.hexes.forEach(hex => hex.setFog(true, true))
       this.createBase()
     } else this.scene.hexes.forEach(hex => hex.removeFog())
   }
@@ -317,7 +317,7 @@ export default class WorldTest {
     const playerBase = this.scene.player.color === 'green' ? greenBase : redBase
 
     playerBase.removeFog()
-    Object.values(playerBase.nearby).forEach(id => this.scene.getHexByID(id).removeFog(true))
+    Object.values(playerBase.nearby).forEach(id => this.scene.getHexByID(id).removeFog())
     this.scene.centerCamera(playerBase.getCenter().x, playerBase.getCenter().y, true)
   }
 }

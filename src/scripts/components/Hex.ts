@@ -20,16 +20,16 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   public segRow: number
   public segmentID: string
 
-  public id: string
-  public own: string
-  public class: string // 'grass' / base / x1 / x3 / super / water / rock
+  public id: string // col-row
+  public own: string // владелец клетки
+  public class: string // grass / base / x1 / x3 / super / water / rock
   public color: string
-  public defence: number
-  public landscape: boolean
+  public defence: number // уровень защиты клетки (сколько постредуется потратиь клеток для захвата + 1)
+  public landscape: boolean // является ли некликабельным ландшафтом (гора/вода)
   public landscapeNum: number
   public worldSprite: Phaser.GameObjects.Sprite
-  public resources: number
-  public super: boolean
+  public resources: number // наличие и количество ресурсов получаемое игроком за захват
+  public super: boolean // игроком установлена супер клетка
   public dark: boolean
   public fog: boolean
   public fogSprite: Phaser.GameObjects.Sprite
@@ -37,7 +37,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   public defenceLvl: Phaser.GameObjects.Text
   private nearbyMark: Phaser.GameObjects.Sprite
   // public claming: boolean
-  public clamingAni: Phaser.Tweens.Tween
+  public clamingAni: Phaser.Tweens.Tween // идет ли захват клетки
   public upgradeAni: Phaser.Tweens.Tween
   private lineBg: Phaser.GameObjects.TileSprite
   private line: Phaser.GameObjects.TileSprite
@@ -111,7 +111,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.setDepth(this.y).setOrigin(0).setAlpha(0.001).setInteractive(hitArea, Phaser.Geom.Polygon.Contains)
     this.worldSprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y, 'hex').setDepth(this.depth + 9).setScale(1.02).setVisible(false)
     this.classText = this.scene.add.text(this.getCenter().x, this.getCenter().y + 10, '', { font: '17px Molot', color: 'black' }).setOrigin(0.5, 0).setDepth(this.depth + 10).setStroke('#ffffff', 2)
-    this.fogSprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y, 'fog').setAlpha(1).setScale(1.01).setDepth(this.depth + 10)
+    this.fogSprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y, 'fog').setAlpha(1).setScale(1.01).setDepth(this.depth + 20)
     this.nearbyMark = this.scene.add.sprite(this.getCenter().x, this.getCenter().y - 1, 'hex-border').setDepth(this.depth + 10).setScale(0.95).setVisible(false)
     this.defenceLvl = this.scene.add.text(this.getCenter().x, this.getCenter().y, '', { font: '17px Molot', color: 'black' }).setOrigin(0.5).setDepth(this.worldSprite.depth + 2)
     // if (this.col === 0) this.scene.add.sprite(this.x + w / 4 + 1, this.y + h / 2 - 7, 'fog').setOrigin(1, 0).setScale(this.fogSprite.scale).setDepth(this.fogSprite.depth + 1)
@@ -289,6 +289,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.defenceLvl.setVisible(false)
     this.landscape = false
     this.super = false
+    this.dark = true
     this.resources = 0
     this.produceHexesRemove()
     this.clamingAniRemove()
@@ -318,43 +319,57 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   }
 
 
-  public setFog(dark: boolean = false): this {
+  public setFog(dark: boolean = false, initial: boolean = false): this {
     const alpha = dark ? 1 : 0.7
     if (!dark) {
       this.scene.tweens.add({
         targets: this.fogSprite,
         alpha,
-        duration: 400
+        duration: initial ? 10 : 400
       })
     } else this.fogSprite.setAlpha(alpha)
 
     this.fog = true
     if (dark) {
       this.dark = true
-      if (this.class === 'x3') this.fogSprite.setAlpha(0.6)
+      if (this.class === 'x3') this.fogSprite.setAlpha(0.75)
     }
     return this
   }
 
 
-  public removeFog(layerPlus?): this {
-    const duration = this.scene.gameIsOn ? this.fogAndClameAniDuration : 10
+  public removeFog(initial: boolean = false): this {
+    // if (this.scene.gameIsOn) console.log('removeFog ~ initial', initial)
+    let duration = this.scene.gameIsOn ? this.fogAndClameAniDuration : 10
+    let delay = initial ? 200 : 0
+    if (initial) {
+      this.fogSprite.setScale(this.worldSprite.scale)
+      this.nearbyMark.setAlpha(0)
+      this.scene.tweens.add({
+        targets: this.nearbyMark,
+        alpha: 1,
+        duration: initial ? duration + 400 : duration,
+        delay: delay * 2 + 300
+      })
+    }
+
     this.scene.tweens.add({
       targets: this.fogSprite,
       alpha: 0,
-      duration
+      duration: initial ? duration + delay : duration,
+      delay: initial && this.class !== 'base' ? duration + delay : delay
     })
     this.fog = false
     this.worldSprite.setVisible(true)
 
     if (this.dark) this.dark = false
     if (!this.landscape) this.setColor(this.own)
-    if (layerPlus) {
-      Object.values(this.nearby).forEach(id => {
-        const hex = this.scene.getHexByID(id)
-        if (hex.fog) hex.removeFog()
-      })
-    }
+    // if (layerPlus) {
+    //   Object.values(this.nearby).forEach(id => {
+    //     const hex = this.scene.getHexByID(id)
+    //     if (hex.fog) hex.removeFog()
+    //   })
+    // }
 
     // if (!this.scene.gameIsOver) this.setSoftFog()
     return this
