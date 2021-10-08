@@ -11,6 +11,8 @@ const blink: any = require("./../../assets/images/blink-line.png");
 const grade: any = require("./../../assets/images/grade.png");
 const glow: any = require("./../../assets/images/glow.png");
 const cross: any = require("./../../assets/images/cross.png");
+const star: any = require("./../../assets/images/star.png");
+const starDisabled: any = require("./../../assets/images/star-disabled.png");
 const side: any = require("./../../assets/images/rounded-side.png");
 const btnBorder: any = require("./../../assets/images/btns/btn-border.png");
 const btnBorder1: any = require("./../../assets/images/btns/border-1.png");
@@ -53,8 +55,8 @@ const grayX3: any = require("./../../assets/images/landscape/gray-x3-1.png");
 const grayX32: any = require("./../../assets/images/landscape/gray-x3-2.png");
 const greenX3: any = require("./../../assets/images/landscape/green-x3-1.png");
 const greenX32: any = require("./../../assets/images/landscape/green-x3-2.png");
-const baseRed: any = require("./../../assets/images/landscape/base-red.png");
-const baseGreen: any = require("./../../assets/images/landscape/base-green.png");
+const baseRed: any = require("./../../assets/images/landscape/red-base.png");
+const baseGreen: any = require("./../../assets/images/landscape/green-base.png");
 
 const greenSuper1: any = require("./../../assets/images/landscape/green-super-1.png");
 const greenSuper2: any = require("./../../assets/images/landscape/green-super-2.png");
@@ -66,7 +68,8 @@ const greenFort1: any = require("./../../assets/images/landscape/green-fort-1.pn
 const greenFort2: any = require("./../../assets/images/landscape/green-fort-2.png");
 const redFort1: any = require("./../../assets/images/landscape/red-fort-1.png");
 const redFort2: any = require("./../../assets/images/landscape/red-fort-2.png");
-
+const greenTower: any = require("./../../assets/images/landscape/green-tower.png");
+const redTower: any = require("./../../assets/images/landscape/red-tower.png");
 
 
 class Preload extends Phaser.Scene {
@@ -85,8 +88,8 @@ class Preload extends Phaser.Scene {
 
   public preload(): void {
     const lineLength = this.cameras.main.width
-    const line: Phaser.GameObjects.TileSprite = this.add.tileSprite(0, this.cameras.main.height, 1, 20, 'pixel').setOrigin(0, 1).setTint(0x61ef93)
-    this.progressText = this.add.text(this.cameras.main.width / 2, line.getTopCenter().y, this.lang.loadTextures, { font: '16px Molot', color: '#61ef93' }).setOrigin(0.5, 1)
+    const line: Phaser.GameObjects.TileSprite = this.add.tileSprite(0, this.cameras.main.height, 1, 20, 'pixel').setOrigin(0, 1).setTint(0xffe595)
+    this.progressText = this.add.text(this.cameras.main.width / 2, line.getTopCenter().y, this.lang.loadTextures, { font: '16px Molot', color: '#ffe595' }).setOrigin(0.5, 1)
     
     this.load.on('progress', (value: number): void => {
       let percent: number = Math.round(value * 100);
@@ -108,6 +111,8 @@ class Preload extends Phaser.Scene {
     this.load.image('side', side)
     this.load.image('glow', glow)
     this.load.image('cross', cross)
+    this.load.image('star', star)
+    this.load.image('star-disabled', starDisabled)
     this.load.image('btn-border', btnBorder)
     this.load.image('border-1', btnBorder1)
 
@@ -161,6 +166,8 @@ class Preload extends Phaser.Scene {
     this.load.image('green-fort-2', greenFort2)
     this.load.image('red-fort-1', redFort1)
     this.load.image('red-fort-2', redFort2)
+    this.load.image('green-tower', greenTower)
+    this.load.image('red-tower', redTower)
   }
   
   public create(): void {

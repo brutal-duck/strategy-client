@@ -27,9 +27,9 @@ export default class MainMenu extends Phaser.Scene {
     this.lang = langs.ru
     this.camera = this.cameras.main
     this.gameScene = this.game.scene.keys['Game']
-    this.gameScene.cameraFly()
+    this.gameScene.cameraFly(true)
   }
-
+  
   public create(): void {
     this.add.tileSprite(0, 0, this.camera.width, this.camera.height, 'pixel').setOrigin(0).setTint(0x000000).setAlpha(0.001).setInteractive()
     this.title = this.add.text(this.camera.centerX, this.camera.centerY - 200, this.lang.gameName, {
@@ -37,7 +37,10 @@ export default class MainMenu extends Phaser.Scene {
     }).setOrigin(0.5, 0).setStroke('black', 4)
 
     this.newGame = new MainMenuBtn(this, this.camera.centerX, this.title.y + 200)
-    this.newGame.border.on('pointerup', (): void => { this.matchMaking() })
+    this.newGame.border.on('pointerup', (): void => {
+      this.newGame.block(this.lang.launch)
+      this.matchMaking()
+    })
 
     // this.debug = this.add.text(this.title.x, this.title.y, '', { font: '24px Molot', align: 'left', color: 'black' }).setOrigin(0, 1)
     this.createAICheckBox()
@@ -58,7 +61,7 @@ export default class MainMenu extends Phaser.Scene {
 
   private matchMaking(): void {
     this.state.player.color = Phaser.Math.Between(0, 1) === 0 ? 'green' : 'red'
-    this.gameScene.cameraFly(false)
+    this.gameScene.cameraFly(true, false)
     this.scene.stop()
     this.scene.start('Hud', this.state)
     this.gameScene.launch(this.state)

@@ -215,11 +215,11 @@ export default class World {
       this.seed = ''
       const base = Phaser.Math.Between(0, 3)
       const segments = [
-        [Phaser.Math.Between(0, this.getTLAnglePresets().length - 1)],
-        [Phaser.Math.Between(0, this.getBLAnglePresets().length - 1)],
-        [Phaser.Math.Between(0, this.getVertSidePresets().length - 1)],
-        [Phaser.Math.Between(0, this.getHorzSidePresets().length - 1)],
-        [Phaser.Math.Between(0, this.getCenterPresets().length - 1)]
+        Phaser.Math.Between(0, this.getTLAnglePresets().length - 1),
+        Phaser.Math.Between(0, this.getBLAnglePresets().length - 1),
+        Phaser.Math.Between(0, this.getVertSidePresets().length - 1),
+        Phaser.Math.Between(0, this.getHorzSidePresets().length - 1),
+        Phaser.Math.Between(0, this.getCenterPresets().length - 1)
       ]
 
       for (let i = 0; i < 5; i++) {

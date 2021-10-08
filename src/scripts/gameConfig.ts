@@ -5,7 +5,7 @@ const config: Iconfig = {
   hexProductionSpeed: 50000,
   clameTime: 2000,
   superReclameTime: 4000,
-  matchTime: 1 * 60000
+  matchTime: 10 * 60000
 }
 
 type colorTypes = {
@@ -15,19 +15,19 @@ type colorTypes = {
   lightStr: string
 }
 
-const color: { green: colorTypes, red: colorTypes} = {
+const colors: { green: colorTypes, red: colorTypes} = {
   green: {
-    main: 0x8fe06b,
-    mainStr: '#8fe06b',
+    main: 0x67eb7a,
+    mainStr: '#67eb7a',
     light: 0x95ffa4,
     lightStr: '#95ffa4'
   },
   red: {
-    main: 0xe4b742,
-    mainStr: '#e4b742',
+    main: 0xedc95b,
+    mainStr: '#edc95b',
     light: 0xffe595,
     lightStr: '#ffe595'
   }
 }
 
-export { config, color }
+export { config, colors }

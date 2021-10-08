@@ -31,6 +31,10 @@ export default class MatchMenuBtn {
     this.elements.push(this.border, this.mid, this.text)
   }
 
+  public block(text?: string): void {
+    this.border.removeInteractive()
+    if (text) this.text.setText(text)
+  }
 
   public setPosition(x: number, y: number): this {
     this.border.setPosition(x, y)

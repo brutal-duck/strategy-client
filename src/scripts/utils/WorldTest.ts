@@ -50,7 +50,7 @@ export default class WorldTest {
     this.startX = 600
     this.startY = 600
     this.segmentRows = 4
-    this.segmentCols = 3
+    this.segmentCols = 4
     this.rows = this.segmentRows * 3
     this.cols = this.segmentCols * 3
 
@@ -242,10 +242,10 @@ export default class WorldTest {
   private getTLAnglePresets(): string[][][] {
     const presets = [
       [
-        ['water','water','water'],
-        ['water','water','water'],
-        ['water','', ''],
-        ['water','', ''],
+        ['water','water','water','water'],
+        ['water','water','water','water'],
+        ['water','', '', ''],
+        ['water','', '', ''],
 
       ],
 
@@ -258,10 +258,10 @@ export default class WorldTest {
   private getBLAnglePresets(): string[][][] {
     const presets = [
       [
-        ['water', '',''],
-        ['water', '',''],
-        ['water', '',''],
-        ['water', 'water','water'],
+        ['water', '','', ''],
+        ['water', '','', ''],
+        ['water', '','', ''],
+        ['water', 'water','water','water'],
       ],
     ]
 
@@ -272,10 +272,10 @@ export default class WorldTest {
   private getVertSidePresets(): string[][][] {
     const presets = [
       [
-        ['water','water',''],
-        ['water','water',''],
-        ['','',''],
-        ['','',''],
+        ['water','water','',''],
+        ['water','water','',''],
+        ['','','', ''],
+        ['','','', ''],
       ],
     ]
 
@@ -285,10 +285,10 @@ export default class WorldTest {
   private getHorzSidePresets(): string[][][] {
     const presets = [
       [
-        ['water','water',''],
-        ['water','',''],
-        ['water','',''],
-        ['water','',''],
+        ['water','water','',''],
+        ['water','','',''],
+        ['water','','',''],
+        ['water','','',''],
       ],
     ]
 
@@ -299,10 +299,10 @@ export default class WorldTest {
   private getCenterPresets(): string[][][] {
     const presets = [
       [
-        ['','',''],
-        ['','water',''],
-        ['rock','water','rock'],
-        ['','',''],
+        ['','','', ''],
+        ['','','', ''],
+        ['rock','','rock', ''],
+        ['','','', ''],
       ],
     ]
 

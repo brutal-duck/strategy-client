@@ -31,6 +31,7 @@ export default class Game extends Phaser.Scene {
   private flyAni1: Phaser.Tweens.Tween
   private flyAni2: Phaser.Tweens.Tween
   private flyAni3: Phaser.Tweens.Tween
+  private startFlyX: number
   public midPoint: Phaser.Physics.Arcade.Sprite
   public vector: Phaser.Physics.Arcade.Sprite
   public distanceX: number
@@ -46,6 +47,8 @@ export default class Game extends Phaser.Scene {
   public segmentCols: number
   public rows: number
   public cols: number
+
+  public stars: number
 
   private worldBG: Phaser.GameObjects.TileSprite
   public hexes: Hex[]
@@ -77,9 +80,12 @@ export default class Game extends Phaser.Scene {
     new Zoom(this)
     this.debuging = true
 
-    this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', 'green') })
+    this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', this.player.color) })
     this.input.keyboard.addKey('S').on('up', (): void => { this.hexes.forEach(hex => hex.removeFog()) })
-    this.input.keyboard.addKey('Z').on('up', (): void => { console.log(this.pointerHex) })
+    this.input.keyboard.addKey('Z').on('up', (): void => {
+      console.log(this.pointerHex.own)
+      this.test(this.player.color)
+    })
     this.input.keyboard.addKey('C').on('up', (): void => { this.scene.launch('Modal', { state: this.state, type: 'landing' }) })
   }
 
@@ -101,6 +107,7 @@ export default class Game extends Phaser.Scene {
     this.red = Object.assign({}, config)
     this.green.name = 'green_player'
     this.red.name = 'red_player'
+    this.stars = 0
     this.claming = [] // массив захватываемых в данный момент клеток
 
     this.distanceX = 0
@@ -129,9 +136,9 @@ export default class Game extends Phaser.Scene {
     const dragStep = this.game.device.os.desktop ? 1 : 1.7
     let ani: Phaser.Tweens.Tween
 
-    this.midPoint = this.physics.add.sprite(0, 0, 'pixel').setVisible(true).setScale(5).setTint(0x000).setDepth(10)
-    this.vector = this.physics.add.sprite(0, 0, 'pixel').setVisible(true).setScale(5).setTint(0x880000).setDepth(10)
-    const pointerPoint = this.physics.add.sprite(0, 0, 'pixel').setVisible(true).setScale(5).setTint(0x008800).setDepth(10)
+    this.midPoint = this.physics.add.sprite(0, 0, 'pixel').setVisible(false).setScale(5).setTint(0x000000).setDepth(10)
+    this.vector = this.physics.add.sprite(0, 0, 'pixel').setVisible(false).setScale(5).setTint(0x880000).setDepth(10)
+    const pointerPoint = this.physics.add.sprite(0, 0, 'pixel').setVisible(false).setScale(5).setTint(0x008800).setDepth(10)
     // console.log('setInput ~ midPoint', this.midPoint)
 
     this.input.setPollAlways()
@@ -308,7 +315,7 @@ export default class Game extends Phaser.Scene {
 
     // Пушит новые найденые гексы в массив внутренних гексов
     const pushNewInnerHexes = (nextCol: Hex[], top: Hex, bot: Hex): void => {
-      const filtered = nextCol.filter(hex => hex.row > top.row && hex.row < bot.row && (hex.color !== color || hex.landscape))
+      const filtered = nextCol.filter(hex => hex.row > top.row && hex.row < bot.row && (hex.own !== color || hex.landscape))
       const length = filtered.length
 
       for (let i = 0; i < length; i++) {
@@ -343,7 +350,8 @@ export default class Game extends Phaser.Scene {
 
 
     // Сокращение массива внутренних незахваченных гекс
-    const reduce = (arrs) => {
+    const reduce = (arrs: Hex[][]) => {
+      // console.log('reduce ~ arrs', arrs.map(arr => arr.map(el => el.id)))
       let newArrs = []
       let arrayIsChanged = false
 
@@ -385,6 +393,19 @@ export default class Game extends Phaser.Scene {
     }
 
 
+    // const sheduce = (arrs: Hex[][]) => {
+    //   let newInnerHexes = []
+    //   let fullArr = []
+    //   arrs.forEach(el => fullArr = fullArr.concat(el))
+    //   fullArr.forEach((el, i) => { if (fullArr.filter(hex => hex.id === el.id).length > 1) fullArr.splice(i, 1) })
+
+    //   for (let i = 0; i < fullArr.length; i++) {
+    //     if (i === 0) newInnerHexes.push([fullArr[i]])
+    //     if (fullArr[i])
+    //   }
+    // }
+
+
     // Поиск верхней и нижней клетки игрока
     const findTopAndBotPlayerHexes = (arr: Hex[]): { top: Hex, bot: Hex } => {
       const array = arr
@@ -424,6 +445,9 @@ export default class Game extends Phaser.Scene {
   
         if (top && bot) {
           pushNewInnerHexes(nextCol, top, bot)
+          let iner = []
+          iner = iner.concat(innerHexes)
+          // console.log('1 ~ innerHexes', iner.map(arr => arr.map(hex => hex.id)))
           innerHexes = reduce(innerHexes)
           findInnerHexes(nextCol)
         } else return
@@ -434,7 +458,7 @@ export default class Game extends Phaser.Scene {
     // 1. Поиск цепочек захваченых гексов
     for (let i = 0; i < this.world.cols; i++) {
       const colHexes: Hex[] = this.hexes.filter(hex => hex.col === i && hex.own === color).sort((a, b) => a.row - b.row)
-      // const colHexes: Hex[] = this.hexes.filter(hex => hex.col === i && (hex.color === color || hex.landscape)).sort((a, b) => a.row - b.row)
+      // const colHexes: Hex[] = this.hexes.filter(hex => hex.col === i && (hex.own === color || hex.landscape)).sort((a, b) => a.row - b.row)
       chain = []
 
       if (colHexes.length > 1) {
@@ -458,7 +482,7 @@ export default class Game extends Phaser.Scene {
 
     // 3. Проверка на замыкание внутренних незахваченных гекс
     if (innerHexes.length > 0) {
-      // console.log('multiClameCheck ~ innerHexes', innerHexes.map(arr => arr.map(hex => hex.id)))
+      console.log('2 ~ innerHexes', innerHexes.map(arr => arr.map(hex => hex.id)))
       innerHexes.forEach(arr => {
         innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => 
           arr.some(el => el.id === id) || this.getHexByID(id) === null || this.getHexByID(id).own === color
@@ -472,6 +496,91 @@ export default class Game extends Phaser.Scene {
     }
   }
 
+  private test(color: string): void {
+    // this.hexes.forEach(hex => {})
+    let check = [
+      this.topIsClosed(this.pointerHex, color),
+      this.topRightIsClosed(this.pointerHex, color),
+      this.botRightIsClosed(this.pointerHex, color),
+      this.botIsClosed(this.pointerHex, color),
+      this.botLeftIsClosed(this.pointerHex, color),
+      this.topLeftIsClosed(this.pointerHex, color),
+    ]
+    console.log('test ~ check', check.every(el => el))
+  }
+
+  private topIsClosed(hex: Hex, color: string): boolean {
+    const col = hex.col
+    let row = hex.row - 1
+    while (row >= 0) {
+      if (this.getHexByID(`${col}-${row}`).own === color) return true
+      row--
+    }
+    return false
+  }
+
+  private topRightIsClosed(hex: Hex, color: string): boolean {
+    let topRight = this.getHexByID(hex.nearby.topRight)
+    let row = topRight.row
+    let col = topRight.col
+    while (row > 0 && col < this.cols - 1) {
+      if (topRight.own === color) return true
+      topRight = this.getHexByID(topRight.nearby.topRight)
+      row = topRight.row
+      col = topRight.col
+    }
+    return false
+  }
+
+  private botRightIsClosed(hex: Hex, color: string): boolean {
+    let botRight = this.getHexByID(hex.nearby.botRight)
+    let row = botRight.row
+    let col = botRight.col
+    while (row < this.rows && col < this.cols - 1) {
+      if (botRight.own === color) return true
+      botRight = this.getHexByID(botRight.nearby.botRight)
+      row = botRight.row
+      col = botRight.col
+    }
+    return false
+  }
+
+  private botIsClosed(hex: Hex, color: string): boolean {
+    const col = hex.col
+    let row = hex.row + 1
+    while (row < this.rows) {
+      if (this.getHexByID(`${col}-${row}`).own === color) return true
+      else row++
+    }
+    return false
+  }
+
+  private botLeftIsClosed(hex: Hex, color: string): boolean {
+    let botLeft = this.getHexByID(hex.nearby.botLeft)
+    let row = botLeft.row
+    let col = botLeft.col
+    while (row < this.rows - 1 && col > 0) {
+      if (botLeft.own === color) return true
+      botLeft = this.getHexByID(botLeft.nearby.botLeft)
+      row = botLeft.row
+      col = botLeft.col
+    }
+    return false
+  }
+
+  private topLeftIsClosed(hex: Hex, color: string): boolean {
+    let topLeft = this.getHexByID(hex.nearby.topLeft)
+    let row = topLeft.row
+    let col = topLeft.col
+    while (row > 0 && col > 0) {
+      if (topLeft.own === color) return true
+      topLeft = this.getHexByID(topLeft.nearby.topLeft)
+      row = topLeft.row
+      col = topLeft.col
+    }
+    return false
+  }
+
   private nextColHexesBetween(topHex: Hex, botHex: Hex = topHex): Hex[] {
     if (topHex.col < this.world.cols - 1) {
       topHex = this.findTopRightHex(topHex)
@@ -480,13 +589,13 @@ export default class Game extends Phaser.Scene {
       if (topHex.id !== botHex.id && topHex.row + 1 !== botHex.row) {
         for (let i = topHex.row; topHex.row > 0; i--) {
           const upperHex = this.hexes.find(hex => hex.col === topHex.col && hex.row === i - 1)
-          if (upperHex.color === this.player.color) topHex = upperHex
+          if (upperHex.own === this.player.color) topHex = upperHex
           else break
         }
     
         for (let i = botHex.row; i < this.world.rows - 1; i++) {
           const lowerHex = this.hexes.find(hex => hex.col === botHex.col && hex.row === i + 1)
-          if (lowerHex.color === this.player.color) botHex = lowerHex
+          if (lowerHex.own === this.player.color) botHex = lowerHex
           else break
         }
       }
@@ -526,7 +635,7 @@ export default class Game extends Phaser.Scene {
     if (zoom) this.camera.zoomTo(1.6, duration, ease)
   }
 
-  public cameraFly(fly: boolean = true): void {
+  public cameraFly(updateStartFlyX: boolean = false, fly: boolean = true): void {
     this.flyAni1?.remove()
     this.flyAni2?.remove()
     this.flyAni3?.remove()
@@ -535,29 +644,30 @@ export default class Game extends Phaser.Scene {
     this.camera.zoomEffect.reset()
 
     if (fly) {
-      const worldViewWidth = this.camera.worldView.width / 2 > 0 ? this.camera.worldView.width / 2 : 600
-      this.centerCamera(worldViewWidth + 60, 600, true, 2500, 'Quad.easeOut')
+      const duration = 30000
+      if (updateStartFlyX) this.startFlyX = this.camera.worldView.width / 2 > 0 ? this.camera.worldView.width / 2 : 600
+      this.centerCamera(this.startFlyX + 60, 600, true, 2500, 'Quad.easeOut')
       this.flyAni1 = this.tweens.add({
         onStart: (): void => {
           this.midPoint.setPosition(this.camera.midPoint.x, 600)
           this.camera.startFollow(this.midPoint)
         },
         targets: this.midPoint,
-        x: this.worldWidth - worldViewWidth - 60, y: 800,
-        duration: 30000,
+        x: this.worldWidth - this.startFlyX - 60, y: 800,
+        duration,
         delay: 3500,
         ease: 'Quad.easeInOut',
         onComplete: (): void => {
           this.flyAni2 = this.tweens.add({
             targets: this.midPoint,
             x: 1000, y: 1400,
-            duration: 30000,
+            duration,
             ease: 'Quad.easeInOut',
             onComplete: (): void => {
               this.flyAni3 = this.tweens.add({
                 targets: this.midPoint,
-                x: worldViewWidth + 60, y: 600,
-                duration: 30000,
+                x: this.startFlyX + 60, y: 600,
+                duration,
                 ease: 'Quad.easeInOut',
                 onComplete: (): void => { this.cameraFly() }
               })
@@ -567,11 +677,10 @@ export default class Game extends Phaser.Scene {
       })
     }
   }
-
   
-  public gameOverCheck(color): void {
-    const hexes = this.hexes.filter(hex => hex.color === color)
-    if (hexes.filter(hex => hex.class === 'base').length > 1) this.gameOver('enemyBaseHasCaptured', color)
+  public gameOverCheck(color: string): void {
+    const baseHexes = this.hexes.filter(hex => hex.own === color && hex.class === 'base')
+    if (baseHexes.length > 1) this.gameOver('enemyBaseHasCaptured', color)
   }
 
 
@@ -579,12 +688,15 @@ export default class Game extends Phaser.Scene {
     if (this.gameIsOn) {
       this.gameIsOn = false
       this.hud.hide()
+      this.hexes.forEach(hex => {
+        hex.clamingAni?.remove()
+        hex.upgradeAni?.remove()
+        hex.produceHexesRemove()
+      })
   
       if (!winner) {
         const green = this.hexes.filter(hex => hex.own === 'green').length
-        console.log('gameOver ~ green', green)
         const red = this.hexes.filter(hex => hex.own === 'red').length
-        console.log('gameOver ~ red', red)
 
         if (green === red) winner = null
         else if (green > red) winner = 'green'

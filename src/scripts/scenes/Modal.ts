@@ -1,7 +1,7 @@
 import AskBtn from "../components/buttons/AskBtn"
 import MatchMenuBtn from "../components/buttons/MatchMenuBtn"
 import MatchOverBtn from "../components/buttons/MatchOverBtn"
-import { color } from "../gameConfig"
+import { colors } from "../gameConfig"
 import langs from "../langs"
 import Game from "./Game"
 
@@ -79,7 +79,10 @@ export default class Modal extends Phaser.Scene {
     settingsBtn.border.on('pointerup', (): void => { console.log('settings') })
 
     const leaveBtn = new MatchMenuBtn(this, x, mid.getCenter().y + 60).setScale(1.8, 1.5).setText(this.lang.surrenderAndLeave)
-    leaveBtn.border.on('pointerup', (): void => { this.stopGame() })
+    leaveBtn.border.on('pointerup', (): void => {
+      leaveBtn.block(this.lang.shutdown)
+      this.stopGame()
+    })
   }
 
 
@@ -129,7 +132,7 @@ export default class Modal extends Phaser.Scene {
     }
     const titleAniDuration = 300
     const titleAniDelay = 500
-    const windowHeight = 260
+    const windowHeight = 160
     const windowWidth = 340
 
     const title = this.add.text(x, y - 100, text, {
@@ -145,30 +148,35 @@ export default class Modal extends Phaser.Scene {
     const bot: Phaser.GameObjects.Sprite = this.add.sprite(mid.getBottomCenter().x, mid.getBottomCenter().y, 'side').setOrigin(0.5, 0).setDisplaySize(windowWidth, 15).setAlpha(0).setTint(windowColor)
 
     const result: Phaser.GameObjects.Text = this.add.text(mid.getTopCenter().x, y, this.lang.result, { font: '20px Molot', color: 'black' }).setOrigin(0.5).setAlpha(0)
-    const tilesLeft: Phaser.GameObjects.Text = this.add.text(mid.getTopCenter().x, y, this.lang.tilesLeft, { font: '20px Molot', color: 'black' }).setOrigin(0.5).setAlpha(0)
+    // const tilesLeft: Phaser.GameObjects.Text = this.add.text(mid.getTopCenter().x, y, this.lang.tilesLeft, { font: '20px Molot', color: 'black' }).setOrigin(0.5).setAlpha(0)
 
     const playerHexes: number = this.gameScene?.hexes.filter(hex => hex.own === this.playerColor).length
     const enemyHexes: number = this.gameScene?.hexes.filter(hex => hex.own === this.enemyColor).length
     const totalHexes = playerHexes + enemyHexes
-    const lineWidth = windowWidth - 40
+    const lineWidth = windowWidth - 50
     const playerLineWidth = lineWidth / totalHexes * playerHexes
     const enemyLineWidth = lineWidth / totalHexes * enemyHexes
 
     const lineBg: Phaser.GameObjects.TileSprite = this.add.tileSprite(mid.getTopCenter().x, y + 40, lineWidth, 20, 'pixel').setOrigin(0.5, 0).setAlpha(0)
-    const playerLine: Phaser.GameObjects.TileSprite = this.add.tileSprite(lineBg.getLeftCenter().x, lineBg.getLeftCenter().y, playerLineWidth, 20, 'pixel').setTint(color[this.playerColor].main).setDepth(2).setOrigin(0, 0.5).setAlpha(0)
-    const enemyLine: Phaser.GameObjects.TileSprite = this.add.tileSprite(lineBg.getRightCenter().x, lineBg.getRightCenter().y, enemyLineWidth, 20, 'pixel').setTint(color[this.enemyColor].main).setDepth(2).setOrigin(1, 0.5).setAlpha(0)
-    const playerSum: Phaser.GameObjects.Text = this.add.text(lineBg.getBottomLeft().x + 10, lineBg.getBottomLeft().y + 4, `${playerHexes}`, { font: '26px Molot', color: color[this.playerColor].mainStr }).setAlpha(0)
-    const enemySum: Phaser.GameObjects.Text = this.add.text(lineBg.getBottomRight().x - 10, lineBg.getBottomRight().y + 4, `${enemyHexes}`, { font: '26px Molot', color: color[this.enemyColor].mainStr }).setOrigin(1, 0).setAlpha(0)
+    const playerLine: Phaser.GameObjects.TileSprite = this.add.tileSprite(lineBg.getLeftCenter().x, lineBg.getLeftCenter().y, playerLineWidth, 26, 'pixel').setTint(colors[this.playerColor].main).setDepth(2).setOrigin(0, 0.5).setAlpha(0)
+    const enemyLine: Phaser.GameObjects.TileSprite = this.add.tileSprite(lineBg.getRightCenter().x, lineBg.getRightCenter().y, enemyLineWidth, 26, 'pixel').setTint(colors[this.enemyColor].main).setDepth(2).setOrigin(1, 0.5).setAlpha(0)
+    const playerSum: Phaser.GameObjects.Text = this.add.text(lineBg.getBottomLeft().x + 10, lineBg.getBottomLeft().y + 12, `${playerHexes}`, { font: '30px Molot', color: colors[this.playerColor].mainStr }).setAlpha(0)
+    const enemySum: Phaser.GameObjects.Text = this.add.text(lineBg.getBottomRight().x - 10, lineBg.getBottomRight().y + 12, `${enemyHexes}`, { font: '30px Molot', color: colors[this.enemyColor].mainStr }).setOrigin(1, 0).setAlpha(0)
 
-    const hex: Phaser.GameObjects.Sprite = this.add.sprite(x - 40, y, 'hex').setTint(color[this.playerColor].main).setScale(0.6).setAlpha(0)
-    const hexSum: Phaser.GameObjects.Text = this.add.text(hex.getCenter().x, y, `${this.gameScene[this.playerColor].hexes}`, {
-      font: '26px Molot', color: '#BED3C0'
-    }).setOrigin(0.5).setAlpha(0)
+    const stars = this.gameScene.stars
+    const lineStar1: Phaser.GameObjects.Sprite = this.add.sprite(lineBg.getCenter().x, lineBg.getCenter().y, stars > 0 ? 'star' : 'star-disabled').setScale(0.32).setDepth(3).setAlpha(0)
+    const lineStar2: Phaser.GameObjects.Sprite = this.add.sprite(lineBg.getLeftCenter().x + lineWidth * 0.75, lineBg.getCenter().y, stars > 1 ? 'star' : 'star-disabled').setScale(0.32).setDepth(3).setAlpha(0)
+    const lineStar3: Phaser.GameObjects.Sprite = this.add.sprite(lineBg.getRightCenter().x, lineBg.getCenter().y, stars > 2 ? 'star' : 'star-disabled').setScale(0.32).setDepth(3).setAlpha(0)
 
-    const purpleHex: Phaser.GameObjects.Sprite = this.add.sprite(x + 40, y, 'hex').setTint(0xb879ff).setScale(0.6).setAlpha(0)
-    const purpleHexSum: Phaser.GameObjects.Text = this.add.text(purpleHex.getCenter().x, y, `${this.gameScene[this.playerColor].superHex}`, {
-      font: '26px Molot', color: '#BED3C0'
-    }).setOrigin(0.5).setAlpha(0)
+    // const hex: Phaser.GameObjects.Sprite = this.add.sprite(x - 40, y, 'hex').setTint(colors[this.playerColor].main).setScale(0.6).setAlpha(0)
+    // const hexSum: Phaser.GameObjects.Text = this.add.text(hex.getCenter().x, y, `${this.gameScene[this.playerColor].hexes}`, {
+    //   font: '26px Molot', color: '#BED3C0'
+    // }).setOrigin(0.5).setAlpha(0)
+
+    // const purpleHex: Phaser.GameObjects.Sprite = this.add.sprite(x + 40, y, 'hex').setTint(0xb879ff).setScale(0.6).setAlpha(0)
+    // const purpleHexSum: Phaser.GameObjects.Text = this.add.text(purpleHex.getCenter().x, y, `${this.gameScene[this.playerColor].superHex}`, {
+    //   font: '26px Molot', color: '#BED3C0'
+    // }).setOrigin(0.5).setAlpha(0)
 
     const titleFadeOut = () => {
       this.tweens.add({
@@ -231,22 +239,25 @@ export default class Modal extends Phaser.Scene {
       enemyLine.setPosition(lineBg.getRightCenter().x, lineBg.getRightCenter().y)
       playerSum.setPosition(lineBg.getBottomLeft().x + 20, lineBg.getBottomLeft().y + 15)
       enemySum.setPosition(lineBg.getBottomRight().x - 20, lineBg.getBottomRight().y + 15)
+      lineStar1.setPosition(lineBg.getCenter().x, lineBg.getCenter().y)
+      lineStar2.setPosition(lineBg.getLeftCenter().x + lineWidth * 0.75, lineBg.getCenter().y)
+      lineStar3.setPosition(lineBg.getRightCenter().x, lineBg.getCenter().y)
       
-      tilesLeft.setY(y + 30)
-      hex.setY(y + 70)
-      hexSum.setY(hex.y)
-      purpleHex.setY(y + 70)
-      purpleHexSum.setY(purpleHex.y)
+      // tilesLeft.setY(y + 30)
+      // hex.setY(y + 70)
+      // hexSum.setY(hex.y)
+      // purpleHex.setY(y + 70)
+      // purpleHexSum.setY(purpleHex.y)
 
-      const btn = new MatchOverBtn(this, x, y + 140).setAlpha(0)
+      const btn = new MatchOverBtn(this, x, y + 50).setAlpha(0)
       btn.border.on('pointerup', (): void => { this.stopGame() })
 
       const targets = [
         [result],
-        [lineBg, playerLine, enemyLine],
+        [lineBg, playerLine, enemyLine, lineStar1, lineStar2, lineStar3],
         [playerSum, enemySum],
-        [tilesLeft],
-        [hex, hexSum, purpleHex, purpleHexSum],
+        // [tilesLeft],
+        // [hex, hexSum, purpleHex, purpleHexSum],
         btn.elements
       ]
 
@@ -261,8 +272,8 @@ export default class Modal extends Phaser.Scene {
           onComplete: (): void => {
             if (i === 1 && this.info.winner) {
               const glow: Phaser.GameObjects.Sprite = this.add.sprite(x, y, 'glow').setDepth(2).setAlpha(0)
-              if (this.info.winner === this.playerColor) glow.setPosition(playerLine.getCenter().x, playerLine.getCenter().y).setDisplaySize(playerLine.width + 2, playerLine.height + 30).setTint(color[this.playerColor].main)
-              else glow.setPosition(enemyLine.getCenter().x, enemyLine.getCenter().y).setDisplaySize(enemyLine.width + 2, enemyLine.height + 30).setTint(color[this.enemyColor].main)
+              if (this.info.winner === this.playerColor) glow.setPosition(playerLine.getCenter().x, playerLine.getCenter().y).setDisplaySize(playerLine.width + 2, playerLine.height + 30).setTint(colors[this.playerColor].main)
+              else glow.setPosition(enemyLine.getCenter().x, enemyLine.getCenter().y).setDisplaySize(enemyLine.width + 2, enemyLine.height + 30).setTint(colors[this.enemyColor].main)
               this.tweens.add({
                 targets: glow,
                 alpha: 1,

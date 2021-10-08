@@ -31,6 +31,12 @@ export default class MainMenuBtn {
   }
 
 
+  public block(text?: string): void {
+    this.border.removeInteractive()
+    if (text) this.text.setText(text)
+  }
+
+
   public setPosition(x: number, y: number): this {
     this.border.setPosition(x, y)
     this.elements.forEach(el => { if (el !== this.border) el.setPosition(this.border.getCenter().x, this.border.getCenter().y) })

@@ -1,12 +1,6 @@
+import { colors } from "../gameConfig";
 import Game from "../scenes/Game";
 import FlyAwayMsg from "./FlyAwayMsg";
-
-const greenLightStr = '#95ffa4'
-const greenLight = 0x95ffa4
-const green = 0x8fe06b
-const redLightStr = '#ffe595'
-const redLight = 0xffe595
-const red = 0xe4b742
 
 export default class Hex extends Phaser.GameObjects.Sprite {  
   public scene: Game
@@ -23,7 +17,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   public id: string // col-row
   public own: string // владелец клетки
   public class: string // grass / base / x1 / x3 / super / water / rock
-  public color: string
+  // public color: string
   public defence: number // уровень защиты клетки (сколько постредуется потратиь клеток для захвата + 1)
   public landscape: boolean // является ли некликабельным ландшафтом (гора/вода)
   public landscapeNum: number
@@ -71,7 +65,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.id = `${this.col}-${this.row}`
     this.own = 'neutral'
     this.class = ''
-    this.color = 'neutral'
+    // this.color = 'neutral'
     this.defence = 1
     this.dark = true
     this.fog = true
@@ -122,7 +116,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
 
   public setClearClame(color: string, superHex: boolean = false) {
-    const lineColor = color === 'green' ? greenLight : redLight
+    const lineColor = colors[color].light
     this.clamingAniRemove()
     if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
     this.line = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x - 25, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setOrigin(0).setTint(lineColor).setDepth(10000)
@@ -141,7 +135,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       onComplete: (): void => {
         this.clamingAniRemove()
         this.productionTimer?.remove()
-        this.setColor('neutral')
+        // this.setColor('neutral')
         this.own = 'neutral'
         this.setClaming(color, superHex)
       }
@@ -150,8 +144,8 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
 
   public setClaming(color: string, superHex: boolean = false) {
-    const bgColor = color === 'green' ? greenLight : redLight
-    const lineColor = color === 'green' ? green : red
+    const bgColor = colors[color].light
+    const lineColor = colors[color].main
     this.clamingAniRemove()
     if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
 
@@ -179,7 +173,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.own = color
     this.clamingAniRemove()
     if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
-    if (!this.dark) this.setColor(color)
+    // if (!this.dark) this.setColor(color)
     if (superHex) {
       this.super = true
       // if (this.class === 'grass') this.setWorldTexture()
@@ -232,7 +226,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   public setClass(newClass: string, color?: string): this {
     this.class = newClass
     this.produceHexesRemove()
-    if (!color) this.setColor(newClass)
+    // if (!color) this.setColor(newClass)
     
     switch (newClass) {
       case 'base': {
@@ -284,7 +278,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   
   public removeClass(): void {
     this.own = 'neutral'
-    this.color = 'neutral'
+    // this.color = 'neutral'
     this.defence = 1
     this.defenceLvl.setVisible(false)
     this.landscape = false
@@ -363,7 +357,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.worldSprite.setVisible(true)
 
     if (this.dark) this.dark = false
-    if (!this.landscape) this.setColor(this.own)
+    // if (!this.landscape) this.setColor(this.own)
     // if (layerPlus) {
     //   Object.values(this.nearby).forEach(id => {
     //     const hex = this.scene.getHexByID(id)
@@ -386,7 +380,8 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     let texture: string
     let flip = false
 
-    if (this.class === 'water') texture = `${this.class}-${this.landscapeNum}`
+    if (this.defence > 1) texture = `${this.own}-tower`
+    else if (this.class === 'water') texture = `${this.class}-${this.landscapeNum}`
     else if (this.class === 'base') texture = `${this.class}-${color}`
     else if (this.super && this.class === 'grass') texture = `${color}-fort-${Phaser.Math.Between(1, 2)}`
     else texture = `${color}-${this.class}-${this.landscapeNum}`
@@ -409,8 +404,8 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
   public upgradeDefence(): void {
     this.upgradeAniRemove()
-    const bgColor = this.scene.player.color === 'green' ? greenLight : redLight
-    const lineColor = this.scene.player.color === 'green' ? green : red
+    const bgColor = colors[this.scene.player.color].light
+    const lineColor = colors[this.scene.player.color].main
     this.defLineBg = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x, this.defenceLvl.getBottomCenter().y + 7, 50, 5, 'pixel').setTint(bgColor).setOrigin(0.5, 0).setDepth(10000).setVisible(this.own === this.scene.player.color)
     this.defLine = this.scene.add.tileSprite(this.defLineBg.getLeftCenter().x, this.defLineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(10000).setVisible(this.own === this.scene.player.color)
 
@@ -422,35 +417,47 @@ export default class Hex extends Phaser.GameObjects.Sprite {
         this.upgradeAniRemove()
         this.defence++
         this.defenceLvl.setText(`${this.defence}`).setVisible(true)
+        if (this.worldSprite.texture.key !== `${this.own}-tower`) this.setTowerSprite()
       }
     })
   }
 
-  public setColor(color: string): this {
-    const colors = {
-      gray: 0xAAADAF,
-      rock: 0x333333,
-      x1: 0xffdc73,
-      x3: 0xde9f32,
-      super: 0xa785ff,
-      water: 0xC6F0FF,
-      green,
-      red,
-    }
-
-    if (color === 'neutral') {
-      if (this.class === '') this.clearTint()
-      else this.setTint(colors[this.class])
-    } else this.setTint(colors[color])
-
-    this.color = color
-    return this
+  private setTowerSprite(): void {
+    const fadeingSprite: Phaser.GameObjects.Sprite = this.scene.add.sprite(this.worldSprite.x, this.worldSprite.y, this.worldSprite.texture.key).setDepth(this.worldSprite.depth + 1).setScale(this.worldSprite.scale)
+    this.worldSprite.setTexture(`${this.own}-tower`)
+    this.scene.tweens.add({
+      targets: fadeingSprite,
+      alpha: 0,
+      duration: this.fogAndClameAniDuration,
+      onComplete: () => { fadeingSprite.destroy() }
+    })
   }
+
+  // public setColor(color: string): this {
+  //   const colors = {
+  //     gray: 0xAAADAF,
+  //     rock: 0x333333,
+  //     x1: 0xffdc73,
+  //     x3: 0xde9f32,
+  //     super: 0xa785ff,
+  //     water: 0xC6F0FF,
+  //     green,
+  //     red,
+  //   }
+
+  //   if (color === 'neutral') {
+  //     if (this.class === '') this.clearTint()
+  //     else this.setTint(colors[this.class])
+  //   } else this.setTint(colors[color])
+
+  //   this.color = color
+  //   return this
+  // }
 
   private setNearbyMark(): void {
     this.scene.hexes.forEach(hex => {
       hex.showNearbyMark(false)
-      hex.nearbyMark.setTint(this.scene.player?.color === 'green' ? greenLight : redLight)
+      hex.nearbyMark.setTint(colors[this.scene.player.color].light)
     })
     
     this.scene.outerPlayerHexes().forEach(hex => {
@@ -470,7 +477,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       delay,
       callback: (): void => {
         if (this.scene.gameIsOn) {
-          if (this.own === this.scene.player.color) new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y, `+${output}`, 'green', this.color)
+          if (this.own === this.scene.player.color) new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y, `+${output}`, 'green', this.own)
           this.scene[this.own].hexes += output
           this.scene.hud.updateHexCounter()
         } else this.productionTimer.remove()
@@ -479,7 +486,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     })
   }
 
-  private produceHexesRemove(): void { this.productionTimer?.remove() }
+  public produceHexesRemove(): void { this.productionTimer?.remove() }
 
   private giveResources(): void {
     if (this.class === 'super') this.scene[this.own].superHex += this.resources
