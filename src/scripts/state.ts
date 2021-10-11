@@ -9,7 +9,9 @@ let state: Istate = {
   game: {
     AI: false
   },
-  platform: ''
+  platform: '',
+  socket: null,
+  startGame: false,
 };
 
 export default state;

@@ -68,7 +68,8 @@ class Boot extends Phaser.Scene {
 
   
   private checkUser() {
-    this.userIsReady = true
+    const vkId = Phaser.Math.Between(1, 2) === 1 ? 12345 : 123456;
+    this.checkUserOnServer(vkId);
   }
 
 
@@ -78,6 +79,17 @@ class Boot extends Phaser.Scene {
       this.fontsReady = false;
       this.start();
     }
+  }
+
+  private checkUserOnServer(vkId: number): void {
+    const data: { id: number } = { id: vkId };
+    axios.post(process.env.API + '/checkUser', data).then(res => {
+      const { error, userData }: { error: boolean, userData: IuserData } = res.data;
+      if (!error) {
+        this.state.player.id = userData.id;
+        this.userIsReady = true;
+      }
+    });
   }
 
   public start(): void {
