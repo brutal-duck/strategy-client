@@ -15,7 +15,7 @@ type colorTypes = {
   lightStr: string
 }
 
-const colors: { green: colorTypes, red: colorTypes} = {
+const colors: { green: colorTypes, red: colorTypes } = {
   green: {
     main: 0x67eb7a,
     mainStr: '#67eb7a',

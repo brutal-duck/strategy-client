@@ -65,8 +65,8 @@ export default class Game extends Phaser.Scene {
     this.hud = this.game.scene.getScene('Hud') as Hud
     this.gameIsOn = false
 
-    this.worldWidth = 2048
-    this.worldHeight = 2048
+    this.worldWidth = 2548
+    this.worldHeight = 2548
     this.segmentRows = 7
     this.segmentCols = 9
     this.cols = this.segmentCols * 3 // общее количество колонок
@@ -74,7 +74,7 @@ export default class Game extends Phaser.Scene {
 
     this.camera = this.cameras.main
     this.camera.setBounds(0, 0, this.worldWidth, this.worldHeight)
-    this.camera.centerOn(500, 600)
+    this.camera.centerOn(700, 800)
     this.scale.lockOrientation('landscape-primary')
 
     this.hexes = []
@@ -561,27 +561,27 @@ export default class Game extends Phaser.Scene {
     if (fly) {
       const duration = 30000
       if (updateStartFlyX) this.startFlyX = this.camera.worldView.width / 2 > 0 ? this.camera.worldView.width / 2 : 600
-      this.centerCamera(this.startFlyX + 60, 600, true, 2500, 'Quad.easeOut')
+      this.centerCamera(this.startFlyX + 220, 900, true, 2500, 'Quad.easeOut')
       this.flyAni1 = this.tweens.add({
         onStart: (): void => {
-          this.midPoint.setPosition(this.camera.midPoint.x, 600)
+          this.midPoint.setPosition(this.camera.midPoint.x, 900)
           this.camera.startFollow(this.midPoint)
         },
         targets: this.midPoint,
-        x: this.worldWidth - this.startFlyX - 60, y: 800,
+        x: this.worldWidth - this.startFlyX - 60, y: 1200,
         duration,
         delay: 3500,
         ease: 'Quad.easeInOut',
         onComplete: (): void => {
           this.flyAni2 = this.tweens.add({
             targets: this.midPoint,
-            x: 1000, y: 1400,
+            x: 1200, y: 1600,
             duration,
             ease: 'Quad.easeInOut',
             onComplete: (): void => {
               this.flyAni3 = this.tweens.add({
                 targets: this.midPoint,
-                x: this.startFlyX + 60, y: 600,
+                x: this.startFlyX + 220, y: 900,
                 duration,
                 ease: 'Quad.easeInOut',
                 onComplete: (): void => { this.cameraFly() }
