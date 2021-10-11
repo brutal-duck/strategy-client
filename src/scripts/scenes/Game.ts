@@ -50,6 +50,7 @@ export default class Game extends Phaser.Scene {
   public cols: number
 
   public stars: number
+  public baseWasFound: boolean
 
   private worldBG: Phaser.GameObjects.TileSprite
   public hexes: Hex[]
@@ -86,7 +87,7 @@ export default class Game extends Phaser.Scene {
     this.input.keyboard.addKey('Z').on('up', (): void => {
       console.log(this.pointerHex)
     })
-    this.input.keyboard.addKey('C').on('up', (): void => { this.scene.launch('Modal', { state: this.state, type: 'landing' }) })
+    this.input.keyboard.addKey('C').on('up', (): void => { this.hud.setWarning(600, 600, '4-4') })
   }
 
 
@@ -109,6 +110,7 @@ export default class Game extends Phaser.Scene {
     this.green.name = 'green_player'
     this.red.name = 'red_player'
     this.stars = 0
+    this.baseWasFound = false
     this.claming = [] // массив захватываемых в данный момент клеток
 
     this.distanceX = 0

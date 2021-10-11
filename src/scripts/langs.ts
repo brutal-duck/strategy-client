@@ -14,6 +14,7 @@ export default {
     notEnought: 'недостаточно',
     wrongPlace: 'неподходящее\nместо',
     underAtack: 'на нас напали',
+    enemyBaseSited: 'вражеская столица\nобнаружена',
     surroundBase: 'окружите столицу для захвата',
     win: 'победа',
     lose: 'поражение',

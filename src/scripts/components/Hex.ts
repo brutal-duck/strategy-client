@@ -119,7 +119,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     const lineColor = colors[color].light
     this.clamingAniRemove()
     if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
-    this.line = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x - 25, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setOrigin(0).setTint(lineColor).setDepth(10000)
+    this.line = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x - 25, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setOrigin(0).setTint(lineColor).setDepth(10000).setVisible(!this.fog)
     this.scene.claming.push(this.id)
     // this.claming = true
 
@@ -149,8 +149,8 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.clamingAniRemove()
     if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
 
-    this.lineBg = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setTint(bgColor).setOrigin(0.5, 0).setDepth(10000).setVisible(color === this.scene.player.color)
-    this.line = this.scene.add.tileSprite(this.lineBg.getLeftCenter().x, this.lineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(10000).setVisible(color === this.scene.player.color)
+    this.lineBg = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setTint(bgColor).setOrigin(0.5, 0).setDepth(10000).setVisible(!this.fog)
+    this.line = this.scene.add.tileSprite(this.lineBg.getLeftCenter().x, this.lineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(10000).setVisible(!this.fog)
     if (!this.scene.claming.find(id => id === this.id)) this.scene.claming.push(this.id)
     // this.claming = true
 
@@ -353,6 +353,11 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.worldSprite.setVisible(true)
 
     if (this.dark) this.dark = false
+    if (this.scene.gameIsOn && !this.scene.baseWasFound && this.class === 'base' && this.own !== this.scene.player?.color) {
+      this.scene.baseWasFound = true
+      this.scene.hud.createWarningBaseWasFoundBar(this.getCenter().x, this.getCenter().y)
+      this.scene.centerCamera(this.getCenter().x, this.getCenter().y, false, 1000)
+    }
     // if (!this.landscape) this.setColor(this.own)
     // if (layerPlus) {
     //   Object.values(this.nearby).forEach(id => {
