@@ -6,6 +6,7 @@ import * as platform from 'platform';
 import axios from 'axios';
 
 import state from '../state';
+import Socket from './../utils/Socket';
 
 const pixel: any = require("./../../assets/images/pixel.png");
 
@@ -70,6 +71,7 @@ class Boot extends Phaser.Scene {
   private checkUser() {
     const vkId = Phaser.Math.Between(1, 2) === 1 ? 12345 : 123456;
     this.checkUserOnServer(vkId);
+    this.state.socket = new Socket(this.state)
   }
 
 
@@ -83,6 +85,7 @@ class Boot extends Phaser.Scene {
 
   private checkUserOnServer(vkId: number): void {
     const data: { id: number } = { id: vkId };
+    console.log(vkId);
     axios.post(process.env.API + '/checkUser', data).then(res => {
       const { error, userData }: { error: boolean, userData: IuserData } = res.data;
       if (!error) {

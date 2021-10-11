@@ -118,7 +118,7 @@ export default class Game extends Phaser.Scene {
     this.zoomed = false
     
     this.gameIsOn = true // запущен ли матч
-    this.world.recreate(this.gameIsOn)
+    this.world.recreate(this.gameIsOn, this.state.game.seed);
     
     if (this.state.game.AI) {
       this.AI = new AI(this)
@@ -728,6 +728,20 @@ export default class Game extends Phaser.Scene {
       }
 
       // if (this.flyAni?.isPlaying()) this.flyAni.remove()
+      this.checkSocketGameOver();
+    }
+  }
+
+  private checkSocketGameOver(): void {
+    if (this.state.socketWin) {
+      console.log(this.state, 'this.state');
+      this.gameOver('enemyBaseHasCaptured', this.player.color);
+      this.state.socket.closeSocket();
+    }
+    if (this.state.socketLoose) {
+      console.log(this.state, 'this.state');
+      this.gameOver('yourBaseHasCaptured', this.player.color === 'red' ? 'green' : 'red');
+      this.state.socket.closeSocket();
     }
   }
 }

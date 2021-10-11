@@ -11,22 +11,38 @@ export default class Socket {
   }
   
   public init(): void {
-    this.io = openSocket(process.env.API, { query: `id=${this.state.player.id}`});
+    this.io = openSocket(process.env.API);
 
     this.io.on('connect', () => {
       console.log('connect');
     });
+
     this.io.on('gameStart', data => {
       console.log('gameStart');
       console.log(data);
+      this.state.player.color = data.player.color;
+      this.state.game.seed = data.seed;
       this.state.startGame = true;
     });
-    this.io.on('leaveGame', () => {
-      console.log('зашел с таким же айди в другом браузере');
-      this.io.emit('disconnecting');
+
+    this.io.on('winGame', () => {
+      console.log('win!');
+      this.state.socketWin = true;
     });
-    this.io.on('test_event', data => {
-      console.log(data);
+
+    this.io.on('looseGame', () => {
+      console.log('loose!');
+      this.state.socketLoose = true;
+    });
+  }
+
+  public closeSocket(): void {
+    this.io.emit('closeGame');
+  }
+
+  public findGame(): void {
+    this.io.emit('findGame', {
+      id: this.state.player.id,
     });
   }
 }

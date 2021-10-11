@@ -18,7 +18,6 @@ export default class MainMenu extends Phaser.Scene {
   private AIcheckBox: Phaser.GameObjects.Sprite
   private AIcheckBoxCross: Phaser.GameObjects.Sprite
   private AIcheckBoxText: Phaser.GameObjects.Text
-
   private debug: Phaser.GameObjects.Text
 
 
@@ -60,11 +59,8 @@ export default class MainMenu extends Phaser.Scene {
 
 
   private matchMaking(): void {
-    this.state.player.color = Phaser.Math.Between(0, 1) === 0 ? 'green' : 'red'
-    this.gameScene.cameraFly(true, false)
-    this.scene.stop()
-    this.scene.start('Hud', this.state)
-    this.gameScene.launch(this.state)
+    if (!this.state.game.AI) this.state.socket.findGame();
+    else this.state.startGame = true;
   }
 
 
@@ -82,5 +78,15 @@ export default class MainMenu extends Phaser.Scene {
     //   x: ${Math.round(this.gameScene.camera.midPoint.x)}
     //   w: ${Math.round(this.gameScene.camera.worldView.width)}
     // `)
+    if (this.state.startGame) {
+      this.state.startGame = false;
+      this.state.socketWin = false;
+      this.state.socketLoose = false;
+      if (this.state.game.AI) this.state.player.color = Phaser.Math.Between(0, 1) === 0 ? 'green' : 'red'
+      this.gameScene.cameraFly(true, false)
+      this.scene.stop()
+      this.scene.start('Hud', this.state)
+      this.gameScene.launch(this.state)
+    }
   }
 }

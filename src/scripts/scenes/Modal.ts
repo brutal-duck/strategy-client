@@ -344,6 +344,7 @@ export default class Modal extends Phaser.Scene {
     this.gameScene.world.recreate(this.gameScene.gameIsOn)
     if (this.state.game.AI) this.gameScene.AI.remove()
     this.scene.start('MainMenu', this.state)
+    this.state.socket?.closeSocket();
   }
 
   private close(): void {

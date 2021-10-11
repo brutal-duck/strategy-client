@@ -7,7 +7,8 @@ let state: Istate = {
     id: '',
   },
   game: {
-    AI: false
+    AI: false,
+    seed: '',
   },
   platform: '',
   socket: null,
