@@ -176,16 +176,21 @@ export default class Hud extends Phaser.Scene {
   private createColorSwitcher(): void {
     this.switcher = this.add.tileSprite(this.camera.width / 2, this.camera.height, 60, 60, 'pixel').setOrigin(0.5, 1).setTint(colors[this.playerColor].main).setInteractive()
     this.switcher.on('pointerup', () => {
-      if (this.gameScene.player.color === 'green') this.gameScene.player.color = 'red'
-      else this.gameScene.player.color = 'green'
+      if (this.gameScene.player.color === 'green') {
+        this.gameScene.player.color = 'red'
+        this.gameScene.enemyColor = 'green'
+      } else {
+        this.gameScene.player.color = 'green'
+        this.gameScene.enemyColor = 'red'
+      }
       this.switcher.setTint(colors[this.gameScene.player.color].main)
     })
   }
 
 
   public updateWorldStatusBar(): void {
-    const playerHexes: number = this.gameScene.hexes.filter(hex => hex.own === this.playerColor).length
-    const enemyHexes: number = this.gameScene.hexes.filter(hex => hex.own === this.enemyColor).length
+    const playerHexes: number = this.gameScene.playerHexes().length
+    const enemyHexes: number = this.gameScene.enemyHexes().length
     const playerLineWidth = this.getLineWidth(playerHexes)
     const enemyLineWidth = this.getLineWidth(enemyHexes)
 
@@ -260,7 +265,7 @@ export default class Hud extends Phaser.Scene {
   }
 
   private getLineWidth(sum: number): number {
-    this.totalHexes = this.gameScene.hexes.filter(hex => hex.own === 'green' || hex.own === 'red').length
+    this.totalHexes = this.gameScene.playerHexes().length + this.gameScene.enemyHexes().length
     const width = this.worldStatusBar.getBounds().width
     const p = width / this.totalHexes
     return p * sum

@@ -150,8 +150,8 @@ export default class Modal extends Phaser.Scene {
     const result: Phaser.GameObjects.Text = this.add.text(mid.getTopCenter().x, y, this.lang.result, { font: '20px Molot', color: 'black' }).setOrigin(0.5).setAlpha(0)
     // const tilesLeft: Phaser.GameObjects.Text = this.add.text(mid.getTopCenter().x, y, this.lang.tilesLeft, { font: '20px Molot', color: 'black' }).setOrigin(0.5).setAlpha(0)
 
-    const playerHexes: number = this.gameScene?.hexes.filter(hex => hex.own === this.playerColor).length
-    const enemyHexes: number = this.gameScene?.hexes.filter(hex => hex.own === this.enemyColor).length
+    const playerHexes: number = this.gameScene?.playerHexes().length
+    const enemyHexes: number = this.gameScene?.enemyHexes().length
     const totalHexes = playerHexes + enemyHexes
     const lineWidth = windowWidth - 50
     const playerLineWidth = lineWidth / totalHexes * playerHexes

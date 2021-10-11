@@ -46,7 +46,7 @@ export default class AI {
     if (this.scene.gameIsOn) {
       const resourceHexes = this.AIHexes().filter(hex => hex.class === 'x1' || hex.class === 'x3').length
       const tiles = this.scene[this.color].hexes
-      const playerHexes = this.scene.hexes.filter(hex => hex.own === this.scene.player.color).length
+      const playerHexes = this.scene.playerHexes().length
       const totalCaptured = playerHexes + this.AIHexes().length
       const AIcapturedPercent = Math.round(100 / totalCaptured * this.AIHexes().length)
 

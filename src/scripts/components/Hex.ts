@@ -106,7 +106,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.worldSprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y, 'hex').setDepth(this.depth + 9).setScale(1.02).setVisible(false)
     this.classText = this.scene.add.text(this.getCenter().x, this.getCenter().y + 10, '', { font: '17px Molot', color: 'black' }).setOrigin(0.5, 0).setDepth(this.depth + 10).setStroke('#ffffff', 2)
     this.fogSprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y, 'fog').setAlpha(1).setScale(1.01).setDepth(this.depth + 20)
-    this.nearbyMark = this.scene.add.sprite(this.getCenter().x, this.getCenter().y - 1, 'hex-border').setDepth(this.depth + 10).setScale(0.95).setVisible(false)
+    this.nearbyMark = this.scene.add.sprite(this.getCenter().x, this.getCenter().y - 1, 'hex-border').setDepth(this.depth + 10).setScale(0.95).setVisible(false).setAlpha(1)
     this.defenceLvl = this.scene.add.text(this.getCenter().x, this.getCenter().y, '', { font: '17px Molot', color: 'black' }).setOrigin(0.5).setDepth(this.worldSprite.depth + 2)
     // if (this.col === 0) this.scene.add.sprite(this.x + w / 4 + 1, this.y + h / 2 - 7, 'fog').setOrigin(1, 0).setScale(this.fogSprite.scale).setDepth(this.fogSprite.depth + 1)
     // if (this.col === this.scene.cols - 1) this.scene.add.sprite(this.x + w * 0.75 - 1, this.y + h / 2 - 7, 'fog').setOrigin(0).setScale(this.fogSprite.scale).setDepth(this.fogSprite.depth + 1)
@@ -294,22 +294,18 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   }
 
   private checkVisibility(): void {
-    const explogreenGround = this.scene.hexes.filter(hex => !hex.dark)
-    const playerVisibleGround = []
+    const exploredGround = this.scene.hexes.filter(hex => !hex.dark)
+    const playerVisibleGround = this.scene.hexes.filter(hex => hex.own === this.scene.player.color)
+
     this.scene.outerPlayerHexes().forEach(outerHex => {
       if (outerHex) {
         this.scene.nearbyHexes(outerHex).forEach(nrbHex => {
-          if (nrbHex) {
-            if (playerVisibleGround.every(hex => hex?.id !== nrbHex?.id)) playerVisibleGround.push(nrbHex)
-            this.scene.nearbyHexes(nrbHex).forEach(nrbHex2 => {
-              if (nrbHex2 && playerVisibleGround.every(hex => hex?.id !== nrbHex2?.id)) playerVisibleGround.push(nrbHex2)
-            })
-          }
+          if (nrbHex && playerVisibleGround.every(hex => hex?.id !== nrbHex?.id)) playerVisibleGround.push(nrbHex)
         })
       }
     })
 
-    explogreenGround.forEach(explHex => { if (playerVisibleGround.every(hex => hex?.id !== explHex?.id)) explHex?.setFog() })
+    exploredGround.forEach(explHex => { if (playerVisibleGround.every(hex => hex?.id !== explHex?.id)) explHex?.setFog() })
   }
 
 
@@ -433,26 +429,6 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     })
   }
 
-  // public setColor(color: string): this {
-  //   const colors = {
-  //     gray: 0xAAADAF,
-  //     rock: 0x333333,
-  //     x1: 0xffdc73,
-  //     x3: 0xde9f32,
-  //     super: 0xa785ff,
-  //     water: 0xC6F0FF,
-  //     green,
-  //     red,
-  //   }
-
-  //   if (color === 'neutral') {
-  //     if (this.class === '') this.clearTint()
-  //     else this.setTint(colors[this.class])
-  //   } else this.setTint(colors[color])
-
-  //   this.color = color
-  //   return this
-  // }
 
   private setNearbyMark(): void {
     this.scene.hexes.forEach(hex => {
