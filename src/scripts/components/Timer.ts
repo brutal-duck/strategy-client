@@ -35,9 +35,9 @@ export default class Timer {
   }
 
   public updateTime(time: number): void {
-    this.time = time
-    this.min = Math.ceil(this.time / 60000)
-    this.sec = this.time % 60000
+    this.time = time;
+    this.min = Math.floor(this.time / 60000);
+    this.sec = Math.round((this.time - this.min * 60000) / 1000);
   }
 
   private create(): void {
@@ -86,7 +86,8 @@ export default class Timer {
         this.seconds.setText(s)
         this.playColonAni()
       },
-      loop: true
+      loop: true,
+      callbackScope: this,
     })
   }
 

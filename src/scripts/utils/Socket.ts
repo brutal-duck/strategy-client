@@ -15,6 +15,9 @@ export default class Socket {
 
     this.io.on('connect', () => {
       console.log('connect');
+      if (this.state.game.isStarted) {
+        this.state.socketLoose = true;
+      }
     });
 
     this.io.on('gameStart', data => {
@@ -41,6 +44,12 @@ export default class Socket {
       this.state.game.player = data.player;
       this.state.game.updateHex = true;
       this.state.game.serverGameTime = data.currentTime;
+    });
+
+    this.io.on('otherConnection', () => {
+      if (confirm('Обнаружено другое подключение')) {
+        window.location.reload();
+      }
     })
   }
 

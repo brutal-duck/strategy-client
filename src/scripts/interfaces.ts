@@ -35,6 +35,7 @@ interface IGame {
   updateHex: boolean
   player: IsocketPlayer
   serverGameTime: number
+  isStarted: boolean
 }
 interface Iconfig {
   name: string

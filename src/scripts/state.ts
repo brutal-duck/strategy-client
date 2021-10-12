@@ -13,6 +13,7 @@ let state: Istate = {
     updateHex: true,
     serverGameTime: 0,
     player: null,
+    isStarted: false,
   },
   platform: '',
   socket: null,

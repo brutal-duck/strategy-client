@@ -102,6 +102,7 @@ export default class Game extends Phaser.Scene {
 
 
   public launch(state: Istate): void {
+    this.state.game.isStarted = true;
     this.state = state
     this.player = state.player
     this.enemyColor = this.player.color === 'red' ? 'green' : 'red'
@@ -317,7 +318,6 @@ export default class Game extends Phaser.Scene {
             !hex.landscape && !hex.clamingAni?.isPlaying() &&
             this.nearbyHexes(hex).some(el => el?.own === this.player.color)
           ) {
-
             if (hex.own === 'neutral' && this[`${this.player.color}`].hexes >= hex.defence) {
               new FlyAwayMsg(this, x, y, `-${hex.defence}`, 'red', this.player.color)
               this.state.socket.hexClick(hex.id);
@@ -325,7 +325,6 @@ export default class Game extends Phaser.Scene {
               new FlyAwayMsg(this, x, y, `-${hex.defence + 1}`, 'red', this.player.color)
               this.state.socket.hexClick(hex.id);
             } else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', this.player.color)
-            this.hud.updateHexCounter()
           } else if (
             hex.own === this.player.color && hex.class === 'grass' && this[`${this.player.color}`].hexes >= hex.defence + 1 &&
             !hex.clamingAni?.isPlaying() && !hex.upgradeAni?.isPlaying()
@@ -656,6 +655,7 @@ export default class Game extends Phaser.Scene {
   public gameOver(reason: string, winner?: string): void {
     if (this.gameIsOn) {
       this.gameIsOn = false
+      this.state.game.isStarted = false
       this.hud.hide()
       this.hexes.forEach(hex => {
         hex.clamingAni?.remove()
@@ -745,6 +745,7 @@ export default class Game extends Phaser.Scene {
       gameConfig.hexes = this.state.game.player.hexes;
       gameConfig.superHex = this.state.game.player.superHexes;
       this.hud.timer.updateTime(config.matchTime - this.state.game.serverGameTime);
+      this.hud.updateHexCounter()
     }
   }
 }
