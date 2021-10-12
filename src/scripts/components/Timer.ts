@@ -34,6 +34,12 @@ export default class Timer {
     this.create()
   }
 
+  public updateTime(time: number): void {
+    this.time = time
+    this.min = Math.ceil(this.time / 60000)
+    this.sec = this.time % 60000
+  }
+
   private create(): void {
     const color = '#c6ea00'
     const font = '18px Molot'

@@ -34,6 +34,14 @@ export default class Socket {
       console.log('loose!');
       this.state.socketLoose = true;
     });
+
+    this.io.on('updateHex', (data) => {
+      console.log(data, 'entry data');
+      this.state.game.hexes = data.hexes;
+      this.state.game.player = data.player;
+      this.state.game.updateHex = true;
+      this.state.game.serverGameTime = data.currentTime;
+    })
   }
 
   public closeSocket(): void {
@@ -43,6 +51,13 @@ export default class Socket {
   public findGame(): void {
     this.io.emit('findGame', {
       id: this.state.player.id,
+    });
+  }
+
+  public hexClick(hexId: string): void {
+    this.io.emit('clickHex', {
+      userId: this.state.player.id,
+      id: hexId,
     });
   }
 }

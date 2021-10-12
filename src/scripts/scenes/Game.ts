@@ -248,6 +248,7 @@ export default class Game extends Phaser.Scene {
           this.chosenHex = hex
           const x = hex.getCenter().x
           const y = hex.getCenter().y
+          this.state.socket.hexClick(hex.id);
           
           if (
             hex.own !== this.player.color && hex.class !== 'base' &&
@@ -729,6 +730,11 @@ export default class Game extends Phaser.Scene {
 
       // if (this.flyAni?.isPlaying()) this.flyAni.remove()
       this.checkSocketGameOver();
+      if (this.state.game.updateHex) {
+        this.updateHexState();
+        this.updatePlayerState();
+        this.state.game.updateHex = false;
+      }
     }
   }
 
@@ -742,6 +748,30 @@ export default class Game extends Phaser.Scene {
       console.log(this.state, 'this.state');
       this.gameOver('yourBaseHasCaptured', this.player.color === 'red' ? 'green' : 'red');
       this.state.socket.closeSocket();
+    }
+  }
+
+  private updateHexState(): void {
+      if (this.state.game.hexes) {
+        this.state.game.hexes.forEach(socketHex => {
+          const hex = this.hexes.find(el => el.id === socketHex.id);
+          if (hex.own !== socketHex.newOwn && !hex.clamingAni?.isPlaying()) {
+            console.log('hex', hex);
+            console.log('socketHex', socketHex);
+            hex.clame(socketHex.newOwn);
+          }
+        });
+        console.log(this.state.game.hexes, 'update')
+      }
+      this.state.game.updateHex = false;
+  }
+
+  private updatePlayerState(): void {
+    if (this.state.game.player) {
+      const gameConfig: Iconfig = this[this.state.player.color];
+      gameConfig.hexes = this.state.game.player.hexes;
+      gameConfig.superHex = this.state.game.player.superHexes;
+      this.hud.timer.updateTime(config.matchTime - this.state.game.serverGameTime * 1000);
     }
   }
 }

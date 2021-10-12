@@ -35,7 +35,8 @@ export default {
     superTiles: 'супер-плиток',
     landTroops: 'высадить войска?',
     yes: 'да',
-    no: 'нет'
+    no: 'нет',
+    enemyLeaveGame: 'противник вышел из игры',
   },
   en: {
     index: 'ru',

@@ -2,10 +2,16 @@ interface Istate {
   player: Iplayer
   game: IGame
   platform: string
-  socket: any
+  socket: Isocket
   startGame: boolean
   socketWin?: boolean
   socketLoose?: boolean
+}
+interface Isocket {
+  init: () => void;
+  closeSocket: () => void;
+  findGame: () => void;
+  hexClick: (hexId: string) => void;
 }
 interface Iplayer {
   name: string
@@ -16,9 +22,19 @@ interface Iplayer {
   wins?: number
   id: string
 }
+interface  IsocketPlayer {
+  color: string
+  hexes: number
+  superHexes: number
+  id: string
+}
 interface IGame {
   AI: boolean
   seed: string
+  hexes: any[]
+  updateHex: boolean
+  player: IsocketPlayer
+  serverGameTime: number
 }
 interface Iconfig {
   name: string

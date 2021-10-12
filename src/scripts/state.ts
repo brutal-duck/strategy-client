@@ -9,6 +9,10 @@ let state: Istate = {
   game: {
     AI: false,
     seed: '',
+    hexes: [],
+    updateHex: true,
+    serverGameTime: 0,
+    player: null,
   },
   platform: '',
   socket: null,
