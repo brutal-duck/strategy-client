@@ -109,7 +109,8 @@ export default class Modal extends Phaser.Scene {
 
     no.border.on('pointerup', (): void => { this.close() })
     yes.border.on('pointerup', (): void => {
-      this.gameScene.superHexClameConfirmed()
+      if (this.gameScene.state.game.AI) this.gameScene.superHexClameConfirmed()
+      else this.gameScene.superHexSocketClameConfirmed()
       this.close()
     })
   }

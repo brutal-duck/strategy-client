@@ -251,9 +251,7 @@ export default class Game extends Phaser.Scene {
           // console.log('hex.on ~', hex)
           this.chosenHex = hex
           const x = hex.getCenter().x
-          const y = hex.getCenter().y
-          this.state.socket.hexClick(hex.id);
-          
+          const y = hex.getCenter().y          
           if (
             hex.own !== this.player.color && hex.class !== 'base' &&
             !hex.landscape && !hex.clamingAni?.isPlaying() &&
@@ -301,6 +299,54 @@ export default class Game extends Phaser.Scene {
     })
   }
 
+  public setHexSocketInteractive(): void {
+    this.hexes.forEach(hex => {
+      hex.on('pointerover', (): void => { this.pointerHex = hex })
+      hex.on('pointerup', (): void => {
+        if (this.draged) {
+          this.draged = false
+          // this.zoomed = false
+        } else if (this.twoPointerZoom) this.twoPointerZoom = false
+        else {
+          // console.log('hex.on ~', hex)
+          this.chosenHex = hex
+          const x = hex.getCenter().x
+          const y = hex.getCenter().y          
+          if (
+            hex.own !== this.player.color && hex.class !== 'base' &&
+            !hex.landscape && !hex.clamingAni?.isPlaying() &&
+            this.nearbyHexes(hex).some(el => el?.own === this.player.color)
+          ) {
+
+            if (hex.own === 'neutral' && this[`${this.player.color}`].hexes >= hex.defence) {
+              new FlyAwayMsg(this, x, y, `-${hex.defence}`, 'red', this.player.color)
+              this.state.socket.hexClick(hex.id);
+            } else if (this[`${this.player.color}`].hexes >= hex.defence + 1) {
+              new FlyAwayMsg(this, x, y, `-${hex.defence + 1}`, 'red', this.player.color)
+              this.state.socket.hexClick(hex.id);
+            } else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', this.player.color)
+            this.hud.updateHexCounter()
+          } else if (
+            hex.own === this.player.color && hex.class === 'grass' && this[`${this.player.color}`].hexes >= hex.defence + 1 &&
+            !hex.clamingAni?.isPlaying() && !hex.upgradeAni?.isPlaying()
+          ) {
+            this.state.socket.hexClick(hex.id);
+            hex.upgradeSocketDefence();
+            new FlyAwayMsg(this, x, y, `-${hex.defence + 1}`, 'red', this.player.color)
+          } else if (hex.own !== this.player.color && hex.class !== 'base') {
+            if (this[`${this.player.color}`].superHex > 0 && !hex.clamingAni?.isPlaying()) {
+              if (hex.own !== this.player.color && !hex.landscape && hex.class !== 'base' && !hex.clamingAni?.isPlaying()) {
+                this.scene.launch('Modal', { state: this.state, type: 'landing' })
+              } else if (hex.class !== 'base' || (hex.landscape && hex.dark)) new FlyAwayMsg(this, x, y, this.lang.wrongPlace, 'red', '', 1000)
+            } else if (hex.dark || !hex.landscape) new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', 'purple')
+          } else if (hex.class === 'base' && !hex.dark && hex.own !== this.player.color) {
+            new FlyAwayMsg(this, x, y, this.lang.surroundBase, 'yellow', '', 2000)
+          } 
+        }
+      })
+    })
+  }
+
   public superHexClameConfirmed(): void {
     new FlyAwayMsg(this, this.chosenHex.getCenter().x, this.chosenHex.getCenter().y, '-1', 'red', 'purple')
     this.chosenHex.removeFog()
@@ -309,6 +355,13 @@ export default class Game extends Phaser.Scene {
 
     if (this.chosenHex.own === 'neutral') this.chosenHex.setClaming(this.player.color, true)
     else this.chosenHex.setClearClame(this.player.color, true)
+  }
+
+  public superHexSocketClameConfirmed(): void {
+    new FlyAwayMsg(this, this.chosenHex.getCenter().x, this.chosenHex.getCenter().y, '-1', 'red', 'purple')
+    this.chosenHex.removeFog()
+    this.hud.updateHexCounter()
+    this.state.socket.hexClick(this.chosenHex.id);
   }
   
 
@@ -670,10 +723,15 @@ export default class Game extends Phaser.Scene {
       if (this.state.game.hexes) {
         this.state.game.hexes.forEach(socketHex => {
           const hex = this.hexes.find(el => el.id === socketHex.id);
-          if (hex.own !== socketHex.newOwn && !hex.clamingAni?.isPlaying()) {
-            console.log('hex', hex);
-            console.log('socketHex', socketHex);
-            hex.clame(socketHex.newOwn);
+          if (hex.own !== socketHex.newOwn && socketHex.own !== socketHex.newOwn && !hex.clamingAni?.isPlaying()) {
+            if (hex.own !== 'neutral') hex.setClearClame(socketHex.newOwn, socketHex.super); 
+            else hex.setSocketClaming(socketHex.newOwn, socketHex.super);
+          } else if (socketHex.own !== socketHex.newOwn && !hex.clamingAni?.isPlaying()) {
+            hex.socketClame(socketHex.newOwn, socketHex.super);
+          }
+          if (hex.defence !== socketHex.defence) {
+            console.log(socketHex.defence);
+            hex.defence = socketHex.defence;
           }
         });
         console.log(this.state.game.hexes, 'update')
@@ -686,7 +744,7 @@ export default class Game extends Phaser.Scene {
       const gameConfig: Iconfig = this[this.state.player.color];
       gameConfig.hexes = this.state.game.player.hexes;
       gameConfig.superHex = this.state.game.player.superHexes;
-      this.hud.timer.updateTime(config.matchTime - this.state.game.serverGameTime * 1000);
+      this.hud.timer.updateTime(config.matchTime - this.state.game.serverGameTime);
     }
   }
 }
