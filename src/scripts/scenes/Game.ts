@@ -724,7 +724,7 @@ export default class Game extends Phaser.Scene {
         this.state.game.hexes.forEach(socketHex => {
           const hex = this.hexes.find(el => el.id === socketHex.id);
           if (hex.own !== socketHex.newOwn && socketHex.own !== socketHex.newOwn && !hex.clamingAni?.isPlaying()) {
-            if (hex.own !== 'neutral') hex.setClearClame(socketHex.newOwn, socketHex.super); 
+            if (hex.own !== 'neutral') hex.setSocketClearClame(socketHex.newOwn, socketHex.super); 
             else hex.setSocketClaming(socketHex.newOwn, socketHex.super);
           } else if (socketHex.own !== socketHex.newOwn && !hex.clamingAni?.isPlaying()) {
             hex.socketClame(socketHex.newOwn, socketHex.super);

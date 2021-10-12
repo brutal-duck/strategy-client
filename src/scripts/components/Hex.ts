@@ -190,6 +190,34 @@ export default class Hex extends Phaser.GameObjects.Sprite {
         this.clamingAniRemove()
         this.socketClame(color, superHex)
         this.scene.hud.updateWorldStatusBar()
+        this.giveResourceAnimFromSocket()
+      }
+    })
+  }
+
+  public setSocketClearClame(color: string, superHex: boolean = false) {
+    const lineColor = colors[color].light
+    this.clamingAniRemove()
+    if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
+    this.line = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x - 25, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setOrigin(0).setTint(lineColor).setDepth(10000).setVisible(!this.fog)
+    this.scene.claming.push(this.id)
+    // this.claming = true
+
+    if (color !== this.scene.player.color) {
+      new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y + 20, '', 'yellow', 'warning', 7000)
+      this.scene.hud.setWarning(this.getCenter().x, this.getCenter().y, this.id)
+    }
+
+    this.clamingAni = this.scene.tweens.add({
+      targets: this.line,
+      width: 1,
+      duration: this.super ? this.scene.green.superReclameTime : this.scene.green.clameTime,
+      onComplete: (): void => {
+        this.clamingAniRemove()
+        this.productionTimer?.remove()
+        // this.setColor('neutral')
+        this.own = 'neutral'
+        this.setClaming(color, superHex)
       }
     })
   }
@@ -568,6 +596,12 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     
     if (this.own === this.scene.player.color) new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y, `+${this.resources}`, 'green', this.class === 'super' ? 'purple' : this.own)
     this.scene.hud.updateHexCounter()
+    this.resources = 0
+  }
+
+  public giveResourceAnimFromSocket(): void {
+    if (this.resources <= 0) return; 
+    if (this.own === this.scene.player.color) new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y, `+${this.resources}`, 'green', this.class === 'super' ? 'purple' : this.own)
     this.resources = 0
   }
 
