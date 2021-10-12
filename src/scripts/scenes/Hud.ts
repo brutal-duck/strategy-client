@@ -58,6 +58,10 @@ export default class Hud extends Phaser.Scene {
   private warnIcon: Phaser.GameObjects.Sprite
   private warnCreateAni: Phaser.Tweens.Tween
   private warnFadeInAni: Phaser.Tweens.Tween
+  private warnBaseWasFoundBg: Phaser.GameObjects.Sprite
+  private warnBaseWasFoundText: Phaser.GameObjects.Text
+  private warnBaseWasFoundIcon: Phaser.GameObjects.Sprite
+
 
   private menuBtn: MatchMenuBtn
 
@@ -173,19 +177,55 @@ export default class Hud extends Phaser.Scene {
   }
 
 
+  public createWarningBaseWasFoundBar(x: number, y: number): void {
+    this.warnBaseWasFoundBg = this.add.sprite(this.camera.width - 6, this.worldStatusBar.getBottomRight().y + 46, 'block').setOrigin(1, 0).setTint(0x000000).setAlpha(0.4).setDisplaySize(160, 40).setInteractive()
+    this.warnBaseWasFoundIcon = this.add.sprite(this.warnBaseWasFoundBg.getLeftCenter().x + 6, this.warnBaseWasFoundBg.getLeftCenter().y, 'warning').setOrigin(0, 0.5).setScale(0.3)
+    this.warnBaseWasFoundText = this.add.text(this.warnBaseWasFoundIcon.getRightCenter().x + 6, this.warnBaseWasFoundIcon.getRightCenter().y, this.lang.enemyBaseSited, {
+      font: '12px Molot', align: 'center', color: '#d8ae1c'
+    }).setOrigin(0, 0.5).setStroke('#a65600', 3)
+
+    const targets = [ this.warnBaseWasFoundBg, this.warnBaseWasFoundIcon, this.warnBaseWasFoundText ]
+    targets.forEach(el => el.setX(el.x + 200))
+
+    const fadeOut: Phaser.Tweens.Tween = this.tweens.add({
+      targets,
+      x: '-=200',
+      duration: 300
+    })
+    const fadeIn: Phaser.Tweens.Tween = this.tweens.add({
+      targets,
+      alpha: 0,
+      duration: 500,
+      delay: 10000
+    })
+
+    this.warnBaseWasFoundBg.on('pointerup', (): void => {
+      this.gameScene.centerCamera(x, y, false, 1000)
+      targets.forEach(el => el.destroy())
+      fadeOut?.remove()
+      fadeIn?.remove()
+    })
+  }
+
+
   private createColorSwitcher(): void {
     this.switcher = this.add.tileSprite(this.camera.width / 2, this.camera.height, 60, 60, 'pixel').setOrigin(0.5, 1).setTint(colors[this.playerColor].main).setInteractive()
     this.switcher.on('pointerup', () => {
-      if (this.gameScene.player.color === 'green') this.gameScene.player.color = 'red'
-      else this.gameScene.player.color = 'green'
+      if (this.gameScene.player.color === 'green') {
+        this.gameScene.player.color = 'red'
+        this.gameScene.enemyColor = 'green'
+      } else {
+        this.gameScene.player.color = 'green'
+        this.gameScene.enemyColor = 'red'
+      }
       this.switcher.setTint(colors[this.gameScene.player.color].main)
     })
   }
 
 
   public updateWorldStatusBar(): void {
-    const playerHexes: number = this.gameScene.hexes.filter(hex => hex.own === this.playerColor).length
-    const enemyHexes: number = this.gameScene.hexes.filter(hex => hex.own === this.enemyColor).length
+    const playerHexes: number = this.gameScene.playerHexes().length
+    const enemyHexes: number = this.gameScene.enemyHexes().length
     const playerLineWidth = this.getLineWidth(playerHexes)
     const enemyLineWidth = this.getLineWidth(enemyHexes)
 
@@ -260,7 +300,7 @@ export default class Hud extends Phaser.Scene {
   }
 
   private getLineWidth(sum: number): number {
-    this.totalHexes = this.gameScene.hexes.filter(hex => hex.own === 'green' || hex.own === 'red').length
+    this.totalHexes = this.gameScene.playerHexes().length + this.gameScene.enemyHexes().length
     const width = this.worldStatusBar.getBounds().width
     const p = width / this.totalHexes
     return p * sum
@@ -327,6 +367,10 @@ export default class Hud extends Phaser.Scene {
     this.warnBg?.setPosition(this.camera.width - 6, this.worldStatusBar.getBottomRight().y + 10)
     this.warnIcon?.setPosition(this.warnBg.getLeftCenter().x + 6, this.warnBg.getLeftCenter().y)
     this.warnText?.setPosition(this.warnIcon.getRightCenter().x + 6, this.warnIcon.getRightCenter().y)
+
+    this.warnBaseWasFoundBg?.setPosition(this.camera.width - 6, this.worldStatusBar.getBottomRight().y + 46)
+    this.warnBaseWasFoundIcon?.setPosition(this.warnBaseWasFoundBg.getLeftCenter().x + 6, this.warnBaseWasFoundBg.getLeftCenter().y)
+    this.warnBaseWasFoundText?.setPosition(this.warnBaseWasFoundIcon.getRightCenter().x + 6, this.warnBaseWasFoundIcon.getRightCenter().y)
     
     this.hexBar?.setPosition(5, 5)
     this.hexBarText?.setPosition(this.hexBar.getCenter().x + 1, this.hexBar.getCenter().y - 2)

@@ -17,6 +17,7 @@ export default class Game extends Phaser.Scene {
   public lang: any
   // public isLaunched: boolean = false
   public player: Iplayer
+  public enemyColor: string
   public hud: Hud
   public world: World | WorldTest
   public gameIsOn: boolean = false
@@ -49,6 +50,7 @@ export default class Game extends Phaser.Scene {
   public cols: number
 
   public stars: number
+  public baseWasFound: boolean
 
   private worldBG: Phaser.GameObjects.TileSprite
   public hexes: Hex[]
@@ -63,8 +65,8 @@ export default class Game extends Phaser.Scene {
     this.hud = this.game.scene.getScene('Hud') as Hud
     this.gameIsOn = false
 
-    this.worldWidth = 2048
-    this.worldHeight = 2048
+    this.worldWidth = 2548
+    this.worldHeight = 2548
     this.segmentRows = 7
     this.segmentCols = 9
     this.cols = this.segmentCols * 3 // общее количество колонок
@@ -72,7 +74,7 @@ export default class Game extends Phaser.Scene {
 
     this.camera = this.cameras.main
     this.camera.setBounds(0, 0, this.worldWidth, this.worldHeight)
-    this.camera.centerOn(500, 600)
+    this.camera.centerOn(700, 800)
     this.scale.lockOrientation('landscape-primary')
 
     this.hexes = []
@@ -83,10 +85,9 @@ export default class Game extends Phaser.Scene {
     this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', this.player.color) })
     this.input.keyboard.addKey('S').on('up', (): void => { this.hexes.forEach(hex => hex.removeFog()) })
     this.input.keyboard.addKey('Z').on('up', (): void => {
-      console.log(this.pointerHex.own)
-      this.test(this.player.color)
+      console.log(this.pointerHex)
     })
-    this.input.keyboard.addKey('C').on('up', (): void => { this.scene.launch('Modal', { state: this.state, type: 'landing' }) })
+    this.input.keyboard.addKey('C').on('up', (): void => { this.hud.setWarning(600, 600, '4-4') })
   }
 
 
@@ -103,11 +104,13 @@ export default class Game extends Phaser.Scene {
   public launch(state: Istate): void {
     this.state = state
     this.player = state.player
+    this.enemyColor = this.player.color === 'red' ? 'green' : 'red'
     this.green = Object.assign({}, config)
     this.red = Object.assign({}, config)
     this.green.name = 'green_player'
     this.red.name = 'red_player'
     this.stars = 0
+    this.baseWasFound = false
     this.claming = [] // массив захватываемых в данный момент клеток
 
     this.distanceX = 0
@@ -127,6 +130,7 @@ export default class Game extends Phaser.Scene {
 
     console.log('init ~ this.camera', this.camera)
     console.log('create ~ this.input', this.input)
+
   }
 
 
@@ -316,7 +320,7 @@ export default class Game extends Phaser.Scene {
 
     // Пушит новые найденые гексы в массив внутренних гексов
     const pushNewInnerHexes = (nextCol: Hex[], top: Hex, bot: Hex): void => {
-      const filtered = nextCol.filter(hex => hex.row > top.row && hex.row < bot.row && (hex.own !== color || hex.landscape))
+      const filtered = nextCol.filter(hex => hex.row > top.row && hex.row < bot.row && (hex.own !== color))
       const length = filtered.length
 
       for (let i = 0; i < length; i++) {
@@ -351,60 +355,55 @@ export default class Game extends Phaser.Scene {
 
 
     // Сокращение массива внутренних незахваченных гекс
-    const reduce = (arrs: Hex[][]) => {
-      // console.log('reduce ~ arrs', arrs.map(arr => arr.map(el => el.id)))
-      let newArrs = []
-      let arrayIsChanged = false
+    let newInnerHexes = []
+    const reduce = () => {
+      newInnerHexes = []
+      let fullArr = []
 
-      for (let i = 0; i < arrs.length; i++) {
-        const arr = arrs[i]
-        const newArr = []
+      // Собираем все в один массив
+      innerHexes.forEach(hex => fullArr = fullArr.concat(hex))
 
-        for (let j = 0; j < arr.length; j++) {
-          const hex = arr[j]
-          if (j === 0) {
-            newArr.push(hex)
-            continue
-          }
-          if (newArr.every(el => el.id !== hex.id)) newArr.push(hex)
-        }
+      // Удаляем одинаковые элементы в массиве
+      fullArr = fullArr.reduce((arr, item) => arr.includes(item) ? arr : [...arr, item], [])
+      // console.log('2 ~ fullArr', fullArr.map(hex => hex.id))
 
-        newArrs.push(newArr)
-      }
-
-      for (let i = newArrs.length - 1; i > 0; i--) {
-        let a = newArrs[i]
-        let b = newArrs[i - 1]
-
-        if (b) {
-          for (let j = a.length - 1; j >= 0; j--) {
-            let nearby = Object.values(a[j].nearby)
-            if (b.some(hex => nearby.some(id => id === hex.id))) {
-              b.push(a.splice(j, 1)[0])
-              if (!arrayIsChanged) arrayIsChanged = true
+      // Создаем матрицу соседних элементов
+      for (let i = 0; i < fullArr.length; i++) {
+        if (i === 0) newInnerHexes.push([fullArr[i]])
+        else {
+          let hexSetted = false
+          for (let j = 0; j < newInnerHexes.length; j++) {
+            let arr = newInnerHexes[j]
+            if (arr.some(hex => this.nearbyHexes(hex).some(hex2 => hex2.id === fullArr[i].id))) {
+              arr.push(fullArr[i])
+              hexSetted = true
+              break
             }
           }
-          if (a.length === 0) newArrs.pop()
+          if (!hexSetted) newInnerHexes.push([fullArr[i]])
         }
       }
 
-      arrs = newArrs
-      if (arrayIsChanged) arrs = reduce(arrs)
-      return arrs
+      // Сокращаем массивы, если среди них есть соседние элементы
+      reduceNewArrs()
+      // console.log('4 ~ newInnerHexes', newInnerHexes.map(arr => arr.map(hex => hex.id)))
+      innerHexes = newInnerHexes
     }
 
-
-    // const sheduce = (arrs: Hex[][]) => {
-    //   let newInnerHexes = []
-    //   let fullArr = []
-    //   arrs.forEach(el => fullArr = fullArr.concat(el))
-    //   fullArr.forEach((el, i) => { if (fullArr.filter(hex => hex.id === el.id).length > 1) fullArr.splice(i, 1) })
-
-    //   for (let i = 0; i < fullArr.length; i++) {
-    //     if (i === 0) newInnerHexes.push([fullArr[i]])
-    //     if (fullArr[i])
-    //   }
-    // }
+    const reduceNewArrs = () => {
+      let isChanged = false
+      for (let i = 1; i < newInnerHexes.length; i++) {
+        let a = newInnerHexes[i - 1]
+        let b = newInnerHexes[i]
+        if (a.some(el => this.nearbyHexes(el).some(nearbyHex => b.some(hex2 => hex2.id === nearbyHex.id)))) {
+          isChanged = true
+          b.forEach(el => a.push(el))
+          newInnerHexes.splice(i, 1)
+          break
+        }
+      }
+      if (isChanged) reduceNewArrs()
+    }
 
 
     // Поиск верхней и нижней клетки игрока
@@ -446,10 +445,7 @@ export default class Game extends Phaser.Scene {
   
         if (top && bot) {
           pushNewInnerHexes(nextCol, top, bot)
-          let iner = []
-          iner = iner.concat(innerHexes)
-          // console.log('1 ~ innerHexes', iner.map(arr => arr.map(hex => hex.id)))
-          innerHexes = reduce(innerHexes)
+          reduce()
           findInnerHexes(nextCol)
         } else return
       }
@@ -483,7 +479,7 @@ export default class Game extends Phaser.Scene {
 
     // 3. Проверка на замыкание внутренних незахваченных гекс
     if (innerHexes.length > 0) {
-      console.log('2 ~ innerHexes', innerHexes.map(arr => arr.map(hex => hex.id)))
+      // console.log('5 ~ innerHexes', innerHexes.map(arr => arr.map(hex => hex.id)))
       innerHexes.forEach(arr => {
         innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => 
           arr.some(el => el.id === id) || this.getHexByID(id) === null || this.getHexByID(id).own === color
@@ -491,95 +487,13 @@ export default class Game extends Phaser.Scene {
         if (innerHexesIsClosed) arr.forEach(hex => {
           hex.removeFog()
           if (!hex.landscape) hex.clame(color)
-          else if (hex.class === 'rock') hex.setWorldTexture(color)
+          else {
+            hex.own = color
+            if (hex.class === 'rock') hex.setWorldTexture(color)
+          }
         })
       })
     }
-  }
-
-  private test(color: string): void {
-    // this.hexes.forEach(hex => {})
-    let check = [
-      this.topIsClosed(this.pointerHex, color),
-      this.topRightIsClosed(this.pointerHex, color),
-      this.botRightIsClosed(this.pointerHex, color),
-      this.botIsClosed(this.pointerHex, color),
-      this.botLeftIsClosed(this.pointerHex, color),
-      this.topLeftIsClosed(this.pointerHex, color),
-    ]
-    console.log('test ~ check', check.every(el => el))
-  }
-
-  private topIsClosed(hex: Hex, color: string): boolean {
-    const col = hex.col
-    let row = hex.row - 1
-    while (row >= 0) {
-      if (this.getHexByID(`${col}-${row}`).own === color) return true
-      row--
-    }
-    return false
-  }
-
-  private topRightIsClosed(hex: Hex, color: string): boolean {
-    let topRight = this.getHexByID(hex.nearby.topRight)
-    let row = topRight.row
-    let col = topRight.col
-    while (row > 0 && col < this.cols - 1) {
-      if (topRight.own === color) return true
-      topRight = this.getHexByID(topRight.nearby.topRight)
-      row = topRight.row
-      col = topRight.col
-    }
-    return false
-  }
-
-  private botRightIsClosed(hex: Hex, color: string): boolean {
-    let botRight = this.getHexByID(hex.nearby.botRight)
-    let row = botRight.row
-    let col = botRight.col
-    while (row < this.rows && col < this.cols - 1) {
-      if (botRight.own === color) return true
-      botRight = this.getHexByID(botRight.nearby.botRight)
-      row = botRight.row
-      col = botRight.col
-    }
-    return false
-  }
-
-  private botIsClosed(hex: Hex, color: string): boolean {
-    const col = hex.col
-    let row = hex.row + 1
-    while (row < this.rows) {
-      if (this.getHexByID(`${col}-${row}`).own === color) return true
-      else row++
-    }
-    return false
-  }
-
-  private botLeftIsClosed(hex: Hex, color: string): boolean {
-    let botLeft = this.getHexByID(hex.nearby.botLeft)
-    let row = botLeft.row
-    let col = botLeft.col
-    while (row < this.rows - 1 && col > 0) {
-      if (botLeft.own === color) return true
-      botLeft = this.getHexByID(botLeft.nearby.botLeft)
-      row = botLeft.row
-      col = botLeft.col
-    }
-    return false
-  }
-
-  private topLeftIsClosed(hex: Hex, color: string): boolean {
-    let topLeft = this.getHexByID(hex.nearby.topLeft)
-    let row = topLeft.row
-    let col = topLeft.col
-    while (row > 0 && col > 0) {
-      if (topLeft.own === color) return true
-      topLeft = this.getHexByID(topLeft.nearby.topLeft)
-      row = topLeft.row
-      col = topLeft.col
-    }
-    return false
   }
 
   private nextColHexesBetween(topHex: Hex, botHex: Hex = topHex): Hex[] {
@@ -618,7 +532,8 @@ export default class Game extends Phaser.Scene {
   }
 
   public getHexByID(id: string): Hex { return this.hexes.find(hex => hex.id === id) }
-  public playerHexes(): Hex[] { return this.hexes.filter(hex => hex?.own === this.player.color) }
+  public playerHexes(): Hex[] { return this.hexes.filter(hex => hex?.own === this.player.color && !hex.landscape) }
+  public enemyHexes(): Hex[] { return this.hexes.filter(hex => hex?.own == this.enemyColor && !hex.landscape) }
   public nearbyHexes(hex: Hex): Hex[] { if (hex) return Object.values(hex?.nearby).map(id => { if (this.isValidID(id)) return this.getHexByID(id) }) }
   public outerPlayerHexes(): Hex[] { return this.playerHexes().filter(hex => { if (hex) return this.nearbyHexes(hex).some(el => el?.own !== this.player.color) }) }
   public isValidID(id: string): boolean {
@@ -647,27 +562,27 @@ export default class Game extends Phaser.Scene {
     if (fly) {
       const duration = 30000
       if (updateStartFlyX) this.startFlyX = this.camera.worldView.width / 2 > 0 ? this.camera.worldView.width / 2 : 600
-      this.centerCamera(this.startFlyX + 60, 600, true, 2500, 'Quad.easeOut')
+      this.centerCamera(this.startFlyX + 220, 900, true, 2500, 'Quad.easeOut')
       this.flyAni1 = this.tweens.add({
         onStart: (): void => {
-          this.midPoint.setPosition(this.camera.midPoint.x, 600)
+          this.midPoint.setPosition(this.camera.midPoint.x, 900)
           this.camera.startFollow(this.midPoint)
         },
         targets: this.midPoint,
-        x: this.worldWidth - this.startFlyX - 60, y: 800,
+        x: this.worldWidth - this.startFlyX - 60, y: 1200,
         duration,
         delay: 3500,
         ease: 'Quad.easeInOut',
         onComplete: (): void => {
           this.flyAni2 = this.tweens.add({
             targets: this.midPoint,
-            x: 1000, y: 1400,
+            x: 1200, y: 1600,
             duration,
             ease: 'Quad.easeInOut',
             onComplete: (): void => {
               this.flyAni3 = this.tweens.add({
                 targets: this.midPoint,
-                x: this.startFlyX + 60, y: 600,
+                x: this.startFlyX + 220, y: 900,
                 duration,
                 ease: 'Quad.easeInOut',
                 onComplete: (): void => { this.cameraFly() }

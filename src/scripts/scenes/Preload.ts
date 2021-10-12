@@ -4,6 +4,7 @@ const block: any = require("./../../assets/images/block-rounded.png");
 const world: any = require("./../../assets/images/world.png");
 const hex: any = require("./../../assets/images/hex.png");
 const hexBorder: any = require("./../../assets/images/hex-border.png");
+const hexBorder2: any = require("./../../assets/images/hex-border-2.png");
 const fog: any = require("./../../assets/images/fog.png");
 const fogSoft: any = require("./../../assets/images/fog-soft.png");
 const warning: any = require("./../../assets/images/warning.png");
@@ -57,7 +58,6 @@ const greenX3: any = require("./../../assets/images/landscape/green-x3-1.png");
 const greenX32: any = require("./../../assets/images/landscape/green-x3-2.png");
 const baseRed: any = require("./../../assets/images/landscape/red-base.png");
 const baseGreen: any = require("./../../assets/images/landscape/green-base.png");
-
 const greenSuper1: any = require("./../../assets/images/landscape/green-super-1.png");
 const greenSuper2: any = require("./../../assets/images/landscape/green-super-2.png");
 const redSuper1: any = require("./../../assets/images/landscape/red-super-1.png");
@@ -103,6 +103,7 @@ class Preload extends Phaser.Scene {
     this.load.image('bg', world)
     this.load.image('hex', hex)
     this.load.image('hex-border', hexBorder)
+    this.load.image('hex-border-2', hexBorder2)
     this.load.image('fog', fog)
     this.load.image('fog-soft', fogSoft)
     this.load.image('warning', warning)

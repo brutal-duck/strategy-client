@@ -30,6 +30,9 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   public classText: Phaser.GameObjects.Text
   public defenceLvl: Phaser.GameObjects.Text
   private nearbyMark: Phaser.GameObjects.Sprite
+  private baseMarkMain: Phaser.GameObjects.Sprite
+  private baseMarkSecond: Phaser.GameObjects.Sprite
+  private baseMarkAni: Phaser.Tweens.Tween
   // public claming: boolean
   public clamingAni: Phaser.Tweens.Tween // идет ли захват клетки
   public upgradeAni: Phaser.Tweens.Tween
@@ -106,7 +109,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.worldSprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y, 'hex').setDepth(this.depth + 9).setScale(1.02).setVisible(false)
     this.classText = this.scene.add.text(this.getCenter().x, this.getCenter().y + 10, '', { font: '17px Molot', color: 'black' }).setOrigin(0.5, 0).setDepth(this.depth + 10).setStroke('#ffffff', 2)
     this.fogSprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y, 'fog').setAlpha(1).setScale(1.01).setDepth(this.depth + 20)
-    this.nearbyMark = this.scene.add.sprite(this.getCenter().x, this.getCenter().y - 1, 'hex-border').setDepth(this.depth + 10).setScale(0.95).setVisible(false)
+    this.nearbyMark = this.scene.add.sprite(this.getCenter().x, this.getCenter().y - 1, 'hex-border-2').setDepth(this.depth + 10).setScale(0.95).setVisible(false).setAlpha(0.5)
     this.defenceLvl = this.scene.add.text(this.getCenter().x, this.getCenter().y, '', { font: '17px Molot', color: 'black' }).setOrigin(0.5).setDepth(this.worldSprite.depth + 2)
     // if (this.col === 0) this.scene.add.sprite(this.x + w / 4 + 1, this.y + h / 2 - 7, 'fog').setOrigin(1, 0).setScale(this.fogSprite.scale).setDepth(this.fogSprite.depth + 1)
     // if (this.col === this.scene.cols - 1) this.scene.add.sprite(this.x + w * 0.75 - 1, this.y + h / 2 - 7, 'fog').setOrigin(0).setScale(this.fogSprite.scale).setDepth(this.fogSprite.depth + 1)
@@ -119,7 +122,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     const lineColor = colors[color].light
     this.clamingAniRemove()
     if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
-    this.line = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x - 25, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setOrigin(0).setTint(lineColor).setDepth(10000)
+    this.line = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x - 25, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setOrigin(0).setTint(lineColor).setDepth(10000).setVisible(!this.fog)
     this.scene.claming.push(this.id)
     // this.claming = true
 
@@ -149,8 +152,8 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.clamingAniRemove()
     if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
 
-    this.lineBg = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setTint(bgColor).setOrigin(0.5, 0).setDepth(10000).setVisible(color === this.scene.player.color)
-    this.line = this.scene.add.tileSprite(this.lineBg.getLeftCenter().x, this.lineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(10000).setVisible(color === this.scene.player.color)
+    this.lineBg = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setTint(bgColor).setOrigin(0.5, 0).setDepth(10000).setVisible(!this.fog)
+    this.line = this.scene.add.tileSprite(this.lineBg.getLeftCenter().x, this.lineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(10000).setVisible(!this.fog)
     if (!this.scene.claming.find(id => id === this.id)) this.scene.claming.push(this.id)
     // this.claming = true
 
@@ -233,6 +236,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
         this.own = color
         this.setNearbyMark()
         this.produceHexes()
+        if (this.scene.gameIsOn && color === this.scene.player.color) this.setBaseMark()
         break
       }
       case 'rock': {
@@ -291,25 +295,22 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.worldSprite.setVisible(false)
     this.class = ''
     this.classText.setText(this.class)
+    this.removeBaseMark()
   }
 
   private checkVisibility(): void {
-    const explogreenGround = this.scene.hexes.filter(hex => !hex.dark)
-    const playerVisibleGround = []
+    const exploredGround = this.scene.hexes.filter(hex => !hex.dark)
+    const playerVisibleGround = this.scene.hexes.filter(hex => hex.own === this.scene.player.color)
+
     this.scene.outerPlayerHexes().forEach(outerHex => {
       if (outerHex) {
         this.scene.nearbyHexes(outerHex).forEach(nrbHex => {
-          if (nrbHex) {
-            if (playerVisibleGround.every(hex => hex?.id !== nrbHex?.id)) playerVisibleGround.push(nrbHex)
-            this.scene.nearbyHexes(nrbHex).forEach(nrbHex2 => {
-              if (nrbHex2 && playerVisibleGround.every(hex => hex?.id !== nrbHex2?.id)) playerVisibleGround.push(nrbHex2)
-            })
-          }
+          if (nrbHex && playerVisibleGround.every(hex => hex?.id !== nrbHex?.id)) playerVisibleGround.push(nrbHex)
         })
       }
     })
 
-    explogreenGround.forEach(explHex => { if (playerVisibleGround.every(hex => hex?.id !== explHex?.id)) explHex?.setFog() })
+    exploredGround.forEach(explHex => { if (playerVisibleGround.every(hex => hex?.id !== explHex?.id)) explHex?.setFog() })
   }
 
 
@@ -353,10 +354,16 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       duration: initial ? duration + delay : duration,
       delay: initial && this.class !== 'base' ? duration + delay : delay
     })
+    
     this.fog = false
     this.worldSprite.setVisible(true)
 
     if (this.dark) this.dark = false
+    if (this.scene.gameIsOn && !this.scene.baseWasFound && this.class === 'base' && this.own !== this.scene.player?.color) {
+      this.scene.baseWasFound = true
+      this.scene.hud.createWarningBaseWasFoundBar(this.getCenter().x, this.getCenter().y)
+      this.scene.centerCamera(this.getCenter().x, this.getCenter().y, false, 1000)
+    }
     // if (!this.landscape) this.setColor(this.own)
     // if (layerPlus) {
     //   Object.values(this.nearby).forEach(id => {
@@ -433,26 +440,6 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     })
   }
 
-  // public setColor(color: string): this {
-  //   const colors = {
-  //     gray: 0xAAADAF,
-  //     rock: 0x333333,
-  //     x1: 0xffdc73,
-  //     x3: 0xde9f32,
-  //     super: 0xa785ff,
-  //     water: 0xC6F0FF,
-  //     green,
-  //     red,
-  //   }
-
-  //   if (color === 'neutral') {
-  //     if (this.class === '') this.clearTint()
-  //     else this.setTint(colors[this.class])
-  //   } else this.setTint(colors[color])
-
-  //   this.color = color
-  //   return this
-  // }
 
   private setNearbyMark(): void {
     this.scene.hexes.forEach(hex => {
@@ -465,6 +452,32 @@ export default class Hex extends Phaser.GameObjects.Sprite {
         if (!nearbyHex.landscape && nearbyHex.class !== 'base' && nearbyHex.own !== this.scene.player.color) nearbyHex.showNearbyMark()
       })
     })
+  }
+
+  private setBaseMark(): void {
+    this.baseMarkMain = this.scene.add.sprite(this.getCenter().x, this.getCenter().y - 1, 'hex-border').setDepth(this.depth + 10).setScale(0.95).setAlpha(0)
+    this.baseMarkSecond = this.scene.add.sprite(this.getCenter().x, this.getCenter().y - 1, 'hex-border').setDepth(this.depth + 11).setScale(0.95).setAlpha(0).setTint(colors[this.scene.player.color].main)
+    this.scene.tweens.add({
+      targets: [this.baseMarkMain,  this.baseMarkSecond],
+      alpha: 1,
+      duration: 1000,
+      delay: 1000,
+      onComplete: (): void => {        
+        this.baseMarkAni = this.scene.tweens.add({
+          targets: this.baseMarkSecond,
+          alpha: 0,
+          duration: 1500,
+          yoyo: true,
+          loop: -1
+        })
+      }
+    })
+  }
+
+  private removeBaseMark(): void {
+    this.baseMarkAni?.remove()
+    this.baseMarkMain?.destroy()
+    this.baseMarkSecond?.destroy()
   }
 
   public showNearbyMark(show: boolean = true): void { this.nearbyMark.setVisible(show) }
