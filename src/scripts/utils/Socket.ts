@@ -22,7 +22,6 @@ export default class Socket {
 
     this.io.on('gameStart', data => {
       console.log('gameStart');
-      console.log(data);
       this.state.player.color = data.player.color;
       this.state.game.seed = data.seed;
       this.state.startGame = true;
@@ -39,7 +38,6 @@ export default class Socket {
     });
 
     this.io.on('updateHex', (data) => {
-      console.log(data, 'entry data');
       this.state.game.hexes = data.hexes;
       this.state.game.player = data.player;
       this.state.game.updateHex = true;
@@ -47,9 +45,7 @@ export default class Socket {
     });
 
     this.io.on('otherConnection', () => {
-      if (confirm('Обнаружено другое подключение')) {
-        window.location.reload();
-      }
+      alert('Other connection')
     })
   }
 
