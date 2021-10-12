@@ -115,6 +115,16 @@ export default class Timer {
     return this
   }
 
+  public getTimeLeft(): string {
+    let min = 10 - this.min
+    let sec = this.sec
+    if (sec > 0) {
+      min--
+      sec = 60 - this.sec
+    }
+    return `${min < 10 ? 0 : ''}${min} : ${sec < 10 ? 0 : ''}${sec}`
+  }
+
   public stop(): void {
     this.timeEvent.remove()
   }

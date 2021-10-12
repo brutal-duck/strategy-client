@@ -58,10 +58,11 @@ export default class Hud extends Phaser.Scene {
   private warnIcon: Phaser.GameObjects.Sprite
   private warnCreateAni: Phaser.Tweens.Tween
   private warnFadeInAni: Phaser.Tweens.Tween
+
   private warnBaseWasFoundBg: Phaser.GameObjects.Sprite
   private warnBaseWasFoundText: Phaser.GameObjects.Text
   private warnBaseWasFoundIcon: Phaser.GameObjects.Sprite
-
+  private warnBaseWasFoundAni: Phaser.Tweens.Tween
 
   private menuBtn: MatchMenuBtn
 
@@ -204,6 +205,27 @@ export default class Hud extends Phaser.Scene {
       targets.forEach(el => el.destroy())
       fadeOut?.remove()
       fadeIn?.remove()
+    })
+  }
+
+  public enemyBaseSitedInfo(x: number, y: number): void {
+    this.warnBaseWasFoundText = this.add.text(this.worldStatusBar.getCenter().x + 6, this.worldStatusBar.getCenter().y, this.lang.enemyBaseSited, {
+      font: '20px Molot', align: 'center', color: colors[this.enemyColor].mainStr
+    }).setOrigin(0.5).setStroke('#000000', 2).setAlpha(0)
+
+    this.warnBaseWasFoundAni = this.tweens.add({
+      // onStart: (): void => {  this.gameScene.centerCamera(x, y, false, 1200) },
+      targets: this.warnBaseWasFoundText,
+      alpha: { value: 1, duration: 600 },
+      y: { value: '+=46', duration: 600, ease: 'Quart.easeIn' },
+      onComplete: (): void => {
+        this.warnBaseWasFoundAni = this.tweens.add({
+          targets: this.warnBaseWasFoundText,
+          alpha: 0,
+          duration: 600,
+          delay: 4000
+        })
+      }
     })
   }
 
@@ -368,7 +390,8 @@ export default class Hud extends Phaser.Scene {
     this.warnIcon?.setPosition(this.warnBg.getLeftCenter().x + 6, this.warnBg.getLeftCenter().y)
     this.warnText?.setPosition(this.warnIcon.getRightCenter().x + 6, this.warnIcon.getRightCenter().y)
 
-    this.warnBaseWasFoundBg?.setPosition(this.camera.width - 6, this.worldStatusBar.getBottomRight().y + 46)
+    // this.warnBaseWasFoundBg?.setPosition(this.camera.width - 6, this.worldStatusBar.getBottomRight().y + 46)
+    this.warnBaseWasFoundBg?.setPosition(this.worldStatusBar.getCenter().x + 6, this.worldStatusBar.getCenter().y)
     this.warnBaseWasFoundIcon?.setPosition(this.warnBaseWasFoundBg.getLeftCenter().x + 6, this.warnBaseWasFoundBg.getLeftCenter().y)
     this.warnBaseWasFoundText?.setPosition(this.warnBaseWasFoundIcon.getRightCenter().x + 6, this.warnBaseWasFoundIcon.getRightCenter().y)
     

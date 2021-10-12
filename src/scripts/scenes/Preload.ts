@@ -58,6 +58,7 @@ const greenX3: any = require("./../../assets/images/landscape/green-x3-1.png");
 const greenX32: any = require("./../../assets/images/landscape/green-x3-2.png");
 const baseRed: any = require("./../../assets/images/landscape/red-base.png");
 const baseGreen: any = require("./../../assets/images/landscape/green-base.png");
+const baseAlone: any = require("./../../assets/images/landscape/base-alone.png");
 const greenSuper1: any = require("./../../assets/images/landscape/green-super-1.png");
 const greenSuper2: any = require("./../../assets/images/landscape/green-super-2.png");
 const redSuper1: any = require("./../../assets/images/landscape/red-super-1.png");
@@ -156,6 +157,7 @@ class Preload extends Phaser.Scene {
     this.load.image('green-x3-1', greenX3)
     this.load.image('green-x3-2', greenX32)
     this.load.image('base-green', baseGreen)
+    this.load.image('base-alone', baseAlone)
     this.load.image('base-red', baseRed)
     this.load.image('green-super-1', greenSuper1)
     this.load.image('green-super-2', greenSuper2)

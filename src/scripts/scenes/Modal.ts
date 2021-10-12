@@ -132,7 +132,7 @@ export default class Modal extends Phaser.Scene {
     }
     const titleAniDuration = 300
     const titleAniDelay = 500
-    const windowHeight = 160
+    const windowHeight = 226
     const windowWidth = 340
 
     const title = this.add.text(x, y - 100, text, {
@@ -157,7 +157,7 @@ export default class Modal extends Phaser.Scene {
     const playerLineWidth = lineWidth / totalHexes * playerHexes
     const enemyLineWidth = lineWidth / totalHexes * enemyHexes
 
-    const lineBg: Phaser.GameObjects.TileSprite = this.add.tileSprite(mid.getTopCenter().x, y + 40, lineWidth, 20, 'pixel').setOrigin(0.5, 0).setAlpha(0)
+    const lineBg: Phaser.GameObjects.TileSprite = this.add.tileSprite(mid.getTopCenter().x, y + 60, lineWidth, 20, 'pixel').setOrigin(0.5, 0).setAlpha(0)
     const playerLine: Phaser.GameObjects.TileSprite = this.add.tileSprite(lineBg.getLeftCenter().x, lineBg.getLeftCenter().y, playerLineWidth, 26, 'pixel').setTint(colors[this.playerColor].main).setDepth(2).setOrigin(0, 0.5).setAlpha(0)
     const enemyLine: Phaser.GameObjects.TileSprite = this.add.tileSprite(lineBg.getRightCenter().x, lineBg.getRightCenter().y, enemyLineWidth, 26, 'pixel').setTint(colors[this.enemyColor].main).setDepth(2).setOrigin(1, 0.5).setAlpha(0)
     const playerSum: Phaser.GameObjects.Text = this.add.text(lineBg.getBottomLeft().x + 10, lineBg.getBottomLeft().y + 12, `${playerHexes}`, { font: '30px Molot', color: colors[this.playerColor].mainStr }).setAlpha(0)
@@ -167,6 +167,14 @@ export default class Modal extends Phaser.Scene {
     const lineStar1: Phaser.GameObjects.Sprite = this.add.sprite(lineBg.getCenter().x, lineBg.getCenter().y, stars > 0 ? 'star' : 'star-disabled').setScale(0.32).setDepth(3).setAlpha(0)
     const lineStar2: Phaser.GameObjects.Sprite = this.add.sprite(lineBg.getLeftCenter().x + lineWidth * 0.75, lineBg.getCenter().y, stars > 1 ? 'star' : 'star-disabled').setScale(0.32).setDepth(3).setAlpha(0)
     const lineStar3: Phaser.GameObjects.Sprite = this.add.sprite(lineBg.getRightCenter().x, lineBg.getCenter().y, stars > 2 ? 'star' : 'star-disabled').setScale(0.32).setDepth(3).setAlpha(0)
+
+    const timeSpend: Phaser.GameObjects.Text = this.add.text(mid.getTopCenter().x, playerSum.getBottomCenter().y + 20, this.lang.timeSpend, {
+      font: '18px Molot', color: 'black'
+    }).setOrigin(0.5, 0).setAlpha(0)
+
+    const timer: Phaser.GameObjects.Text = this.add.text(mid.getTopCenter().x, timeSpend.getBottomCenter().y, this.gameScene.hud.timer.getTimeLeft(), {
+      font: '20px Molot', color: '#c6ea00'
+    }).setOrigin(0.5, 0).setAlpha(0).setStroke('black', 3)
 
     // const hex: Phaser.GameObjects.Sprite = this.add.sprite(x - 40, y, 'hex').setTint(colors[this.playerColor].main).setScale(0.6).setAlpha(0)
     // const hexSum: Phaser.GameObjects.Text = this.add.text(hex.getCenter().x, y, `${this.gameScene[this.playerColor].hexes}`, {
@@ -234,7 +242,7 @@ export default class Modal extends Phaser.Scene {
       const delay = 150
 
       result.setY(y - 75)
-      lineBg.setPosition(mid.getTopCenter().x, y - 55)
+      lineBg.setPosition(mid.getTopCenter().x, y - 45)
       playerLine.setPosition(lineBg.getLeftCenter().x, lineBg.getLeftCenter().y)
       enemyLine.setPosition(lineBg.getRightCenter().x, lineBg.getRightCenter().y)
       playerSum.setPosition(lineBg.getBottomLeft().x + 20, lineBg.getBottomLeft().y + 15)
@@ -242,6 +250,8 @@ export default class Modal extends Phaser.Scene {
       lineStar1.setPosition(lineBg.getCenter().x, lineBg.getCenter().y)
       lineStar2.setPosition(lineBg.getLeftCenter().x + lineWidth * 0.75, lineBg.getCenter().y)
       lineStar3.setPosition(lineBg.getRightCenter().x, lineBg.getCenter().y)
+      timeSpend.setPosition(mid.getTopCenter().x, playerSum.getBottomCenter().y + 8)
+      timer.setPosition(mid.getTopCenter().x, timeSpend.getBottomCenter().y)
       
       // tilesLeft.setY(y + 30)
       // hex.setY(y + 70)
@@ -249,7 +259,7 @@ export default class Modal extends Phaser.Scene {
       // purpleHex.setY(y + 70)
       // purpleHexSum.setY(purpleHex.y)
 
-      const btn = new MatchOverBtn(this, x, y + 50).setAlpha(0)
+      const btn = new MatchOverBtn(this, x, y + 112).setAlpha(0)
       btn.border.on('pointerup', (): void => { this.stopGame() })
 
       const targets = [
@@ -258,6 +268,7 @@ export default class Modal extends Phaser.Scene {
         [playerSum, enemySum],
         // [tilesLeft],
         // [hex, hexSum, purpleHex, purpleHexSum],
+        [timeSpend, timer],
         btn.elements
       ]
 
