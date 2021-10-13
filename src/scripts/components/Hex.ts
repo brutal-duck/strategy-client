@@ -205,6 +205,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       })
     }
 
+    if (this.class === 'x3') this.scene.hud.cityClamedOrLostInfo(this.own === this.scene.player.color)
     if (this?.own !== 'neutral' && (this?.class === 'x1' || this?.class === 'x3')) this.produceHexes()
     Phaser.Utils.Array.Remove(this.scene.claming, this.id)
     this.checkVisibility()
@@ -371,7 +372,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       if (!this.baseMarkAni?.isPlaying()) this.setBaseMark()
       if (this.scene.gameIsOn && !this.scene.baseWasFound && this.own !== this.scene.player?.color) {
         this.scene.baseWasFound = true
-        this.scene.hud.enemyBaseSitedInfo(this.getCenter().x, this.getCenter().y)
+        this.scene.hud.enemyBaseSitedInfo()
         // this.scene.hud.createWarningBaseWasFoundBar(this.getCenter().x, this.getCenter().y)
         this.scene.centerCamera(this.getCenter().x, this.getCenter().y, false, 1000)
       }
@@ -422,12 +423,12 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     }
   }
 
-  public upgradeDefence(): void {
+  public upgradeDefence(color: string): void {
     this.upgradeAniRemove()
-    const bgColor = colors[this.scene.player.color].light
-    const lineColor = colors[this.scene.player.color].main
-    this.defLineBg = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x, this.defenceLvl.getBottomCenter().y + 7, 50, 5, 'pixel').setTint(bgColor).setOrigin(0.5, 0).setDepth(10000).setVisible(this.own === this.scene.player.color)
-    this.defLine = this.scene.add.tileSprite(this.defLineBg.getLeftCenter().x, this.defLineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(10000).setVisible(this.own === this.scene.player.color)
+    const bgColor = colors[color].light
+    const lineColor = colors[color].main
+    this.defLineBg = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x, this.defenceLvl.getBottomCenter().y + 7, 50, 5, 'pixel').setTint(bgColor).setOrigin(0.5, 0).setDepth(10000).setVisible(!this.fog)
+    this.defLine = this.scene.add.tileSprite(this.defLineBg.getLeftCenter().x, this.defLineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(10000).setVisible(!this.fog)
 
     this.upgradeAni = this.scene.tweens.add({
       targets: this.defLine,

@@ -7,7 +7,7 @@ let state: Istate = {
     id: '',
   },
   game: {
-    AI: false
+    AI: ''
   },
   platform: ''
 };

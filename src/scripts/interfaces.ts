@@ -11,7 +11,7 @@ interface Iplayer {
   id: string
 }
 interface IGame {
-  AI: boolean
+  AI: string
 }
 interface Iconfig {
   name: string

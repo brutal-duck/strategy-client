@@ -125,8 +125,8 @@ export default class Game extends Phaser.Scene {
     this.gameIsOn = true // запущен ли матч
     this.world.recreate(this.gameIsOn)
     
-    if (this.state.game.AI) {
-      this.AI = new AI(this)
+    if (this.state.game.AI !== '') {
+      this.AI = new AI(this, this.state.game.AI)
       this.AI.init()
     }
 
@@ -289,7 +289,7 @@ export default class Game extends Phaser.Scene {
           ) {
             player.hexes -= hex.defence + 1
             new FlyAwayMsg(this, x, y, `-${hex.defence + 1}`, 'red', this.player.color)
-            hex.upgradeDefence()
+            hex.upgradeDefence(this.player.color)
             
           } else if (hex.own !== this.player.color && hex.class !== 'base') {
 
