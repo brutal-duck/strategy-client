@@ -51,6 +51,7 @@ export default class Game extends Phaser.Scene {
 
   public stars: number
   public baseWasFound: boolean
+  public hidedHexes: string[]
 
   private worldBG: Phaser.GameObjects.TileSprite
   public hexes: Hex[]
@@ -113,6 +114,7 @@ export default class Game extends Phaser.Scene {
     this.stars = 0
     this.baseWasFound = false
     this.claming = [] // массив захватываемых в данный момент клеток
+    this.hidedHexes = [] // массив id клеток, которые нужно раскрыть с опозданием (для супер клеток)
 
     this.distanceX = 0
     this.distanceY = 0
@@ -252,38 +254,47 @@ export default class Game extends Phaser.Scene {
           // console.log('hex.on ~', hex)
           this.chosenHex = hex
           const x = hex.getCenter().x
-          const y = hex.getCenter().y          
+          const y = hex.getCenter().y
+          const player = this[this.player.color]
+
           if (
             hex.own !== this.player.color && hex.class !== 'base' &&
             !hex.landscape && !hex.clamingAni?.isPlaying() &&
             this.nearbyHexes(hex).some(el => el?.own === this.player.color)
           ) {
 
-            if (hex.own === 'neutral' && this[`${this.player.color}`].hexes >= hex.defence) {
+            if (hex.own === 'neutral' && hex.defence === 1 && player.hexes >= hex.defence) {
               new FlyAwayMsg(this, x, y, `-${hex.defence}`, 'red', this.player.color)
-              this[`${this.player.color}`].hexes -= hex.defence
+              player.hexes -= hex.defence
               hex.setClaming(this.player.color)
 
-            } else if (this[`${this.player.color}`].hexes >= hex.defence + 1) {
-              new FlyAwayMsg(this, x, y, `-${hex.defence + 1}`, 'red', this.player.color)
-              this[`${this.player.color}`].hexes -= hex.defence + 1
+            // } else if (player.hexes >= hex.defence + 1) {
+            } else if (hex.defence === 1 && player.hexes >= hex.defence) {
+              new FlyAwayMsg(this, x, y, `-${2}`, 'red', this.player.color)
+              player.hexes -= 2
               hex.setClearClame(this.player.color)
 
-            } else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', this.player.color)
+            } else if (hex.defence > 1 && player.hexes >= hex.defence) {
+              new FlyAwayMsg(this, x, y, `-${1}`, 'red', this.player.color)
+              player.hexes -= 1
+              hex.setClearClame(this.player.color)
+            }
+            // else if (player.superHex > 0) this.scene.launch('Modal', { state: this.state, type: 'landing' })
+            else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', this.player.color)
 
             this.hud.updateHexCounter()
 
           } else if (
-            hex.own === this.player.color && hex.class === 'grass' && this[`${this.player.color}`].hexes >= hex.defence + 1 &&
+            hex.own === this.player.color && hex.class === 'grass' && player.hexes >= hex.defence + 1 &&
             !hex.clamingAni?.isPlaying() && !hex.upgradeAni?.isPlaying()
           ) {
-            this[`${this.player.color}`].hexes -= hex.defence + 1
+            player.hexes -= hex.defence + 1
             new FlyAwayMsg(this, x, y, `-${hex.defence + 1}`, 'red', this.player.color)
             hex.upgradeDefence()
             
           } else if (hex.own !== this.player.color && hex.class !== 'base') {
 
-            if (this[`${this.player.color}`].superHex > 0 && !hex.clamingAni?.isPlaying()) {
+            if (player.superHex > 0 && !hex.clamingAni?.isPlaying()) {
   
               if (hex.own !== this.player.color && !hex.landscape && hex.class !== 'base' && !hex.clamingAni?.isPlaying()) {
                 this.scene.launch('Modal', { state: this.state, type: 'landing' })
