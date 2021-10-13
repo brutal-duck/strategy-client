@@ -246,115 +246,119 @@ export default class Game extends Phaser.Scene {
     this.hexes.forEach(hex => {
       hex.on('pointerover', (): void => { this.pointerHex = hex })
       hex.on('pointerup', (): void => {
-        if (this.draged) {
-          this.draged = false
-          // this.zoomed = false
-        } else if (this.twoPointerZoom) this.twoPointerZoom = false
-        else {
-          // console.log('hex.on ~', hex)
-          this.chosenHex = hex
-          const x = hex.getCenter().x
-          const y = hex.getCenter().y
-          const player = this[this.player.color]
-
-          if (
-            hex.own !== this.player.color && hex.class !== 'base' &&
-            !hex.landscape && !hex.clamingAni?.isPlaying() &&
-            this.nearbyHexes(hex).some(el => el?.own === this.player.color)
-          ) {
-
-            if (hex.own === 'neutral' && hex.defence === 1 && player.hexes >= hex.defence) {
-              new FlyAwayMsg(this, x, y, `-${hex.defence}`, 'red', this.player.color)
-              player.hexes -= hex.defence
-              hex.setClaming(this.player.color)
-
-            // } else if (player.hexes >= hex.defence + 1) {
-            } else if (hex.defence === 1 && player.hexes >= hex.defence) {
-              new FlyAwayMsg(this, x, y, `-${2}`, 'red', this.player.color)
-              player.hexes -= 2
-              hex.setClearClame(this.player.color)
-
-            } else if (hex.defence > 1 && player.hexes >= hex.defence) {
-              new FlyAwayMsg(this, x, y, `-${1}`, 'red', this.player.color)
-              player.hexes -= 1
-              hex.setClearClame(this.player.color)
-            }
-            // else if (player.superHex > 0) this.scene.launch('Modal', { state: this.state, type: 'landing' })
-            else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', this.player.color)
-
-            this.hud.updateHexCounter()
-
-          } else if (
-            hex.own === this.player.color && hex.class === 'grass' && player.hexes >= hex.defence + 1 &&
-            !hex.clamingAni?.isPlaying() && !hex.upgradeAni?.isPlaying()
-          ) {
-            player.hexes -= hex.defence + 1
-            new FlyAwayMsg(this, x, y, `-${hex.defence + 1}`, 'red', this.player.color)
-            hex.upgradeDefence()
-            
-          } else if (hex.own !== this.player.color && hex.class !== 'base') {
-
-            if (player.superHex > 0 && !hex.clamingAni?.isPlaying()) {
-  
-              if (hex.own !== this.player.color && !hex.landscape && hex.class !== 'base' && !hex.clamingAni?.isPlaying()) {
-                this.scene.launch('Modal', { state: this.state, type: 'landing' })
-
-              } else if (hex.class !== 'base' || (hex.landscape && hex.dark)) new FlyAwayMsg(this, x, y, this.lang.wrongPlace, 'red', '', 1000)
-  
-            } else if (hex.dark || !hex.landscape) new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', 'purple')
-
-          } else if (hex.class === 'base' && !hex.dark && hex.own !== this.player.color) {
-            new FlyAwayMsg(this, x, y, this.lang.surroundBase, 'yellow', '', 2000)
-          } 
-        }
+        if (this.state.game.AI) this.pointerUp(hex);
+        else this.socketPointerUp(hex);
       })
     })
   }
 
-  public setHexSocketInteractive(): void {
-    this.hexes.forEach(hex => {
-      hex.on('pointerover', (): void => { this.pointerHex = hex })
-      hex.on('pointerup', (): void => {
-        if (this.draged) {
-          this.draged = false
-          // this.zoomed = false
-        } else if (this.twoPointerZoom) this.twoPointerZoom = false
-        else {
-          // console.log('hex.on ~', hex)
-          this.chosenHex = hex
-          const x = hex.getCenter().x
-          const y = hex.getCenter().y          
-          if (
-            hex.own !== this.player.color && hex.class !== 'base' &&
-            !hex.landscape && !hex.clamingAni?.isPlaying() &&
-            this.nearbyHexes(hex).some(el => el?.own === this.player.color)
-          ) {
-            if (hex.own === 'neutral' && this[`${this.player.color}`].hexes >= hex.defence) {
-              new FlyAwayMsg(this, x, y, `-${hex.defence}`, 'red', this.player.color)
-              this.state.socket.hexClick(hex.id);
-            } else if (this[`${this.player.color}`].hexes >= hex.defence + 1) {
-              new FlyAwayMsg(this, x, y, `-${hex.defence + 1}`, 'red', this.player.color)
-              this.state.socket.hexClick(hex.id);
-            } else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', this.player.color)
-          } else if (
-            hex.own === this.player.color && hex.class === 'grass' && this[`${this.player.color}`].hexes >= hex.defence + 1 &&
-            !hex.clamingAni?.isPlaying() && !hex.upgradeAni?.isPlaying()
-          ) {
-            this.state.socket.hexClick(hex.id);
-            hex.upgradeSocketDefence();
-            new FlyAwayMsg(this, x, y, `-${hex.defence + 1}`, 'red', this.player.color)
-          } else if (hex.own !== this.player.color && hex.class !== 'base') {
-            if (this[`${this.player.color}`].superHex > 0 && !hex.clamingAni?.isPlaying()) {
-              if (hex.own !== this.player.color && !hex.landscape && hex.class !== 'base' && !hex.clamingAni?.isPlaying()) {
-                this.scene.launch('Modal', { state: this.state, type: 'landing' })
-              } else if (hex.class !== 'base' || (hex.landscape && hex.dark)) new FlyAwayMsg(this, x, y, this.lang.wrongPlace, 'red', '', 1000)
-            } else if (hex.dark || !hex.landscape) new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', 'purple')
-          } else if (hex.class === 'base' && !hex.dark && hex.own !== this.player.color) {
-            new FlyAwayMsg(this, x, y, this.lang.surroundBase, 'yellow', '', 2000)
-          } 
+  public pointerUp(hex: Hex): void {
+    if (this.draged) {
+      this.draged = false
+      // this.zoomed = false
+    } else if (this.twoPointerZoom) this.twoPointerZoom = false
+    else {
+      // console.log('hex.on ~', hex)
+      this.chosenHex = hex
+      const x = hex.getCenter().x
+      const y = hex.getCenter().y
+      const player = this[this.player.color]
+
+      if (
+        hex.own !== this.player.color && hex.class !== 'base' &&
+        !hex.landscape && !hex.clamingAni?.isPlaying() &&
+        this.nearbyHexes(hex).some(el => el?.own === this.player.color)
+      ) {
+
+        if (hex.own === 'neutral' && hex.defence === 1 && player.hexes >= hex.defence) {
+          new FlyAwayMsg(this, x, y, `-${hex.defence}`, 'red', this.player.color)
+          player.hexes -= hex.defence
+          hex.setClaming(this.player.color)
+
+        // } else if (player.hexes >= hex.defence + 1) {
+        } else if (hex.defence === 1 && player.hexes >= hex.defence) {
+          new FlyAwayMsg(this, x, y, `-${2}`, 'red', this.player.color)
+          player.hexes -= 2
+          hex.setClearClame(this.player.color)
+
+        } else if (hex.defence > 1 && player.hexes >= hex.defence) {
+          new FlyAwayMsg(this, x, y, `-${1}`, 'red', this.player.color)
+          player.hexes -= 1
+          hex.setClearClame(this.player.color)
         }
-      })
-    })
+        // else if (player.superHex > 0) this.scene.launch('Modal', { state: this.state, type: 'landing' })
+        else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', this.player.color)
+
+        this.hud.updateHexCounter()
+
+      } else if (
+        hex.own === this.player.color && hex.class === 'grass' && player.hexes >= hex.defence + 1 &&
+        !hex.clamingAni?.isPlaying() && !hex.upgradeAni?.isPlaying()
+      ) {
+        player.hexes -= hex.defence + 1
+        new FlyAwayMsg(this, x, y, `-${hex.defence + 1}`, 'red', this.player.color)
+        hex.upgradeDefence()
+        
+      } else if (hex.own !== this.player.color && hex.class !== 'base') {
+
+        if (player.superHex > 0 && !hex.clamingAni?.isPlaying()) {
+
+          if (hex.own !== this.player.color && !hex.landscape && hex.class !== 'base' && !hex.clamingAni?.isPlaying()) {
+            this.scene.launch('Modal', { state: this.state, type: 'landing' })
+
+          } else if (hex.class !== 'base' || (hex.landscape && hex.dark)) new FlyAwayMsg(this, x, y, this.lang.wrongPlace, 'red', '', 1000)
+
+        } else if (hex.dark || !hex.landscape) new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', 'purple')
+
+      } else if (hex.class === 'base' && !hex.dark && hex.own !== this.player.color) {
+        new FlyAwayMsg(this, x, y, this.lang.surroundBase, 'yellow', '', 2000)
+      } 
+    }
+  }
+
+  public socketPointerUp(hex: Hex): void {
+    if (this.draged) {
+      this.draged = false;
+    } else if (this.twoPointerZoom) this.twoPointerZoom = false;
+    else {
+      this.chosenHex = hex;
+      const x = hex.getCenter().x;
+      const y = hex.getCenter().y;
+      const playerConfing: Iconfig = this[this.player.color];      
+      if (
+        hex.own !== this.player.color 
+        && hex.class !== 'base' 
+        && !hex.landscape 
+        && !hex.clamingAni?.isPlaying() 
+        && this.nearbyHexes(hex).some(el => el?.own === this.player.color)
+      ) {
+        if (hex.own === 'neutral' && playerConfing.hexes >= hex.defence) {
+          new FlyAwayMsg(this, x, y, `-${hex.defence}`, 'red', this.player.color)
+          this.state.socket.hexClick(hex.id);
+        } else if (playerConfing.hexes >= hex.defence + 1) {
+          new FlyAwayMsg(this, x, y, `-${hex.defence + 1}`, 'red', this.player.color);
+          this.state.socket.hexClick(hex.id);
+        } else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', this.player.color);
+      } else if (
+        hex.own === this.player.color 
+        && hex.class === 'grass' 
+        && playerConfing.hexes >= hex.defence + 1 
+        && !hex.clamingAni?.isPlaying() 
+        && !hex.upgradeAni?.isPlaying()
+      ) {
+        this.state.socket.hexClick(hex.id);
+        hex.upgradeSocketDefence();
+        new FlyAwayMsg(this, x, y, `-${hex.defence + 1}`, 'red', this.player.color)
+      } else if (hex.own !== this.player.color && hex.class !== 'base') {
+        if (playerConfing.superHex > 0 && !hex.clamingAni?.isPlaying()) {
+          if (hex.own !== this.player.color && !hex.landscape && hex.class !== 'base' && !hex.clamingAni?.isPlaying()) {
+            this.scene.launch('Modal', { state: this.state, type: 'landing' })
+          } else if (hex.class !== 'base' || (hex.landscape && hex.dark)) new FlyAwayMsg(this, x, y, this.lang.wrongPlace, 'red', '', 1000)
+        } else if (hex.dark || !hex.landscape) new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', 'purple')
+      } else if (hex.class === 'base' && !hex.dark && hex.own !== this.player.color) {
+        new FlyAwayMsg(this, x, y, this.lang.surroundBase, 'yellow', '', 2000)
+      } 
+    }
   }
 
   public superHexClameConfirmed(): void {
@@ -536,7 +540,7 @@ export default class Game extends Phaser.Scene {
     }
     
     // 2. Поиск внутренних незахваченных гекс
-    // chains.forEach((arr, i) => { if (arr.every(hex => hex.landscape)) chains.splice(i, 1) })
+    chains.forEach((arr, i) => { if (arr.every(hex => hex.landscape)) chains.splice(i, 1) })
     chains.forEach(arr => findInnerHexes(arr))
     // console.log('multiClameCheck ~ chains', chains.map(arr => arr.map(hex => hex.id)))
 
@@ -739,13 +743,14 @@ export default class Game extends Phaser.Scene {
             else hex.setSocketClaming(socketHex.newOwn, socketHex.super);
           } else if (socketHex.own !== socketHex.newOwn && !hex.clamingAni?.isPlaying()) {
             hex.socketClame(socketHex.newOwn, socketHex.super);
+          } else if (hex.own !== socketHex.own && !hex.clamingAni?.isPlaying()) {
+            hex.socketClame(socketHex.newOwn, socketHex.super);
+            if (hex.class === 'rock') hex.setWorldTexture(socketHex.newOwn);
           }
           if (hex.defence !== socketHex.defence) {
-            console.log(socketHex.defence);
             hex.defence = socketHex.defence;
           }
         });
-        console.log(this.state.game.hexes, 'update')
       }
       this.state.game.updateHex = false;
   }

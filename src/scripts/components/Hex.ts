@@ -230,6 +230,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.own = color
     this.clamingAniRemove()
     if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
+    this.giveResourceAnimFromSocket();
     this.super = superHex
     this.setWorldTexture()
     this.setNearbyMark()

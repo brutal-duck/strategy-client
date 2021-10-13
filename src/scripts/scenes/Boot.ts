@@ -69,7 +69,7 @@ class Boot extends Phaser.Scene {
 
   
   private checkUser() {
-    const vkId = Phaser.Math.Between(1, 2) === 1 ? 12345 : 123456;
+    const vkId = 12345 + Phaser.Math.Between(1, 10);
     this.checkUserOnServer(vkId);
     this.state.socket = new Socket(this.state)
   }

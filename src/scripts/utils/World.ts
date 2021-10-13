@@ -118,9 +118,7 @@ export default class World {
     this.angleSegments2.push(this.blSeg, this.trSeg)
     this.sideSegments1.push(this.tSeg, this.bSeg)
     this.sideSegments2.push(this.clSeg, this.crSeg)
-
-    if (this.scene.state.game.AI) this.scene.setHexInteractive();
-    else this.scene.setHexSocketInteractive();
+    this.scene.setHexInteractive();
     this.createWorld()
   }
 

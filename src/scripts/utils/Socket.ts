@@ -60,6 +60,7 @@ export default class Socket {
   }
 
   public hexClick(hexId: string): void {
+    console.log(hexId);
     this.io.emit('clickHex', {
       userId: this.state.player.id,
       id: hexId,
