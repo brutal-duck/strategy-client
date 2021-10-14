@@ -105,8 +105,6 @@ export default class MainMenu extends Phaser.Scene {
     // `)
     if (this.state.startGame) {
       this.state.startGame = false;
-      this.state.socketWin = false;
-      this.state.socketLoose = false;
       if (this.state.game.AI) this.state.player.color = Phaser.Math.Between(0, 1) === 0 ? 'green' : 'red'
       this.gameScene.cameraFly(true, false)
       this.scene.stop()

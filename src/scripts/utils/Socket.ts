@@ -4,6 +4,9 @@ export default class Socket {
 
   public io: openSocket;
   public state: Istate;
+  public win: boolean;
+  public loose: boolean;
+  public reason: string;
   
   constructor(state: Istate) {
     this.state = state;
@@ -16,7 +19,7 @@ export default class Socket {
     this.io.on('connect', () => {
       console.log('connect');
       if (this.state.game.isStarted) {
-        this.state.socketLoose = true;
+        this.loose = true;
       }
     });
 
@@ -25,16 +28,19 @@ export default class Socket {
       this.state.player.color = data.player.color;
       this.state.game.seed = data.seed;
       this.state.startGame = true;
+      this.win = false;
+      this.loose = false;
     });
 
-    this.io.on('winGame', () => {
+    this.io.on('winGame', ({ reason }) => {
       console.log('win!');
-      this.state.socketWin = true;
+      this.win = true;
+      this.reason = reason;
     });
 
     this.io.on('looseGame', () => {
       console.log('loose!');
-      this.state.socketLoose = true;
+      this.loose = true;
     });
 
     this.io.on('updateHex', (data) => {

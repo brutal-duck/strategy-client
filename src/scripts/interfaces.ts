@@ -2,12 +2,13 @@ interface Istate {
   player: Iplayer
   game: IGame
   platform: string
-  socket: Isocket
   startGame: boolean
-  socketWin?: boolean
-  socketLoose?: boolean
+  socket: Isocket
 }
 interface Isocket {
+  win: boolean
+  loose: boolean
+  reason: string
   init: () => void;
   closeSocket: () => void;
   findGame: () => void;

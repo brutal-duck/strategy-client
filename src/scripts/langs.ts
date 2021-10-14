@@ -42,7 +42,8 @@ export default {
     landTroops: 'высадить войска?',
     yes: 'да',
     no: 'нет',
-    enemyLeaveGame: 'противник вышел из игры',
+    enemyLeft: 'противник вышел из игры',
+    youLeft: 'вы вышли из игры',
   },
   en: {
     index: 'ru',

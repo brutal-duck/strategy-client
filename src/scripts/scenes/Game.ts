@@ -722,15 +722,21 @@ export default class Game extends Phaser.Scene {
   }
 
   private checkSocketGameOver(): void {
-    if (this.state.socketWin) {
+    if (this.state.socket.win) {
       console.log(this.state, 'this.state');
-      this.gameOver('enemyBaseHasCaptured', this.player.color);
-      this.state.socket.closeSocket();
+      const text = this.state.socket.reason === 'ENEMY_LEFT' ? 'enemyLeft' : 'enemyBaseHasCaptured';
+      if (this.hexes.every(el => !el.clamingAni?.isPaused())) {      
+        this.gameOver(text, this.player.color);
+        this.state.socket.closeSocket();
+      }
     }
-    if (this.state.socketLoose) {
+    if (this.state.socket.loose) {
       console.log(this.state, 'this.state');
-      this.gameOver('yourBaseHasCaptured', this.player.color === 'red' ? 'green' : 'red');
-      this.state.socket.closeSocket();
+      if (this.hexes.every(el => !el.clamingAni?.isPaused())) {   
+        const text = this.state.socket.reason === 'ENEMY_LEFT' ? 'youLeft' : 'yourBaseHasCaptured';
+        this.gameOver(text, this.player.color === 'red' ? 'green' : 'red');
+        this.state.socket.closeSocket();
+      }
     }
   }
 
