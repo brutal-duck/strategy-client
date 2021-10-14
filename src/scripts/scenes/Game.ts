@@ -724,18 +724,20 @@ export default class Game extends Phaser.Scene {
   private checkSocketGameOver(): void {
     if (this.state.socket.win) {
       console.log(this.state, 'this.state');
-      const text = this.state.socket.reason === 'ENEMY_LEFT' ? 'enemyLeft' : 'enemyBaseHasCaptured';
+      let text = 'enemyBaseHasCaptured';
+      if (this.state.socket.reason === 'ENEMY_LEFT') text = 'enemySurrendered';
+      else if (this.state.socket.reason === 'TIME_IS_UP') text = 'timeIsUp';
       if (this.hexes.every(el => !el.clamingAni?.isPaused())) {      
         this.gameOver(text, this.player.color);
-        this.state.socket.closeSocket();
       }
     }
     if (this.state.socket.loose) {
       console.log(this.state, 'this.state');
-      if (this.hexes.every(el => !el.clamingAni?.isPaused())) {   
-        const text = this.state.socket.reason === 'ENEMY_LEFT' ? 'youLeft' : 'yourBaseHasCaptured';
+      if (this.hexes.every(el => !el.clamingAni?.isPaused())) {
+        let text = 'yourBaseHasCaptured';
+        if (this.state.socket.reason === 'ENEMY_LEFT') text = 'youSurrendered';
+        else if (this.state.socket.reason === 'TIME_IS_UP') text = 'timeIsUp';
         this.gameOver(text, this.player.color === 'red' ? 'green' : 'red');
-        this.state.socket.closeSocket();
       }
     }
   }
@@ -766,7 +768,7 @@ export default class Game extends Phaser.Scene {
       const gameConfig: Iconfig = this[this.state.player.color];
       gameConfig.hexes = this.state.game.player.hexes;
       gameConfig.superHex = this.state.game.player.superHexes;
-      this.hud.timer.updateTime(config.matchTime - this.state.game.serverGameTime);
+      this.hud.timer.updateTime(this.state.game.serverGameTime);
       this.hud.updateHexCounter()
     }
   }
