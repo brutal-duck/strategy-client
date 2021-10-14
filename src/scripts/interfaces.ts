@@ -57,3 +57,8 @@ interface IuserData {
   poinst: number;
   wins: number;
 }
+
+interface Iposition {
+  x: number;
+  y: number;
+}

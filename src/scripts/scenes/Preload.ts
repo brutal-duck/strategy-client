@@ -72,6 +72,7 @@ const redFort2: any = require("./../../assets/images/landscape/red-fort-2.png");
 const greenTower: any = require("./../../assets/images/landscape/green-tower.png");
 const redTower: any = require("./../../assets/images/landscape/red-tower.png");
 
+const startGameBtn: string = require('../../assets/images/btns/btn-play.png');
 
 class Preload extends Phaser.Scene {
   constructor() {
@@ -171,6 +172,8 @@ class Preload extends Phaser.Scene {
     this.load.image('red-fort-2', redFort2)
     this.load.image('green-tower', greenTower)
     this.load.image('red-tower', redTower)
+
+    this.load.image('start-game-btn', startGameBtn);
   }
   
   public create(): void {
