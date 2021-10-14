@@ -62,3 +62,9 @@ interface Iposition {
   x: number;
   y: number;
 }
+
+interface IcolorsBtnSettings {
+  color: string;
+  text: string;
+  icon: boolean;
+}

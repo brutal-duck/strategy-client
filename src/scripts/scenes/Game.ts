@@ -373,7 +373,6 @@ export default class Game extends Phaser.Scene {
     this.hud.updateHexCounter()
     this.state.socket.hexClick(this.chosenHex.id);
   }
-  
 
   public multiClameCheck(color: string): void {
     const chains: Array<Hex[]> = []

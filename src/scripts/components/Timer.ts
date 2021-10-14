@@ -41,14 +41,19 @@ export default class Timer {
   }
 
   private create(): void {
-    const color = '#c6ea00'
-    const font = '18px Molot'
+    const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+      fontSize: '24px',
+      fontFamily: 'Molot',
+      color: '#ffffff',
+      stroke: '#707070',
+      strokeThickness: 3,
+    };
     const m: string = this.min > 9 ? `${this.min}` : `0${this.min}`
     const s: string = this.sec > 9 ? `${this.sec}` : `0${this.sec}`
 
-    this.colon = this.scene.add.text(this.x, this.y, ':', { font, color }).setOrigin(0.5, 0).setStroke('black', 3)
-    this.minutes = this.scene.add.text(this.colon.getLeftCenter().x, this.colon.getLeftCenter().y, m, { font, align: 'right', color }).setOrigin(1, 0.5).setStroke('black', 3)
-    this.seconds = this.scene.add.text(this.colon.getRightCenter().x, this.colon.getRightCenter().y, s, { font, align: 'left', color }).setOrigin(0, 0.5).setStroke('black', 3)
+    this.colon = this.scene.add.text(this.x, this.y, ':', textStyle).setOrigin(0.5, 0);
+    this.minutes = this.scene.add.text(this.colon.getLeftCenter().x, this.colon.getLeftCenter().y, m, textStyle).setOrigin(1, 0.5);
+    this.seconds = this.scene.add.text(this.colon.getRightCenter().x, this.colon.getRightCenter().y, s, textStyle).setOrigin(0, 0.5);
     this.startCountdown()
   }
 
@@ -77,9 +82,9 @@ export default class Timer {
         }
 
         if (this.min === 0) {
-          this.colon.setColor('#D80000')
-          this.minutes.setColor('#D80000')
-          this.seconds.setColor('#D80000')
+          this.colon.setColor('#ee3434');
+          this.minutes.setColor('#ee3434');
+          this.seconds.setColor('#ee3434');
         }
 
         this.minutes.setText(m)

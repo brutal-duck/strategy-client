@@ -1,4 +1,4 @@
-import MatchMenuBtn from "../components/buttons/MatchMenuBtn"
+import SandwichBtn from "../components/buttons/SandwichBtn"
 import Timer from "../components/Timer"
 import { colors } from "../gameConfig"
 import langs from "../langs"
@@ -18,7 +18,7 @@ export default class Hud extends Phaser.Scene {
   private playerColor: string
   private enemyColor: string
 
-  private allElements: Array<Phaser.GameObjects.TileSprite | Phaser.GameObjects.Sprite | Phaser.GameObjects.Text>
+  private allElements: Array<Phaser.GameObjects.TileSprite | Phaser.GameObjects.Sprite | Phaser.GameObjects.Text | SandwichBtn>
   private bg: Phaser.GameObjects.TileSprite
   private switcher: Phaser.GameObjects.TileSprite
 
@@ -68,7 +68,7 @@ export default class Hud extends Phaser.Scene {
   private warnCity: Phaser.GameObjects.Text
   private warnCityAni: Phaser.Tweens.Tween
 
-  private menuBtn: MatchMenuBtn
+  private menuBtn: SandwichBtn
 
   private debugText: Phaser.GameObjects.Text
 
@@ -90,14 +90,13 @@ export default class Hud extends Phaser.Scene {
   }
   
   public create(): void {
-    this.menuBtn = new MatchMenuBtn(this, this.camera.width - 2, 1).setOrigin(1, 0)
-    this.menuBtn.border.on('pointerup', (): void => { this.scene.launch('Modal', { state: this.state, type: 'matchMenu' }) })
+    this.menuBtn = new SandwichBtn(this, { x: this.camera.width - 35, y: 35 }, (): void => { this.scene.launch('Modal', { state: this.state, type: 'matchMenu' }) });
 
     this.createMainBar()
     this.createWorldStatusBar()
     this.createWarningBar()
     this.timer = new Timer(this, this.worldStatusBar.getCenter().x, this.worldStatusBar.getBottomCenter().y + 2, this.gameScene.green.matchTime)
-    this.allElements.push(this.bg, this.timer.minutes, this.timer.seconds, this.timer.colon, this.menuBtn.border, this.menuBtn.mid, this.menuBtn.text)
+    this.allElements.push(this.bg, this.timer.minutes, this.timer.seconds, this.timer.colon, this.menuBtn)
 
     // debug // !
     if (!this.state.game.AI) this.createColorSwitcher()
@@ -108,12 +107,12 @@ export default class Hud extends Phaser.Scene {
 
 
   private createMainBar(): void {
-    this.hexBar = this.add.sprite(5, 5, 'hex').setScale(0.5).setTint(colors[this.playerColor].light).setOrigin(0)
+    this.hexBar = this.add.sprite(5, 5, 'hex').setScale(0.6).setOrigin(0)
     this.hexBarText = this.add.text(this.hexBar.getCenter().x, this.hexBar.getCenter().y, String(this.gameScene[this.playerColor].hexes), {
       font: '26px Molot', align: 'center', color: '#BED3C0'
     }).setOrigin(0.5).setStroke('black', 3)
 
-    this.superHexBar = this.add.sprite(this.hexBar.getBottomCenter().x, this.hexBar.getBottomCenter().y + 10, 'hex').setScale(0.5).setTint(0xb879ff).setOrigin(0.5, 0)
+    this.superHexBar = this.add.sprite(this.hexBar.getBottomCenter().x, this.hexBar.getBottomCenter().y + 10, 'super-hex').setScale(0.6).setOrigin(0.5, 0)
     this.superHexBarText = this.add.text(this.superHexBar.getCenter().x, this.superHexBar.getCenter().y, String(this.gameScene.green.superHex), {
       font: '26px Molot', align: 'center', color: '#BED3C0'
     }).setOrigin(0.5).setStroke('black', 3)
@@ -132,22 +131,37 @@ export default class Hud extends Phaser.Scene {
 
 
   private createWorldStatusBar(): void {
-    this.playerName = this.add.text(this.camera.width / 2 - 10, 4, this.gameScene[this.playerColor].name, { font: '20px Molot', color: colors[this.playerColor].lightStr }).setOrigin(1, 0)
-    this.enemyName = this.add.text(this.camera.width / 2 + 10, 4, this.gameScene[this.enemyColor].name, { font: '20px Molot', color: colors[this.enemyColor].lightStr })
+    const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+      fontSize: '26px',
+      fontFamily: 'Molot',
+      color: '#ffffff',
+      stroke: '#707070',
+      strokeThickness: 3,
+    };
+    this.playerName = this.add.text(this.camera.width / 2 - 10, 4, this.gameScene[this.playerColor].name, textStyle).setOrigin(1, 0)
+    this.enemyName = this.add.text(this.camera.width / 2 + 10, 4, this.gameScene[this.enemyColor].name, textStyle)
     this.lineWidth = this.camera.width / 2.5
-    const barY = this.playerName.getBottomCenter().y + 14;
-    this.worldStatusBar = this.add.tileSprite(this.camera.width / 2, barY, this.lineWidth, 20, 'pixel').setOrigin(0.5);
+    const barY = this.playerName.getBottomCenter().y + 29;
+    this.worldStatusBar = this.add.tileSprite(this.camera.width / 2, barY, this.lineWidth, 50, 'pixel').setOrigin(0.5).setVisible(false);
 
-    this.barMask = this.add.graphics().fillRoundedRect(this.worldStatusBar.x + this.lineWidth / 2, barY - 10, this.lineWidth, 20, 10);
+    const barGeom = this.worldStatusBar.getBounds();
+    this.barMask = this.add.graphics().fillStyle(0x000000).fillRoundedRect(barGeom.left, barGeom.top, this.lineWidth, barGeom.height, barGeom.height / 2).setVisible(false);
+    
+    this.playerStatusBar = this.add.tileSprite(barGeom.left, barGeom.centerY, 1, barGeom.height, `pixel-${this.playerColor}`).setDepth(4).setOrigin(0, 0.5).setVisible(false);
+    this.playerStatusBarBg = this.add.tileSprite(barGeom.left, barGeom.centerY, 1, barGeom.height, `pixel-${this.playerColor}`).setDepth(3).setOrigin(0, 0.5).setVisible(false);
+    this.enemyStatusBar = this.add.tileSprite(barGeom.right, barGeom.centerY, 1, barGeom.height, `pixel-${this.enemyColor}`).setDepth(4).setOrigin(1, 0.5).setVisible(false);
+    this.enemyStatusBarBg = this.add.tileSprite(barGeom.right, barGeom.centerY, 1, barGeom.height, `pixel-${this.enemyColor}`).setDepth(3).setOrigin(1, 0.5).setVisible(false);
+    
+    const mask = new Phaser.Display.Masks.BitmapMask(this, this.barMask);
+    this.playerStatusBar.setMask(mask);
+    this.enemyStatusBar.setMask(mask);
+    this.playerStatusBarBg.setMask(mask);
+    this.enemyStatusBarBg.setMask(mask);
 
-    this.playerStatusBar = this.add.tileSprite(this.worldStatusBar.getLeftCenter().x, barY, 1, this.worldStatusBar.height, 'pixel').setTint(colors[this.playerColor].main).setDepth(4).setOrigin(0, 0.5).setVisible(false)
-    this.enemyStatusBar = this.add.tileSprite(this.worldStatusBar.getRightCenter().x, barY, 1, this.worldStatusBar.height, 'pixel').setTint(colors[this.enemyColor].main).setDepth(4).setOrigin(1, 0.5).setVisible(false)
-    this.playerStatusBarBg = this.add.tileSprite(this.worldStatusBar.getLeftCenter().x, barY, 1, this.worldStatusBar.height, 'pixel').setTint(colors[this.playerColor].light).setDepth(3).setOrigin(0, 0.5).setVisible(false)
-    this.enemyStatusBarBg = this.add.tileSprite(this.worldStatusBar.getRightCenter().x, barY, 1, this.worldStatusBar.height, 'pixel').setTint(colors[this.enemyColor].light).setDepth(3).setOrigin(1, 0.5).setVisible(false)
 
-    this.star1 = this.add.sprite(this.worldStatusBar.getLeftCenter().x + this.getStarPoint(1), this.worldStatusBar.getTopCenter().y + 4, 'star-disabled').setScale(0.3).setDepth(6)
-    this.star2 = this.add.sprite(this.worldStatusBar.getLeftCenter().x + this.getStarPoint(2), this.worldStatusBar.getTopCenter().y + 4, 'star-disabled').setScale(0.3).setDepth(6)
-    this.star3 = this.add.sprite(this.worldStatusBar.getLeftCenter().x + this.getStarPoint(3), this.worldStatusBar.getTopCenter().y + 4, 'star-disabled').setScale(0.3).setDepth(6)
+    this.star1 = this.add.sprite(barGeom.left + this.getStarPoint(1), barGeom.centerY + 3, 'lil-star-dis').setDepth(6)
+    this.star2 = this.add.sprite(barGeom.left + this.getStarPoint(2), barGeom.centerY + 3, 'lil-star-dis').setDepth(6)
+    this.star3 = this.add.sprite(barGeom.left + this.getStarPoint(3), barGeom.centerY + 3, 'lil-star-dis').setDepth(6)
     this.stars = [ this.star1, this.star2, this.star3 ]
 
     this.allElements = this.allElements.concat(this.stars)
@@ -356,20 +370,20 @@ export default class Hud extends Phaser.Scene {
   private checkStarsProgress(width: number): void {
     this.lineWidth = this.camera.width / 2.5
     if (width >= this.lineWidth - 1) {
-      this.stars.forEach(star => { if (star.texture.key !== 'star') star.setTexture('star') })
+      this.stars.forEach(star => { if (star.texture.key !== 'lil-star') star.setTexture('lil-star') })
       if (this.gameScene.gameIsOn) this.gameScene.stars = 3
     } else if (width >= this.getStarPoint(2)) {
-      if (this.star1.texture.key !== 'star') this.star1.setTexture('star')
-      if (this.star2.texture.key !== 'star') this.star2.setTexture('star')
-      if (this.star3.texture.key === 'star') this.star2.setTexture('star-disabled')
+      if (this.star1.texture.key !== 'star') this.star1.setTexture('lil-star')
+      if (this.star2.texture.key !== 'star') this.star2.setTexture('lil-star')
+      if (this.star3.texture.key === 'star') this.star2.setTexture('lil-star-dis')
       if (this.gameScene.gameIsOn) this.gameScene.stars = 2
     } else if (width >= this.getStarPoint(1)) {
-      if (this.star1.texture.key !== 'star') this.star1.setTexture('star')
-      if (this.star2.texture.key === 'star') this.star2.setTexture('star-disabled')
-      if (this.star3.texture.key === 'star') this.star2.setTexture('star-disabled')
+      if (this.star1.texture.key !== 'star') this.star1.setTexture('lil-star')
+      if (this.star2.texture.key === 'star') this.star2.setTexture('lil-star-dis')
+      if (this.star3.texture.key === 'star') this.star2.setTexture('lil-star-dis')
       if (this.gameScene.gameIsOn) this.gameScene.stars = 1
     } else {
-      this.stars.forEach(star => { if (star.texture.key === 'star') star.setTexture('star-disabled') })
+      this.stars.forEach(star => { if (star.texture.key === 'lil-star') star.setTexture('lil-star-dis') })
       if (this.gameScene.gameIsOn) this.gameScene.stars = 0
     }
   }
@@ -428,22 +442,27 @@ export default class Hud extends Phaser.Scene {
     const redHexes: number = this.gameScene?.hexes.filter(hex => hex.own === 'red').length
 
     this.bg?.setPosition(0, 0).setSize(this.camera.width, this.bg.height)
-    this.menuBtn?.setPosition(this.camera.width - 2, 1)
+    this.menuBtn?.setPosition(this.camera.width - 35, 35)
     this.switcher?.setPosition(this.camera.width / 2, this.camera.height)
 
     this.playerName?.setPosition(this.camera.width / 2 - 10, 4)
     this.enemyName?.setPosition(this.camera.width / 2 + 10, 4)
 
-    this.worldStatusBar?.setPosition(this.camera.width / 2, this.worldStatusBar.y).setSize(this.camera.width / 2.5, 20)
-    this.playerStatusBar?.setPosition(this.worldStatusBar.getLeftCenter().x, this.worldStatusBar.getLeftCenter().y).setSize(this.getLineWidth(greenHexes), this.worldStatusBar.height)
-    this.enemyStatusBar?.setPosition(this.worldStatusBar.getRightCenter().x, this.worldStatusBar.getRightCenter().y).setSize(this.getLineWidth(redHexes), this.worldStatusBar.height)
-    this.playerStatusBarBg?.setPosition(this.worldStatusBar.getLeftCenter().x, this.worldStatusBar.getLeftCenter().y).setSize(this.getLineWidth(greenHexes), this.worldStatusBar.height)
-    this.enemyStatusBarBg?.setPosition(this.worldStatusBar.getRightCenter().x, this.worldStatusBar.getRightCenter().y).setSize(this.getLineWidth(redHexes), this.worldStatusBar.height)
-    this.timer?.setPosition(this.worldStatusBar.getCenter().x, this.worldStatusBar.getBottomCenter().y + 2)
+    this.worldStatusBar?.setPosition(this.camera.width / 2, this.worldStatusBar.y).setSize(this.camera.width / 2.5, 50)
+    const barGeom = this.worldStatusBar.getBounds();
 
-    this.star1?.setPosition(this.worldStatusBar.getLeftCenter().x + this.getStarPoint(1), this.worldStatusBar.getTopCenter().y + 4)
-    this.star2?.setPosition(this.worldStatusBar.getLeftCenter().x + this.getStarPoint(2), this.worldStatusBar.getTopCenter().y + 4)
-    this.star3?.setPosition(this.worldStatusBar.getLeftCenter().x + this.getStarPoint(3), this.worldStatusBar.getTopCenter().y + 4)
+    this.barMask.destroy();
+    this.barMask = this.add.graphics().fillStyle(0x00ff00).fillRoundedRect(barGeom.left, barGeom.top, this.lineWidth, barGeom.height, barGeom.height / 2).setVisible(false);
+    const mask = new Phaser.Display.Masks.BitmapMask(this, this.barMask);
+    this.playerStatusBar?.setPosition(barGeom.left, barGeom.centerY).setSize(this.getLineWidth(greenHexes), barGeom.height).clearMask().setMask(mask);
+    this.enemyStatusBar?.setPosition(barGeom.right, barGeom.centerY).setSize(this.getLineWidth(redHexes), barGeom.height).clearMask().setMask(mask);
+    this.playerStatusBarBg?.setPosition(barGeom.left, barGeom.centerY).setSize(this.getLineWidth(greenHexes), barGeom.height).clearMask().setMask(mask);
+    this.enemyStatusBarBg?.setPosition(barGeom.right, barGeom.centerY).setSize(this.getLineWidth(redHexes), barGeom.height).clearMask().setMask(mask);
+    this.timer?.setPosition(barGeom.centerX, barGeom.bottom + 2);
+
+    this.star1?.setPosition(barGeom.left + this.getStarPoint(1), barGeom.centerY + 3);
+    this.star2?.setPosition(barGeom.left + this.getStarPoint(2), barGeom.centerY + 3);
+    this.star3?.setPosition(barGeom.left + this.getStarPoint(3), barGeom.centerY + 3);
     
     this.warnBg?.setPosition(this.camera.width - 6, this.worldStatusBar.getBottomRight().y + 10)
     this.warnIcon?.setPosition(this.warnBg.getLeftCenter().x + 6, this.warnBg.getLeftCenter().y)

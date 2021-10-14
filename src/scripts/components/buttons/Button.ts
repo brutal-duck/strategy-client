@@ -53,6 +53,12 @@ export default class Button extends Phaser.GameObjects.Group {
     }
   }
 
+  public setPosition(x: number, y: number): this {
+    this.x = x;
+    this.y = y;
+    return this;
+  }
+
   private setPointerDownAnim(): void {
     let counter = 0;
     let filter: number = 0xFFFFFF;

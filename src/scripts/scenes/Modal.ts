@@ -4,6 +4,9 @@ import MatchOverBtn from "../components/buttons/MatchOverBtn"
 import { colors } from "../gameConfig"
 import langs from "../langs"
 import Game from "./Game"
+import ExitBtn from './../components/buttons/ExitBtn';
+import MenuBtn from './../components/buttons/MenuBtn';
+import ColorsBtn from './../components/buttons/ColorsBtn';
 
 export default class Modal extends Phaser.Scene {
   constructor() {
@@ -62,57 +65,63 @@ export default class Modal extends Phaser.Scene {
 
 
   private matchMenuWindow(): void {
-    const x = this.bg.getCenter().x
-    const y = this.bg.getCenter().y
-    const windowHeight = 220
-    const windowWidth = 280
+    const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+      fontFamily: 'Molot',
+      fontSize: '38px',
+      color: '#979EE0',
+    };
+    const x = this.bg.getCenter().x;
+    const y = this.bg.getCenter().y;
+    const windowHeight = 290;
 
-    const top: Phaser.GameObjects.Sprite = this.add.sprite(x, y - 100, 'side').setOrigin(0.5, 0).setFlipY(true).setDisplaySize(windowWidth, 15)
-    const mid: Phaser.GameObjects.TileSprite = this.add.tileSprite(top.getBottomCenter().x, top.getBottomCenter().y, windowWidth, windowHeight, 'pixel').setOrigin(0.5, 0).setInteractive()
-    const bot: Phaser.GameObjects.Sprite = this.add.sprite(mid.getBottomCenter().x, mid.getBottomCenter().y, 'side').setOrigin(0.5, 0).setDisplaySize(windowWidth, 15)
+    const top = this.add.sprite(x, y - 100, 'header-lil').setOrigin(0.5, 0);
+    const topGeom = top.getBounds();
+    const mid = this.add.sprite(topGeom.centerX, topGeom.bottom, 'pixel-window-lil').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setInteractive();
+    const midGeom = mid.getBounds();
+    const bot = this.add.sprite(midGeom.centerX, midGeom.bottom, 'header-lil').setOrigin(0.5, 0).setFlipY(true);
 
-    const title: Phaser.GameObjects.Text = this.add.text(x, top.getTopCenter().y + 10, this.lang.menu, { font: '38px Molot', color: 'black' }).setOrigin(0.5, 0).setDepth(2)
-    // const cross: Phaser.GameObjects.Sprite = this.add.sprite(top.getTopRight().x - 5, top.getTopRight().y + 5, 'cross').setOrigin(1, 0).setScale(0.6).setTint(0xffafaf).setInteractive()
-    // cross.on('pointerup', (): void => { this.scene.stop() })
+    const title = this.add.text(x, topGeom.bottom + 30, this.lang.menu, textStyle).setOrigin(0.5).setDepth(2)
+    new ExitBtn(this, { x: topGeom.right - 45, y: topGeom.bottom + 50}, (): void => { this.scene.stop(); });
 
-    const settingsBtn = new MatchMenuBtn(this, x, mid.getCenter().y - 20).setScale(1.8, 1.5).setText(this.lang.settings)
-    settingsBtn.border.on('pointerup', (): void => { console.log('settings') })
-
-    const leaveBtn = new MatchMenuBtn(this, x, mid.getCenter().y + 60).setScale(1.8, 1.5).setText(this.lang.surrenderAndLeave)
-    leaveBtn.border.on('pointerup', (): void => {
-      leaveBtn.block(this.lang.shutdown)
-      this.stopGame()
-    })
+    new MenuBtn(this, { x: x, y: mid.getCenter().y }, (): void => { console.log('settings'); });
+    new MenuBtn(this, { x: x, y: mid.getCenter().y + 80 }, (): void => { this.stopGame(); }, 'leave');
   }
 
 
   private landingConfirmWindow(): void {
     const x = this.bg.getCenter().x
     const y = this.bg.getCenter().y
-    const windowHeight = 100
-    const windowWidth = 280
+    const windowHeight = 180
+    const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+      fontFamily: 'Molot',
+      fontSize: '26px',
+      color: '#A893F5',
+    };
+    const top = this.add.sprite(x, y - 100, 'header-lil').setOrigin(0.5, 0);
+    const topGeom = top.getBounds();
+    const mid = this.add.sprite(topGeom.centerX, topGeom.bottom,  'pixel-window-lil').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setInteractive();
+    const bot = this.add.sprite(topGeom.centerX, topGeom.bottom + windowHeight, 'header-lil').setFlipY(true).setOrigin(0.5, 0);
 
-    const top: Phaser.GameObjects.Sprite = this.add.sprite(x, y - 100, 'side').setOrigin(0.5, 0).setFlipY(true).setDisplaySize(windowWidth, 15)
-    const mid: Phaser.GameObjects.TileSprite = this.add.tileSprite(top.getBottomCenter().x, top.getBottomCenter().y, windowWidth, windowHeight, 'pixel').setOrigin(0.5, 0).setInteractive()
-    const bot: Phaser.GameObjects.Sprite = this.add.sprite(mid.getBottomCenter().x, mid.getBottomCenter().y, 'side').setOrigin(0.5, 0).setDisplaySize(windowWidth, 15)
+    const title: Phaser.GameObjects.Text = this.add.text(x, topGeom.bottom + 10, this.lang.landTroops, textStyle).setOrigin(0.5, 0).setDepth(2);
 
-    const title: Phaser.GameObjects.Text = this.add.text(x, top.getTopCenter().y + 10, this.lang.landTroops, { font: '26px Molot', color: 'black' }).setOrigin(0.5, 0).setDepth(2)
+    this.add.sprite(x, title.getBottomCenter().y + 20, 'super-hex').setScale(0.5);
+    this.add.text(x, title.getBottomCenter().y + 20, `${this.gameScene[this.gameScene.player.color].superHex}`, textStyle).setOrigin(0.5).setColor('#EAE9EA');
 
-    const superHexBg: Phaser.GameObjects.Sprite = this.add.sprite(x, title.getBottomCenter().y + 20, 'hex').setTint(0x000000).setScale(0.4)
-    const superHex: Phaser.GameObjects.Sprite = this.add.sprite(superHexBg.x, superHexBg.y, 'hex').setTint(0xb879ff).setScale(0.38)
-    const superHexSum: Phaser.GameObjects.Text = this.add.text(superHexBg.x, superHexBg.y, `${this.gameScene[this.gameScene.player.color].superHex}`, {
-      font: '26px Molot', color: '#BED3C0'
-    }).setOrigin(0.5).setStroke('black', 3)
+    new ColorsBtn(this, { x: x - 64, y: title.getBottomCenter().y + 64 }, (): void => { this.close() }, {
+      color: 'orange',
+      text: this.lang.no,
+      icon: false,
+    });
 
-    const no = new AskBtn(this, x - 64, title.getBottomCenter().y + 64, `${this.lang.no}`)
-    const yes = new AskBtn(this, x + 64, title.getBottomCenter().y + 64, `${this.lang.yes}`, true)
-
-    no.border.on('pointerup', (): void => { this.close() })
-    yes.border.on('pointerup', (): void => {
-      if (this.gameScene.state.game.AI) this.gameScene.superHexClameConfirmed()
-      else this.gameScene.superHexSocketClameConfirmed()
-      this.close()
-    })
+    new ColorsBtn(this, { x: x + 64, y: title.getBottomCenter().y + 64 }, (): void => { 
+      if (this.gameScene.state.game.AI) this.gameScene.superHexClameConfirmed();
+      else this.gameScene.superHexSocketClameConfirmed();
+      this.close();
+    }, {
+      color: 'green',
+      text: this.lang.yes,
+      icon: true,
+    });
   }
 
 
@@ -144,9 +153,10 @@ export default class Modal extends Phaser.Scene {
       font: '18px Molot', color: titleColor
     }).setOrigin(0.5).setStroke('black', 4).setAlpha(0)
 
-    const top: Phaser.GameObjects.Sprite = this.add.sprite(title.getBottomCenter().x, y, 'side').setOrigin(0.5, 0).setFlipY(true).setDisplaySize(windowWidth, 15).setAlpha(0)
-    const mid: Phaser.GameObjects.TileSprite = this.add.tileSprite(top.getBottomCenter().x, top.getBottomCenter().y, windowWidth, windowHeight, 'pixel').setOrigin(0.5, 0).setAlpha(0).setTint(0xffffff, 0xffffff, windowColor, windowColor)
-    const bot: Phaser.GameObjects.Sprite = this.add.sprite(mid.getBottomCenter().x, mid.getBottomCenter().y, 'side').setOrigin(0.5, 0).setDisplaySize(windowWidth, 15).setAlpha(0).setTint(windowColor)
+    const top = this.add.sprite(title.getBottomCenter().x, y, 'header').setOrigin(0.5, 0).setAlpha(0)
+    const topGeom = top.getBounds();
+    const mid = this.add.sprite(topGeom.centerX, topGeom.bottom, 'pixel-window').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setAlpha(0);
+    const bot = this.add.sprite(topGeom.centerX, topGeom.bottom + windowHeight, 'header').setOrigin(0.5, 0).setAlpha(0).setFlipY(true)
 
     const result: Phaser.GameObjects.Text = this.add.text(mid.getTopCenter().x, y, this.lang.result, { font: '20px Molot', color: 'black' }).setOrigin(0.5).setAlpha(0)
     // const tilesLeft: Phaser.GameObjects.Text = this.add.text(mid.getTopCenter().x, y, this.lang.tilesLeft, { font: '20px Molot', color: 'black' }).setOrigin(0.5).setAlpha(0)
