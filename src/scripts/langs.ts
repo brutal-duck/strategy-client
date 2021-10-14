@@ -15,6 +15,8 @@ export default {
     targetDiscr: 'Найдите и захватите столичную клетку противника',
     notEnought: 'недостаточно',
     wrongPlace: 'неподходящее\nместо',
+    claming: 'идет захват',
+    upgrading: 'идет улучшение',
     underAtack: 'на нас напали',
     enemyBaseSited: 'вражеская столица обнаружена!',
     cityLost: 'противник отбил город!',

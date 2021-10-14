@@ -146,8 +146,18 @@ export default class Hud extends Phaser.Scene {
     this.star3 = this.add.sprite(this.worldStatusBar.getLeftCenter().x + this.getStarPoint(3), this.worldStatusBar.getTopCenter().y + 4, 'star-disabled').setScale(0.3).setDepth(6)
     this.stars = [ this.star1, this.star2, this.star3 ]
 
-    this.allElements.push(this.playerName, this.enemyName, this.worldStatusBar, this.playerStatusBar, this.enemyStatusBar, this.playerStatusBarBg, this.enemyStatusBarBg)
     this.allElements = this.allElements.concat(this.stars)
+    this.allElements.push(
+      this.playerName,
+      this.enemyName,
+      this.worldStatusBar,
+      this.playerStatusBar,
+      this.enemyStatusBar,
+      this.playerStatusBarBg,
+      this.enemyStatusBarBg,
+      this.warnBaseWasFoundText,
+      this.warnCity,
+    )
     this.updateWorldStatusBar()
   }
 
@@ -180,7 +190,7 @@ export default class Hud extends Phaser.Scene {
     this.allElements = this.allElements.concat(this.warnElements)
   }
 
-
+  // Старое
   public createWarningBaseWasFoundBar(x: number, y: number): void {
     this.warnBaseWasFoundBg = this.add.sprite(this.camera.width - 6, this.worldStatusBar.getBottomRight().y + 46, 'block').setOrigin(1, 0).setTint(0x000000).setAlpha(0.4).setDisplaySize(160, 40).setInteractive()
     this.warnBaseWasFoundIcon = this.add.sprite(this.warnBaseWasFoundBg.getLeftCenter().x + 6, this.warnBaseWasFoundBg.getLeftCenter().y, 'warning').setOrigin(0, 0.5).setScale(0.3)
@@ -212,7 +222,7 @@ export default class Hud extends Phaser.Scene {
   }
 
   public enemyBaseSitedInfo(): void {
-    this.warnBaseWasFoundText = this.add.text(this.worldStatusBar.getCenter().x + 6, this.worldStatusBar.getCenter().y, this.lang.enemyBaseSited, {
+    this.warnBaseWasFoundText = this.add.text(this.worldStatusBar.getCenter().x, this.worldStatusBar.getCenter().y, this.lang.enemyBaseSited, {
       font: '20px Molot', align: 'center', color: colors[this.enemyColor].mainStr
     }).setOrigin(0.5).setStroke('#000000', 2).setAlpha(0)
 
@@ -244,9 +254,10 @@ export default class Hud extends Phaser.Scene {
   public cityClamedOrLostInfo(clamed: boolean): void {
     const color = clamed ? colors[this.playerColor].mainStr : '#bc2626'
     const text = clamed ? this.lang.cityClamed : this.lang.cityLost
-    this.warnCity = this.add.text(this.worldStatusBar.getCenter().x + 6, this.worldStatusBar.getCenter().y, text, {
+    this.warnCity = this.add.text(this.worldStatusBar.getCenter().x, this.worldStatusBar.getCenter().y, text, {
       font: '20px Molot', align: 'center', color
     }).setOrigin(0.5).setStroke('#000000', 2).setAlpha(0)
+    
 
     const value = this.warnBaseWasFoundAni?.isPlaying() ? '+=66' : '+=46'
     this.warnCityAni = this.tweens.add({
@@ -435,9 +446,10 @@ export default class Hud extends Phaser.Scene {
     this.warnText?.setPosition(this.warnIcon.getRightCenter().x + 6, this.warnIcon.getRightCenter().y)
 
     // this.warnBaseWasFoundBg?.setPosition(this.camera.width - 6, this.worldStatusBar.getBottomRight().y + 46)
-    this.warnBaseWasFoundBg?.setPosition(this.worldStatusBar.getCenter().x + 6, this.worldStatusBar.getCenter().y)
-    this.warnBaseWasFoundIcon?.setPosition(this.warnBaseWasFoundBg.getLeftCenter().x + 6, this.warnBaseWasFoundBg.getLeftCenter().y)
-    this.warnBaseWasFoundText?.setPosition(this.warnBaseWasFoundIcon.getRightCenter().x + 6, this.warnBaseWasFoundIcon.getRightCenter().y)
+    // this.warnBaseWasFoundBg?.setPosition(this.worldStatusBar.getCenter().x + 6, this.worldStatusBar.getCenter().y)
+    // this.warnBaseWasFoundIcon?.setPosition(this.warnBaseWasFoundBg.getLeftCenter().x + 6, this.warnBaseWasFoundBg.getLeftCenter().y)
+    this.warnBaseWasFoundText?.setX(this.worldStatusBar.getCenter().x)
+    this.warnCity?.setX(this.worldStatusBar.getCenter().x)
     
     this.hexBar?.setPosition(5, 5)
     this.hexBarText?.setPosition(this.hexBar.getCenter().x + 1, this.hexBar.getCenter().y - 2)

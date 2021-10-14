@@ -53,13 +53,10 @@ export default class MainMenu extends Phaser.Scene {
 
   private createAICheckBox(): void {
     this.AIText = this.add.text(this.newGame.x, this.newGame.border.getBottomCenter().y + 2, this.lang.ai, { font: '32px Molot', color: 'white' }).setOrigin(0.5, 0).setStroke('black', 3)
-
     this.AIcheckBoxEasy = this.add.sprite(this.AIText.x - 20, this.AIText.getBottomCenter().y + 6, 'block').setScale(0.225).setTint(0xef8e8e).setOrigin(1, 0).setInteractive()
     this.AIcheckBoxTextEasy = this.add.text(this.AIcheckBoxEasy.x + 5, this.AIcheckBoxEasy.getCenter().y, this.lang.easy, { font: '32px Molot', color: 'white' }).setOrigin(0, 0.5).setStroke('black', 3)
-
     this.AIcheckBoxNormal = this.add.sprite(this.AIcheckBoxEasy.getCenter().x, this.AIcheckBoxEasy.getBottomCenter().y + 6, 'block').setScale(0.225).setTint(0xef8e8e).setOrigin(0.5, 0).setInteractive()
     this.AIcheckBoxTextNormal = this.add.text(this.AIcheckBoxNormal.getRightCenter().x + 5, this.AIcheckBoxNormal.getCenter().y, this.lang.normal, { font: '32px Molot', color: 'white' }).setOrigin(0, 0.5).setStroke('black', 3)
-
     this.AIcheckBoxCross = this.add.sprite(this.AIcheckBoxNormal.getCenter().x, this.AIcheckBoxNormal.getCenter().y, 'cross').setScale(0.6).setTint(0xc54242).setVisible(false)
 
     this.AIcheckBoxNormal.on('pointerup', (): void => {
@@ -96,9 +93,12 @@ export default class MainMenu extends Phaser.Scene {
   public resize(): void {
     this.title.setPosition(this.camera.centerX, this.camera.centerY - 200)
     this.newGame.setPosition(this.camera.centerX, this.title.y + 200)
-    // this.AIcheckBox.setPosition(this.newGame.border.x - 5, this.newGame.border.y + 100)
-    // this.AIText.setPosition(this.newGame.border.x + 5, this.AIcheckBox.y)
-    // this.AIcheckBoxCross.setPosition(this.AIcheckBox.getCenter().x, this.AIcheckBox.getCenter().y)
+    this.AIText.setPosition(this.newGame.border.getCenter().x, this.newGame.border.getBottomCenter().y + 2)
+    this.AIcheckBoxEasy.setPosition(this.AIText.x - 20, this.AIText.getBottomCenter().y + 6)
+    this.AIcheckBoxTextEasy.setPosition(this.AIcheckBoxEasy.x + 5, this.AIcheckBoxEasy.getCenter().y)
+    this.AIcheckBoxNormal.setPosition(this.AIcheckBoxEasy.getCenter().x, this.AIcheckBoxEasy.getBottomCenter().y + 6)
+    this.AIcheckBoxTextNormal.setPosition(this.AIcheckBoxNormal.getRightCenter().x + 5, this.AIcheckBoxNormal.getCenter().y)
+    this.AIcheckBoxCross.setPosition(this.AIcheckBoxNormal.getCenter().x, this.AIcheckBoxNormal.getCenter().y)
   }
 
 

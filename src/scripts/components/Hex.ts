@@ -533,6 +533,6 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
   public debug(): void {
     // this.scene.input.enableDebug(this, 0xff00ff);
-    this.scene.add.text(this.getCenter().x, this.getCenter().y - 6, `col:  ${this.col}\nrow:  ${this.row}`, { font: '12px Molot', align: 'left', color: 'black' }).setOrigin(0.5).setDepth(this.depth + 10)
+    this.scene.add.text(this.getCenter().x, this.getCenter().y - 6, `col:  ${this.col}\nrow:  ${this.row}`, { font: '10px Molot', align: 'left', color: 'black' }).setOrigin(0.5).setDepth(this.depth + 10)
   }
 }

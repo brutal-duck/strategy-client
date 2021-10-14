@@ -20,6 +20,8 @@ export default class AI {
   private AIcapturedPercentReach: number
   private defenceReach: number
   private randomClameRate: number
+  private allowAttackBase: boolean
+  private playerBaseReached: boolean
   private lastPaths: { from: Hex, to: Hex, distance: number }[]
 
   constructor(scene: Game, difficulty: string = 'normal') {
@@ -34,19 +36,22 @@ export default class AI {
     this.paths = [[],[],[]]
     this.AIBase = this.scene.hexes.find(hex => hex.own === this.color && hex.class === 'base')
     this.playerBase = this.scene.hexes.find(hex => hex.own === this.scene.player.color && hex.class === 'base')
-    
+    this.playerBaseReached = false
+
     if (this.difficulty === 'normal') {
       this.AIcapturedPercentReach = 70
       this.holdCounter = 3
       this.clameTryReach = 3
       this.defenceReach = 8
       this.randomClameRate = 2
+      this.allowAttackBase = true
     } else {
       this.AIcapturedPercentReach = 40
       this.holdCounter = 6
       this.clameTryReach = 5
       this.defenceReach = 6
       this.randomClameRate = 3
+      this.allowAttackBase = false
     }
     
     this.turns = 0
@@ -78,17 +83,26 @@ export default class AI {
       if (resourceHexes === 0) this.priority = 'resources'
       else if (this.turns % 5 === 0 && this.defenceReach > 0) this.priority = 'defence'
       else if (this.scene[this.color].hexes < 5 || AIcapturedPercent > this.AIcapturedPercentReach || this.priority === 'hold') this.priority = 'hold'
+      else if (this.allowAttackBase && this.playerBaseReached) this.priority = 'atack'
       else this.priority = 'expanse'
       
       if (this.priority === 'resources') this.getResources()
       else if (this.priority === 'defence') this.defenceBase()
       else if (this.priority === 'hold') this.hold()
       else if (this.priority === 'expanse') this.expanse()
+      else if (this.priority === 'atack') this.atackBase()
       
       this.paths.forEach((path, i) => { if (path.length !== 0) this.clame(i, tiles) })
 
-      console.log('--turn', this.turns, this.priority.toUpperCase(),'try', this.clameTry, '%', AIcapturedPercent)
+      console.log('--turn', this.turns, this.priority.toUpperCase(), 'try', this.clameTry, '%', AIcapturedPercent)
     }
+  }
+
+  private atackBase(): void {
+    const nearbyBaseHexes = this.nearbyHexes(this.playerBase).filter(hex => hex.own !== this.color && this.nearbyHexes(hex).some(nrbHex => nrbHex.own === this.color))
+    console.log('AI ~ atackBase ~ nearbyBaseHexes', nearbyBaseHexes.map(el => el.id))
+    if (nearbyBaseHexes.length > 0) this.AIClame(Phaser.Utils.Array.GetRandom(nearbyBaseHexes))
+    else this.playerBaseReached = false
   }
 
   private defenceBase() {
@@ -252,6 +266,9 @@ export default class AI {
       } else if (hex.own === this.color) {
         hex.upgradeDefence(this.color)
       }
+
+      // if (this.nearbyHexes(hex).some(el => el.class === 'base' && el.own === this.scene.player.color)) this.playerBaseReached = true
+      if (this.nearbyHexes(this.playerBase).some(nrbHex => nrbHex.own === this.color)) this.playerBaseReached = true
       this.clameTry = 0
     }
   }
