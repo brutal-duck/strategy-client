@@ -30,6 +30,7 @@ export default class Hud extends Phaser.Scene {
   private star3: Phaser.GameObjects.Sprite
 
   private worldStatusBar: Phaser.GameObjects.TileSprite
+  private barMask: Phaser.GameObjects.Graphics;
   private playerName: Phaser.GameObjects.Text
   private enemyName: Phaser.GameObjects.Text
   private playerStatusBar: Phaser.GameObjects.TileSprite
@@ -134,12 +135,15 @@ export default class Hud extends Phaser.Scene {
     this.playerName = this.add.text(this.camera.width / 2 - 10, 4, this.gameScene[this.playerColor].name, { font: '20px Molot', color: colors[this.playerColor].lightStr }).setOrigin(1, 0)
     this.enemyName = this.add.text(this.camera.width / 2 + 10, 4, this.gameScene[this.enemyColor].name, { font: '20px Molot', color: colors[this.enemyColor].lightStr })
     this.lineWidth = this.camera.width / 2.5
+    const barY = this.playerName.getBottomCenter().y + 14;
+    this.worldStatusBar = this.add.tileSprite(this.camera.width / 2, barY, this.lineWidth, 20, 'pixel').setOrigin(0.5);
 
-    this.worldStatusBar = this.add.tileSprite(this.camera.width / 2, this.playerName.getBottomCenter().y + 4, this.lineWidth, 20, 'pixel').setOrigin(0.5, 0)
-    this.playerStatusBar = this.add.tileSprite(this.worldStatusBar.getLeftCenter().x, this.worldStatusBar.getLeftCenter().y, 1, this.worldStatusBar.height, 'pixel').setTint(colors[this.playerColor].main).setDepth(4).setOrigin(0, 0.5).setVisible(false)
-    this.enemyStatusBar = this.add.tileSprite(this.worldStatusBar.getRightCenter().x, this.worldStatusBar.getRightCenter().y, 1, this.worldStatusBar.height, 'pixel').setTint(colors[this.enemyColor].main).setDepth(4).setOrigin(1, 0.5).setVisible(false)
-    this.playerStatusBarBg = this.add.tileSprite(this.worldStatusBar.getLeftCenter().x, this.worldStatusBar.getLeftCenter().y, 1, this.worldStatusBar.height, 'pixel').setTint(colors[this.playerColor].light).setDepth(3).setOrigin(0, 0.5).setVisible(false)
-    this.enemyStatusBarBg = this.add.tileSprite(this.worldStatusBar.getRightCenter().x, this.worldStatusBar.getRightCenter().y, 1, this.worldStatusBar.height, 'pixel').setTint(colors[this.enemyColor].light).setDepth(3).setOrigin(1, 0.5).setVisible(false)
+    this.barMask = this.add.graphics().fillRoundedRect(this.worldStatusBar.x + this.lineWidth / 2, barY - 10, this.lineWidth, 20, 10);
+
+    this.playerStatusBar = this.add.tileSprite(this.worldStatusBar.getLeftCenter().x, barY, 1, this.worldStatusBar.height, 'pixel').setTint(colors[this.playerColor].main).setDepth(4).setOrigin(0, 0.5).setVisible(false)
+    this.enemyStatusBar = this.add.tileSprite(this.worldStatusBar.getRightCenter().x, barY, 1, this.worldStatusBar.height, 'pixel').setTint(colors[this.enemyColor].main).setDepth(4).setOrigin(1, 0.5).setVisible(false)
+    this.playerStatusBarBg = this.add.tileSprite(this.worldStatusBar.getLeftCenter().x, barY, 1, this.worldStatusBar.height, 'pixel').setTint(colors[this.playerColor].light).setDepth(3).setOrigin(0, 0.5).setVisible(false)
+    this.enemyStatusBarBg = this.add.tileSprite(this.worldStatusBar.getRightCenter().x, barY, 1, this.worldStatusBar.height, 'pixel').setTint(colors[this.enemyColor].light).setDepth(3).setOrigin(1, 0.5).setVisible(false)
 
     this.star1 = this.add.sprite(this.worldStatusBar.getLeftCenter().x + this.getStarPoint(1), this.worldStatusBar.getTopCenter().y + 4, 'star-disabled').setScale(0.3).setDepth(6)
     this.star2 = this.add.sprite(this.worldStatusBar.getLeftCenter().x + this.getStarPoint(2), this.worldStatusBar.getTopCenter().y + 4, 'star-disabled').setScale(0.3).setDepth(6)
