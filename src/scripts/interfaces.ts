@@ -29,13 +29,13 @@ interface  IsocketPlayer {
   id: string
 }
 interface IGame {
-  AI: boolean
   seed: string
   hexes: any[]
   updateHex: boolean
   player: IsocketPlayer
   serverGameTime: number
   isStarted: boolean
+  AI: string
 }
 interface Iconfig {
   name: string

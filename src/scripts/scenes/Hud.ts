@@ -59,10 +59,13 @@ export default class Hud extends Phaser.Scene {
   private warnCreateAni: Phaser.Tweens.Tween
   private warnFadeInAni: Phaser.Tweens.Tween
 
-  private warnBaseWasFoundBg: Phaser.GameObjects.Sprite
+  private warnBaseWasFoundBg: Phaser.GameObjects.Sprite // !
   private warnBaseWasFoundText: Phaser.GameObjects.Text
-  private warnBaseWasFoundIcon: Phaser.GameObjects.Sprite
+  private warnBaseWasFoundIcon: Phaser.GameObjects.Sprite // !
   private warnBaseWasFoundAni: Phaser.Tweens.Tween
+
+  private warnCity: Phaser.GameObjects.Text
+  private warnCityAni: Phaser.Tweens.Tween
 
   private menuBtn: MatchMenuBtn
 
@@ -208,22 +211,63 @@ export default class Hud extends Phaser.Scene {
     })
   }
 
-  public enemyBaseSitedInfo(x: number, y: number): void {
+  public enemyBaseSitedInfo(): void {
     this.warnBaseWasFoundText = this.add.text(this.worldStatusBar.getCenter().x + 6, this.worldStatusBar.getCenter().y, this.lang.enemyBaseSited, {
       font: '20px Molot', align: 'center', color: colors[this.enemyColor].mainStr
     }).setOrigin(0.5).setStroke('#000000', 2).setAlpha(0)
 
+    const value = this.warnCityAni?.isPlaying() ? '+=66' : '+=46'
     this.warnBaseWasFoundAni = this.tweens.add({
-      // onStart: (): void => {  this.gameScene.centerCamera(x, y, false, 1200) },
       targets: this.warnBaseWasFoundText,
       alpha: { value: 1, duration: 600 },
-      y: { value: '+=46', duration: 600, ease: 'Quart.easeIn' },
+      y: { value, duration: 600, ease: 'Quart.easeIn' },
       onComplete: (): void => {
         this.warnBaseWasFoundAni = this.tweens.add({
           targets: this.warnBaseWasFoundText,
           alpha: 0,
           duration: 600,
-          delay: 4000
+          delay: 4000,
+          onComplete: (): void => {
+            if (this.warnCityAni?.isPlaying()) {
+              this.tweens.add({
+                targets: this.warnCity,
+                y: '-=20',
+                duration: 200
+              })
+            }
+          }
+        })
+      }
+    })
+  }
+
+  public cityClamedOrLostInfo(clamed: boolean): void {
+    const color = clamed ? colors[this.playerColor].mainStr : '#bc2626'
+    const text = clamed ? this.lang.cityClamed : this.lang.cityLost
+    this.warnCity = this.add.text(this.worldStatusBar.getCenter().x + 6, this.worldStatusBar.getCenter().y, text, {
+      font: '20px Molot', align: 'center', color
+    }).setOrigin(0.5).setStroke('#000000', 2).setAlpha(0)
+
+    const value = this.warnBaseWasFoundAni?.isPlaying() ? '+=66' : '+=46'
+    this.warnCityAni = this.tweens.add({
+      targets: this.warnCity,
+      alpha: { value: 1, duration: 600 },
+      y: { value, duration: 600, ease: 'Quart.easeIn' },
+      onComplete: (): void => {
+        this.warnCityAni = this.tweens.add({
+          targets: this.warnCity,
+          alpha: 0,
+          duration: 600,
+          delay: 4000,
+          onComplete: (): void => {
+            if (this.warnBaseWasFoundAni?.isPlaying()) {
+              this.tweens.add({
+                targets: this.warnBaseWasFoundText,
+                y: '-=20',
+                duration: 400
+              })
+            }
+          }
         })
       }
     })

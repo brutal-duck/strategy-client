@@ -7,13 +7,13 @@ let state: Istate = {
     id: '',
   },
   game: {
-    AI: false,
     seed: '',
     hexes: [],
     updateHex: true,
     serverGameTime: 0,
     player: null,
     isStarted: false,
+    AI: ''
   },
   platform: '',
   socket: null,

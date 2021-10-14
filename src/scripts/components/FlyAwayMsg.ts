@@ -1,7 +1,6 @@
 import Game from "../scenes/Game";
 
 export default class FlyAwayMsg {
-
   public scene: Game
   public x: number
   public y: number
