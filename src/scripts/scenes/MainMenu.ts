@@ -102,7 +102,7 @@ export default class MainMenu extends Phaser.Scene {
     this.title.setPosition(this.camera.centerX, this.camera.centerY - 200)
     this.startGame.x = this.camera.centerX;
     this.startGame.y = this.title.y + 200;
-    this.AIText.setPosition(this.newGame.border.getCenter().x, this.newGame.border.getBottomCenter().y + 2)
+    this.AIText.setPosition(this.startGame.getBounds().centerX, this.startGame.getBounds().bottom + 2)
     this.AIcheckBoxEasy.setPosition(this.AIText.x - 20, this.AIText.getBottomCenter().y + 6)
     this.AIcheckBoxTextEasy.setPosition(this.AIcheckBoxEasy.x + 5, this.AIcheckBoxEasy.getCenter().y)
     this.AIcheckBoxNormal.setPosition(this.AIcheckBoxEasy.getCenter().x, this.AIcheckBoxEasy.getBottomCenter().y + 6)
@@ -117,6 +117,7 @@ export default class MainMenu extends Phaser.Scene {
     //   w: ${Math.round(this.gameScene.camera.worldView.width)}
     // `)
     if (this.state.startGame) {
+      this.state.socket.clearState();
       this.state.startGame = false;
       if (this.state.game.AI) this.state.player.color = Phaser.Math.Between(0, 1) === 0 ? 'green' : 'red'
       this.gameScene.cameraFly(true, false)

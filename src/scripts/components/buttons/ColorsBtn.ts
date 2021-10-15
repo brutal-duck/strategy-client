@@ -32,18 +32,18 @@ export default class ColorsBtn extends Button {
 
     this.mainSprite = this.scene.add.sprite(this.x, this.y, `btn-${this.color}`);
     if (!this.icon) {
-      const text = this.scene.add.text(this.x, this.y - 3, this.text, textStyle).setOrigin(0.5);
+      const text = this.scene.add.text(this.x, this.y, this.text, textStyle).setOrigin(0.5);
       this.add(text);
     } else {
-      const text1 = this.scene.add.text(0, this.y - 3, this.text, textStyle).setOrigin(0, 0.5);
-      const text2 = this.scene.add.text(0, this.y - 3, '-1', textStyle).setOrigin(0, 0.5).setColor('#FF7464').setFontSize(20);
-      const icon = this.scene.add.sprite(0, this.y - 3, 'super-hex').setOrigin(0, 0.5).setScale(0.19);
+      const text1 = this.scene.add.text(0, this.y, this.text, textStyle).setOrigin(0, 0.5);
+      const text2 = this.scene.add.text(0, this.y, '-1', textStyle).setOrigin(0, 0.5).setColor('#FF7464').setFontSize(20);
+      const icon = this.scene.add.sprite(0, this.y + 1, 'super-hex').setOrigin(0, 0.5).setScale(0.19);
 
       const width = text1.displayWidth + text2.displayWidth + icon.displayWidth;
 
       text1.setX(this.x - width / 2);
-      text2.setX(text1.getBounds().right);
-      icon.setX(text2.getBounds().right);
+      text2.setX(text1.getBounds().right + 2);
+      icon.setX(text2.getBounds().right + 2);
 
       this.add(text1);
       this.add(text2);

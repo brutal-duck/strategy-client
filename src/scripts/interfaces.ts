@@ -8,11 +8,13 @@ interface Istate {
 interface Isocket {
   win: boolean
   loose: boolean
+  draw: boolean
   reason: string
   init: () => void;
   closeSocket: () => void;
   findGame: () => void;
   hexClick: (hexId: string) => void;
+  clearState: () => void;
 }
 interface Iplayer {
   name: string

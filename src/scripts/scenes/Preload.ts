@@ -87,7 +87,12 @@ const btnSettings: string = require('../../assets/images/btns/btn-settings.png')
 const btnEscape: string = require('../../assets/images/btns/btn-escape.png');
 const btnGreen: string = require('../../assets/images/btns/btn-green.png');
 const btnOrange: string = require('../../assets/images/btns/btn-orange.png');
+const btnRed: string = require('../../assets/images/btns/btn-red.png');
 const btnGray: string = require('../../assets/images/btns/btn-gray.png');
+const crown: string = require('../../assets/images/modal/crown.png');
+const glowWinner: string = require('../../assets/images/modal/glow-winner.png');
+const glowLooser: string = require('../../assets/images/modal/glow-looser.png');
+const wreath: string = require('../../assets/images/modal/wreath.png');
 
 class Preload extends Phaser.Scene {
   constructor() {
@@ -203,7 +208,12 @@ class Preload extends Phaser.Scene {
     this.load.image('btn-escape', btnEscape);
     this.load.image('btn-green', btnGreen);
     this.load.image('btn-orange', btnOrange);
+    this.load.image('btn-red', btnRed);
     this.load.image('btn-gray', btnGray);
+    this.load.image('crown', crown);
+    this.load.image('glow-winner', glowWinner);
+    this.load.image('glow-looser', glowLooser);
+    this.load.image('wreath', wreath);
   }
   
   public create(): void {

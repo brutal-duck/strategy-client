@@ -82,9 +82,9 @@ export default class Timer {
         }
 
         if (this.min === 0) {
-          this.colon.setColor('#ee3434');
-          this.minutes.setColor('#ee3434');
-          this.seconds.setColor('#ee3434');
+          this.colon.setColor('#ee3434').setStroke('#123456', 0);
+          this.minutes.setColor('#ee3434').setStroke('#123456', 0);
+          this.seconds.setColor('#ee3434').setStroke('#123456', 0);
         }
 
         this.minutes.setText(m)

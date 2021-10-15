@@ -28,12 +28,13 @@ interface IstartGameData {
 }
 
 
-export default class Socket {
+export default class Socket implements Isocket {
 
   public io: openSocket;
   public state: Istate;
   public win: boolean;
   public loose: boolean;
+  public draw: boolean;
   public reason: string;
   
   constructor(state: Istate) {
@@ -56,8 +57,7 @@ export default class Socket {
       this.state.player.color = data.player.color;
       this.state.game.seed = data.seed;
       this.state.startGame = true;
-      this.win = false;
-      this.loose = false;
+      this.clearState();
     });
 
     this.io.on('winGame', ({ reason }: IendGameData) => {
@@ -70,6 +70,11 @@ export default class Socket {
       console.log('loose!');
       this.reason = reason;
       this.loose = true;
+    });
+
+    this.io.on('drawGame', () => {
+      console.log('draw!');
+      this.draw = true;
     });
 
     this.io.on('updateHex', (data: IupdateHexData) => {
@@ -101,5 +106,11 @@ export default class Socket {
       userId: this.state.player.id,
       id: hexId,
     });
+  }
+
+  public clearState(): void {
+    this.win = false;
+    this.loose = false;
+    this.draw = false;
   }
 }

@@ -132,6 +132,13 @@ export default class Button extends Phaser.GameObjects.Group {
     return this.position.y;
   }
 
+  public set alpha(alpha: number) {
+    this.children.iterate((el: childrenType) => {
+      el.setAlpha(alpha);
+    });
+    this.mainSprite.setAlpha(alpha);
+  }
+
   public setScale(scale: number): this {
     this.mainSprite.setScale(scale);
     return this;

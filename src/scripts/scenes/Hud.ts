@@ -107,15 +107,20 @@ export default class Hud extends Phaser.Scene {
 
 
   private createMainBar(): void {
-    this.hexBar = this.add.sprite(5, 5, 'hex').setScale(0.6).setOrigin(0)
-    this.hexBarText = this.add.text(this.hexBar.getCenter().x, this.hexBar.getCenter().y, String(this.gameScene[this.playerColor].hexes), {
-      font: '26px Molot', align: 'center', color: '#BED3C0'
-    }).setOrigin(0.5).setStroke('black', 3)
+    const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+      fontFamily: 'Molot',
+      fontSize: '27px',
+      align: 'center',
+      color: '#FA6969'
+    };
+    const player: Iconfig = this.gameScene[this.playerColor];
+    this.hexBar = this.add.sprite(5, 5, 'hex').setScale(0.6).setOrigin(0);
+    const hexBarGeom = this.hexBar.getBounds();
+    this.hexBarText = this.add.text(hexBarGeom.centerX, hexBarGeom.centerY, String(player.hexes), textStyle).setOrigin(0.5);
 
-    this.superHexBar = this.add.sprite(this.hexBar.getBottomCenter().x, this.hexBar.getBottomCenter().y + 10, 'super-hex').setScale(0.6).setOrigin(0.5, 0)
-    this.superHexBarText = this.add.text(this.superHexBar.getCenter().x, this.superHexBar.getCenter().y, String(this.gameScene.green.superHex), {
-      font: '26px Molot', align: 'center', color: '#BED3C0'
-    }).setOrigin(0.5).setStroke('black', 3)
+    this.superHexBar = this.add.sprite(hexBarGeom.centerX, hexBarGeom.bottom + 10, 'super-hex').setScale(0.6).setOrigin(0.5, 0);
+    const superGeom = this.superHexBar.getBounds();
+    this.superHexBarText = this.add.text(superGeom.centerX, superGeom.centerY, String(player.superHex), textStyle).setOrigin(0.5).setColor('#E9E7EA');
 
     this.allElements.push(this.hexBar, this.hexBarText, this.superHexBar, this.superHexBarText)
   }
@@ -152,7 +157,7 @@ export default class Hud extends Phaser.Scene {
     this.enemyStatusBar = this.add.tileSprite(barGeom.right, barGeom.centerY, 1, barGeom.height, `pixel-${this.enemyColor}`).setDepth(4).setOrigin(1, 0.5).setVisible(false);
     this.enemyStatusBarBg = this.add.tileSprite(barGeom.right, barGeom.centerY, 1, barGeom.height, `pixel-${this.enemyColor}`).setDepth(3).setOrigin(1, 0.5).setVisible(false);
     
-    const mask = new Phaser.Display.Masks.BitmapMask(this, this.barMask);
+    const mask = new Phaser.Display.Masks.GeometryMask(this, this.barMask);
     this.playerStatusBar.setMask(mask);
     this.enemyStatusBar.setMask(mask);
     this.playerStatusBarBg.setMask(mask);
@@ -453,7 +458,7 @@ export default class Hud extends Phaser.Scene {
 
     this.barMask.destroy();
     this.barMask = this.add.graphics().fillStyle(0x00ff00).fillRoundedRect(barGeom.left, barGeom.top, this.lineWidth, barGeom.height, barGeom.height / 2).setVisible(false);
-    const mask = new Phaser.Display.Masks.BitmapMask(this, this.barMask);
+    const mask = new Phaser.Display.Masks.GeometryMask(this, this.barMask);
     this.playerStatusBar?.setPosition(barGeom.left, barGeom.centerY).setSize(this.getLineWidth(greenHexes), barGeom.height).clearMask().setMask(mask);
     this.enemyStatusBar?.setPosition(barGeom.right, barGeom.centerY).setSize(this.getLineWidth(redHexes), barGeom.height).clearMask().setMask(mask);
     this.playerStatusBarBg?.setPosition(barGeom.left, barGeom.centerY).setSize(this.getLineWidth(greenHexes), barGeom.height).clearMask().setMask(mask);
