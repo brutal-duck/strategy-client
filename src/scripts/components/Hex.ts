@@ -230,11 +230,12 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.own = color
     this.clamingAniRemove()
     if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
+    if (this.fog && this.own === this.scene.player.color) this.removeFog()
     this.giveResourceAnimFromSocket();
     this.super = superHex
     this.setWorldTexture()
     this.setNearbyMark()
-    if (color === this.scene.player.color) {   
+    if (color === this.scene.player.color && !this.super) {   
       Object.values(this.nearby).forEach(id => {
         const hex = this.scene.getHexByID(id)
         if (hex) {
