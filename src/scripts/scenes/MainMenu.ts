@@ -1,4 +1,3 @@
-import MainMenuBtn from "../components/buttons/MainMenuBtn"
 import StartGameBtn from "../components/buttons/StartGameBtn"
 import langs from "../langs"
 import Game from "./Game"
@@ -15,7 +14,6 @@ export default class MainMenu extends Phaser.Scene {
   public gameScene: Game
 
   private title: Phaser.GameObjects.Text
-  private newGame: MainMenuBtn
   private AIcheckBoxNormal: Phaser.GameObjects.Sprite
   private AIcheckBoxEasy: Phaser.GameObjects.Sprite
   private AIcheckBoxTextNormal: Phaser.GameObjects.Text

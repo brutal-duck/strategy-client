@@ -608,7 +608,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       callback: (): void => {
         if (this.scene.gameIsOn) {
           if (this.own === this.scene.player.color) new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y, `+${output}`, 'green', this.own)
-          this.scene[this.own].hexes += output
+          if (this.scene.state.game.AI) this.scene[this.own].hexes += output
           this.scene.hud.updateHexCounter()
         } else this.productionTimer.remove()
       },
