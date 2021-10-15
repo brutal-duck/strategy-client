@@ -5,7 +5,7 @@ const config: Iconfig = {
   hexProductionSpeed: 50000,
   clameTime: 2000,
   superReclameTime: 4000,
-  matchTime: 1 * 60000
+  matchTime: 10 * 60000
 }
 
 type colorTypes = {

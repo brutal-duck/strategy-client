@@ -282,7 +282,7 @@ export default class Hud extends Phaser.Scene {
     }).setOrigin(0.5).setStroke('#000000', 2).setAlpha(0)
     
 
-    const value = this.warnBaseWasFoundAni?.isPlaying() ? '+=66' : '+=46'
+    const value = this.warnBaseWasFoundAni?.isPlaying() ? '+=80' : '+=80'
     this.warnCityAni = this.tweens.add({
       targets: this.warnCity,
       alpha: { value: 1, duration: 600 },
