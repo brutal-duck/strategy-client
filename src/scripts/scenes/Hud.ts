@@ -99,8 +99,8 @@ export default class Hud extends Phaser.Scene {
     this.allElements.push(this.bg, this.timer.minutes, this.timer.seconds, this.timer.colon, this.menuBtn)
 
     // debug // !
-    if (!this.state.game.AI) this.createColorSwitcher()
-    this.createHexBarPlayer2()
+    // if (!this.state.game.AI) this.createColorSwitcher()
+    // this.createHexBarPlayer2()
     this.debugText = this.add.text(-26, this.camera.height, '', { font: '10px Molot', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-9).setOrigin(0, 1).setVisible(false)
     this.input.keyboard.addKey('A').on('up', (): void => { this.debugText.setVisible(!this.debugText.visible) })
   }
@@ -396,7 +396,7 @@ export default class Hud extends Phaser.Scene {
   public updateHexCounter(): void {
     this.hexBarText.setText(`${this.gameScene[this.playerColor].hexes}`)
     this.superHexBarText.setText(`${this.gameScene[this.playerColor].superHex}`)
-    this.hexBarTextP2.setText(`${this.playerColor === 'green' ? this.gameScene.red.hexes : this.gameScene.green.hexes}`)
+    this.hexBarTextP2?.setText(`${this.playerColor === 'green' ? this.gameScene.red.hexes : this.gameScene.green.hexes}`)
   }
 
   private getLineWidth(sum: number): number {

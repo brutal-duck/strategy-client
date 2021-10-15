@@ -1,6 +1,3 @@
-import AskBtn from "../components/buttons/AskBtn"
-import MatchMenuBtn from "../components/buttons/MatchMenuBtn"
-import MatchOverBtn from "../components/buttons/MatchOverBtn"
 import { colors } from "../gameConfig"
 import langs from "../langs"
 import Game from "./Game"
@@ -74,7 +71,7 @@ export default class Modal extends Phaser.Scene {
     const y = this.bg.getCenter().y;
     const windowHeight = 290;
 
-    const top = this.add.sprite(x, y - 100, 'header-lil').setOrigin(0.5, 0);
+    const top = this.add.sprite(x, y - windowHeight / 2, 'header-lil').setOrigin(0.5, 0);
     const topGeom = top.getBounds();
     const mid = this.add.sprite(topGeom.centerX, topGeom.bottom, 'pixel-window-lil').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setInteractive();
     const midGeom = mid.getBounds();
