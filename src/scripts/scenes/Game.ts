@@ -343,10 +343,12 @@ export default class Game extends Phaser.Scene {
         this.state.socket.hexClick(hex.id);
       } else if (hex.own !== this.player.color && hex.class !== 'base') {
         if (playerConfing.superHex > 0 && !hex.clamingAni?.isPlaying()) {
-          if (hex.own !== this.player.color && !hex.landscape && hex.class !== 'base' && !hex.clamingAni?.isPlaying()) {
-            this.scene.launch('Modal', { state: this.state, type: 'landing' })
-          } else if (hex.class !== 'base' || (hex.landscape && hex.dark)) new FlyAwayMsg(this, x, y, this.lang.wrongPlace, 'red', '', 1000)
-        } else if (hex.dark || !hex.landscape) new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', 'purple')
+          if (hex.own !== this.player.color && !hex.landscape && hex.class !== 'base' && !hex.clamingAni?.isPlaying()) this.scene.launch('Modal', { state: this.state, type: 'landing' })
+        }
+        else if ((hex.dark && !hex.landscape) && !hex.clamingAni?.isPlaying()) new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', 'purple')
+        else if (hex.class !== 'base' || (hex.landscape && hex.dark)) new FlyAwayMsg(this, x, y, this.lang.wrongPlace, 'red', '', 1000)
+        else if (hex.clamingAni?.isPlaying()) new FlyAwayMsg(this, x, y, this.lang.claming, 'yellow')
+        
       } else if (hex.class === 'base' && !hex.dark && hex.own !== this.player.color) {
         new FlyAwayMsg(this, x, y, this.lang.surroundBase, 'yellow', '', 2000)
       } 
@@ -717,8 +719,14 @@ export default class Game extends Phaser.Scene {
       let text = 'enemyBaseHasCaptured';
       if (this.state.socket.reason === 'ENEMY_LEFT') text = 'enemySurrendered';
       else if (this.state.socket.reason === 'TIME_IS_UP') text = 'timeIsUp';
-      if (this.hexes.every(el => !el.clamingAni?.isPaused())) {      
-        this.gameOver(text, this.player.color);
+      if (this.hexes.every(el => !el.clamingAni?.isPaused())) { 
+        this.time.addEvent({
+          delay: 100,
+          callback: (): void => {     
+            this.gameOver(text, this.player.color);
+          },
+          callbackScope: this,
+        });
       }
     }
     if (this.state.socket.loose) {
@@ -727,14 +735,24 @@ export default class Game extends Phaser.Scene {
         let text = 'yourBaseHasCaptured';
         if (this.state.socket.reason === 'ENEMY_LEFT') text = 'youSurrendered';
         else if (this.state.socket.reason === 'TIME_IS_UP') text = 'timeIsUp';
-        this.gameOver(text, this.player.color === 'red' ? 'green' : 'red');
+        this.time.addEvent({
+          delay: 100,
+          callback: (): void => {
+            this.gameOver(text, this.player.color === 'red' ? 'green' : 'red');
+          },
+          callbackScope: this,
+        });
       }
     }
 
     if (this.state.socket.loose) {
       console.log(this.state, 'this.state');
       if (this.hexes.every(el => !el.clamingAni?.isPaused())) {
-        this.gameOver('timeIsUp');
+        this.time.addEvent({
+          delay: 100,
+          callback: (): void => { this.gameOver('timeIsUp'); },
+          callbackScope: this,
+        });
       }
     }
   }

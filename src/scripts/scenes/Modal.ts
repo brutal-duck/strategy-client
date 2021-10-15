@@ -242,6 +242,7 @@ export default class Modal extends Phaser.Scene {
     playerLine.setMask(mask);
     enemyLine.setMask(mask);
 
+    if (playerLine.width > lineWidth - 1) this.gameScene.stars = 3;
     const stars = this.info.winner ? this.gameScene.stars : 0
     const lineStar1 = this.add.sprite(x, barGeom.centerY, stars > 0 ? 'lil-star' : 'lil-star-dis').setScale(0.8).setDepth(3);
     const lineStar2 = this.add.sprite(barGeom.left + lineWidth * 0.75, barGeom.centerY, stars > 1 ? 'lil-star' : 'lil-star-dis').setScale(0.8).setDepth(3);
