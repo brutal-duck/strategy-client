@@ -317,36 +317,36 @@ export default class Game extends Phaser.Scene {
       this.draged = false;
     } else if (this.twoPointerZoom) this.twoPointerZoom = false;
     else {
-      this.chosenHex = hex;
-      const x = hex.getCenter().x;
-      const y = hex.getCenter().y;
-      const playerConfing: Iconfig = this[this.player.color];      
+      // console.log('hex.on ~', hex)
+      this.chosenHex = hex
+      const x = hex.getCenter().x
+      const y = hex.getCenter().y
+      const player = this[this.player.color]
+
       if (
-        hex.own !== this.player.color 
-        && hex.class !== 'base' 
-        && !hex.landscape 
-        && !hex.clamingAni?.isPlaying() 
-        && this.nearbyHexes(hex).some(el => el?.own === this.player.color)
+        hex.own !== this.player.color && hex.class !== 'base' &&
+        !hex.landscape && !hex.clamingAni?.isPlaying() &&
+        this.nearbyHexes(hex).some(el => el?.own === this.player.color)
       ) {
-        if (hex.own === 'neutral' && playerConfing.hexes >= hex.defence) {
+        if (hex.own === 'neutral' && hex.defence === 1 && player.hexes >= hex.defence) {
           this.state.socket.hexClick(hex.id);
-        } else if (playerConfing.hexes >= hex.defence + 1) {
+        } else if (hex.defence === 1 && player.hexes >= hex.defence) {
           this.state.socket.hexClick(hex.id);
-        } else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', this.player.color);
-      } else if (
-        hex.own === this.player.color 
-        && hex.class === 'grass' 
-        && playerConfing.hexes >= hex.defence + 1 
-        && !hex.clamingAni?.isPlaying() 
-        && !hex.upgradeAni?.isPlaying()
-      ) {
-        this.state.socket.hexClick(hex.id);
-      } else if (hex.own !== this.player.color && hex.class !== 'base') {
-        if (playerConfing.superHex > 0 && !hex.clamingAni?.isPlaying()) {
-          if (hex.own !== this.player.color && !hex.landscape && hex.class !== 'base' && !hex.clamingAni?.isPlaying()) this.scene.launch('Modal', { state: this.state, type: 'landing' })
+        } else if (hex.defence > 1 && player.hexes >= hex.defence) {
+          new FlyAwayMsg(this, x, y, `-${1}`, 'red', this.player.color)
+          this.state.socket.hexClick(hex.id);
         }
-        else if ((hex.dark && !hex.landscape) && !hex.clamingAni?.isPlaying()) new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', 'purple')
-        else if (hex.class !== 'base' || (hex.landscape && hex.dark)) new FlyAwayMsg(this, x, y, this.lang.wrongPlace, 'red', '', 1000)
+        else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', this.player.color)
+      } else if (hex.own === this.player.color && hex.class === 'grass' && player.hexes >= hex.defence + 1 && !hex.clamingAni?.isPlaying()) {
+        if (!hex.upgradeAni?.isPlaying()) {
+          this.state.socket.hexClick(hex.id);
+        } else new FlyAwayMsg(this, x, y, this.lang.upgrading, 'yellow', '', 1000)
+      } else if (hex.own !== this.player.color && hex.class !== 'base') {
+        if (player.superHex > 0 && !hex.clamingAni?.isPlaying()) {
+          if (hex.own !== this.player.color && !hex.landscape && hex.class !== 'base' && !hex.clamingAni?.isPlaying()) this.scene.launch('Modal', { state: this.state, type: 'landing' })
+          else if (hex.class !== 'base' || (hex.landscape && hex.dark)) new FlyAwayMsg(this, x, y, this.lang.wrongPlace, 'red', '', 1000)
+        }
+        else if ((hex.dark || !hex.landscape) && !hex.clamingAni?.isPlaying()) new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', 'purple')
         else if (hex.clamingAni?.isPlaying()) new FlyAwayMsg(this, x, y, this.lang.claming, 'yellow')
         
       } else if (hex.class === 'base' && !hex.dark && hex.own !== this.player.color) {
@@ -775,7 +775,7 @@ export default class Game extends Phaser.Scene {
               hex.setSocketClaming(socketHex.newOwn, socketHex.super);}
           } else if (socketHex.own !== socketHex.newOwn && !hex.clamingAni?.isPlaying()) {
             hex.socketClame(socketHex.newOwn, socketHex.super);
-          } else if (hex.own !== socketHex.own && !hex.clamingAni?.isPlaying()) {
+          } else if (hex.own !== socketHex.own) {
             hex.socketClame(socketHex.newOwn, socketHex.super);
             if (hex.class === 'rock') hex.setWorldTexture(socketHex.newOwn);
           }
@@ -795,6 +795,9 @@ export default class Game extends Phaser.Scene {
             hex.defence = socketHex.defence;
             if (hex.defence > 1) {
               hex.defenceLvl.setText(String(hex.defence));
+            } else {
+              hex.defenceLvl.setVisible(false)
+              hex.setWorldTexture()
             }
           }
         });
