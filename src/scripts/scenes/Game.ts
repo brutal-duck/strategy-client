@@ -779,12 +779,23 @@ export default class Game extends Phaser.Scene {
             hex.socketClame(socketHex.newOwn, socketHex.super);
             if (hex.class === 'rock') hex.setWorldTexture(socketHex.newOwn);
           }
-          if (hex.defence !== socketHex.defence) {
-            hex.upgradeSocketDefence();
-            if (socketHex.newOwn === this.player.color) {
-              new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, `-${hex.defence + 1}`, 'red', this.player.color)
+          if (socketHex.defence !== socketHex.newDefence && !hex.upgradeAni?.isPlaying() && socketHex.newDefence > socketHex.defence) {
+            if (socketHex.newDefence > 1) {
+              hex.upgradeSocketDefence();
+              if (socketHex.newOwn === this.player.color) {
+                new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, `-${hex.defence + 1}`, 'red', this.player.color)
+              }
             }
+          }
+          if (socketHex.defence !== socketHex.newDefence && !hex.clamingAni?.isPlaying() && socketHex.newDefence < socketHex.defence) {
+            hex.setSocketClearClame(socketHex.newOwn, socketHex.super);
+          }
+
+          if (hex.defence !== socketHex.defence && !hex.upgradeAni?.isPlaying() && !hex.clamingAni?.isPlaying()) {
             hex.defence = socketHex.defence;
+            if (hex.defence > 1) {
+              hex.defenceLvl.setText(String(hex.defence));
+            }
           }
         });
       }

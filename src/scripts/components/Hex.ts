@@ -218,10 +218,13 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       duration: this.super ? this.scene.green.superReclameTime : this.scene.green.clameTime,
       onComplete: (): void => {
         this.clamingAniRemove()
-        this.productionTimer?.remove()
-        // this.setColor('neutral')
-        this.own = 'neutral'
-        this.setClaming(color, superHex)
+        if (this.defence > 1) this.breakSocketDefence()
+        else {
+          this.productionTimer?.remove()
+          // this.setColor('neutral')
+          this.own = 'neutral'
+          this.setClaming(color, superHex)
+        }
       }
     })
   }
@@ -535,6 +538,14 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   }
   
   private breakDefence(): void {
+    this.defence--
+    if (this.defence === 1) {
+      this.defenceLvl.setVisible(false)
+      this.setWorldTexture()
+    } else if (this.defence > 1) this.defenceLvl.setText(String(this.defence))
+  }
+  
+  public breakSocketDefence(): void {
     this.defence--
     if (this.defence === 1) {
       this.defenceLvl.setVisible(false)

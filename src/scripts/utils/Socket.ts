@@ -1,33 +1,4 @@
 import * as openSocket from 'socket.io-client';
-interface IendGameData {
-  reason: string;
-}
-
-interface IupdateHexData {
-  hexes: IsocketHex[];
-  player: IsocketPlayer;
-  currentTime: number;
-}
-
-interface IsocketHex {
-  id: string;
-  col: number;
-  row: number;
-  class: string;
-  own: string;
-  newOwn: string;
-  super: boolean;
-  resources: number;
-  defence: number;
-  newDefence: number;
-}
-
-interface IstartGameData {
-  seed: string;
-  player: IsocketPlayer
-}
-
-
 export default class Socket implements Isocket {
 
   public io: openSocket;
