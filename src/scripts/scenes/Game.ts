@@ -499,9 +499,7 @@ export default class Game extends Phaser.Scene {
         const nextCol = this.nextColHexesBetween(topHex, botHex).sort((a, b) => a.row - b.row)
         const nextColCheck = nextCol.filter(hex => hex.own === color).length < 2 || nextCol.every(hex => hex.own === color) || nextCol.every(hex => hex.own !== color)
         if (nextColCheck) return
-        
         const { top, bot } = findTopAndBotPlayerHexes(nextCol)        
-  
         if (top && bot) {
           pushNewInnerHexes(nextCol, top, bot)
           reduce()
@@ -531,14 +529,19 @@ export default class Game extends Phaser.Scene {
       }
     }
     
+
+
     // 2. Поиск внутренних незахваченных гекс
     chains.forEach((arr, i) => { if (arr.every(hex => hex.landscape)) chains.splice(i, 1) })
+
+    this.checkLeftChain(chains, color);
+
     chains.forEach(arr => findInnerHexes(arr))
-    // console.log('multiClameCheck ~ chains', chains.map(arr => arr.map(hex => hex.id)))
+    console.log('multiClameCheck ~ chains', chains.map(arr => arr.map(hex => hex.id)))
 
     // 3. Проверка на замыкание внутренних незахваченных гекс
     if (innerHexes.length > 0) {
-      console.log('5 ~ innerHexes', innerHexes.map(arr => arr.map(hex => hex.id)))
+      // console.log('5 ~ innerHexes', innerHexes.map(arr => arr.map(hex => hex.id)))
       innerHexes.forEach(arr => {
         innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => 
           arr.some(el => el.id === id) || this.getHexByID(id) === null || this.getHexByID(id).own === color
@@ -555,12 +558,70 @@ export default class Game extends Phaser.Scene {
     }
   }
 
+  
+  private checkLeftChain(chains: Array<Hex[]>, color: string) {
+    const hexesChains: Array<Hex[]> = [];
+    for (let i = 0; i < chains.length - 1; i += 1) {
+      const first = chains[i];
+      for (let j = 1; j < chains.length; j += 1) {
+        const second = chains[j];
+        if (first && second) {
+          if (first[0].col === chains[0][0].col && second[0].col === first[0].col) {
+            const chain: Hex[] = [];
+            for (let k = 1; k < second[0].row - first[first.length - 1].row; k += 1) {
+              chain.push(this.getHexByID(`${first[0].col}-${first[first.length - 1].row + k}`));
+            }
+            hexesChains.push(chain);
+          }
+        }
+      }
+    }
+
+    hexesChains.forEach(chain => {
+      let check = true;
+      chain.forEach(el => {
+        const topRight = this.getHexByID(el.nearby.topRight);
+        const botRight = this.getHexByID(el.nearby.botRight);
+        if (check) {
+          if (botRight.own !== color && topRight.own === color) { 
+            check = check && this.checkRightHex(botRight, color);
+            console.log
+          } else if (botRight.own === color && topRight.own !== color) { 
+            check = check && this.checkRightHex(topRight, color);
+          }
+        }
+      });
+      if (check) {
+        const first = chains.shift();
+        const second = chains.shift();
+        chain.forEach(el => {
+          first.push(el);
+        });
+        if (second) {
+          second.forEach(el => {
+            if (el.col === first[0].col) first.push(el);
+          });
+        }
+        chains.unshift(first);
+      }
+    });
+  }
+
+  private checkRightHex(hex: Hex, color: string): boolean {
+    const topRight = this.getHexByID(hex.nearby.topRight);
+    const botRight = this.getHexByID(hex.nearby.botRight);
+    if (topRight.own === color && botRight.own === color) return true;
+    if (topRight.own === color) return this.checkRightHex(botRight, color);
+    if (botRight.own === color) return this.checkRightHex(topRight, color);
+    return false;
+  }
+
   private nextColHexesBetween(topHex: Hex, botHex: Hex = topHex): Hex[] {
     if (topHex.col < this.world.cols - 1) {
       topHex = this.findTopRightHex(topHex)
       botHex = this.findBottomRightHex(botHex)
 
-      if (topHex.id !== botHex.id && topHex.row + 1 !== botHex.row) {
+      if (topHex.id !== botHex.id && topHex.row !== botHex.row) {
         for (let i = topHex.row; topHex.row > 0; i--) {
           const upperHex = this.hexes.find(hex => hex.col === topHex.col && hex.row === i - 1)
           if (upperHex.own === this.player.color) topHex = upperHex

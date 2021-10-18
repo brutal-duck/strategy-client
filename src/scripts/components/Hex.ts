@@ -475,6 +475,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     let texture: string
     let flip = false
 
+    if (this.own !== 'neutral' && this.class === 'super') this.class = 'grass';
     if (this.defence > 1) texture = `${this.own}-tower`
     else if (this.class === 'water') texture = `${this.class}-${this.landscapeNum}`
     else if (this.class === 'base') texture = `${this.class}-${color}`
