@@ -227,7 +227,7 @@ export default class AI {
         if (row === to.row) vertical = ''
       }
 
-      const step: Hex = this.scene.getHexByID(`${col}-${row}`)
+      const step: Hex = this.scene.getHexById(`${col}-${row}`)
       if (step.id === lastHex.id) break
       else if (!step.landscape) path.push(step)
       else {
@@ -285,7 +285,7 @@ export default class AI {
 
   private AIHexes(): Hex[] { return this.scene.hexes.filter(hex => hex.own === this.color) }
   private outerAIHexes(): Hex[] { return this.AIHexes().filter(hex => this.nearbyHexes(hex).some(el => el.own !== this.color)) }
-  private nearbyHexes(hex: Hex): Hex[] { return Object.values(hex.nearby).map(id => this.scene.getHexByID(id)) }
+  private nearbyHexes(hex: Hex): Hex[] { return Object.values(hex.nearby).map(id => this.scene.getHexById(id)) }
   private topRow(): number { return this.outerAIHexes().sort((a, b) => a.row - b.row)[0].row }
   private botRow(): number { return this.outerAIHexes().sort((a, b) => b.row - a.row)[0].row }
   private leftCol(): number { return this.outerAIHexes().sort((a, b) => a.col - b.col)[0].col }

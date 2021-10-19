@@ -59,6 +59,15 @@ export default class Game extends Phaser.Scene {
   public chosenHex: Hex
 
   public claming: string[]
+  public graphs: { red: Igraph, green: Igraph } = {
+    red: {},
+    green: {},
+  };
+
+  public neutralGraphs: { red: Igraph, green: Igraph } = {
+    red: {},
+    green: {},
+  };
 
   public init(state: Istate) {
     this.state = state
@@ -81,7 +90,7 @@ export default class Game extends Phaser.Scene {
     this.hexes = []
 
     new Zoom(this)
-    this.debuging = true
+    this.debuging = Boolean(process.env.DEBUG_HEX);
 
     this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', this.player.color) })
     this.input.keyboard.addKey('S').on('up', (): void => { this.hexes.forEach(hex => hex.removeFog()) })
@@ -133,7 +142,8 @@ export default class Game extends Phaser.Scene {
 
     console.log('init ~ this.camera', this.camera)
     console.log('create ~ this.input', this.input)
-
+    this.initGraphs();
+    this.initNeutralGraphs();
   }
 
 
@@ -514,7 +524,6 @@ export default class Game extends Phaser.Scene {
       const colHexes: Hex[] = this.hexes.filter(hex => hex.col === i && hex.own === color).sort((a, b) => a.row - b.row)
       // const colHexes: Hex[] = this.hexes.filter(hex => hex.col === i && (hex.own === color || hex.landscape)).sort((a, b) => a.row - b.row)
       chain = []
-
       if (colHexes.length > 1) {
         colHexes.forEach((hex, i) => {
           if (i === 0) chain.push(hex)
@@ -525,7 +534,7 @@ export default class Game extends Phaser.Scene {
           } else chain = [hex]
         })
 
-        if (chain.length > 1) chains.push(chain)
+        chains.push(chain)
       }
     }
     
@@ -544,7 +553,7 @@ export default class Game extends Phaser.Scene {
       // console.log('5 ~ innerHexes', innerHexes.map(arr => arr.map(hex => hex.id)))
       innerHexes.forEach(arr => {
         innerHexesIsClosed = arr.every(hex => Object.values(hex.nearby).every(id => 
-          arr.some(el => el.id === id) || this.getHexByID(id) === null || this.getHexByID(id).own === color
+          arr.some(el => el.id === id) || this.getHexById(id) === null || this.getHexById(id).own === color
         ) && hex.col < this.world.cols - 1)
         if (innerHexesIsClosed) arr.forEach(hex => {
           hex.removeFog()
@@ -559,60 +568,76 @@ export default class Game extends Phaser.Scene {
   }
 
   
-  private checkLeftChain(chains: Array<Hex[]>, color: string) {
+  private checkLeftChain(chains: Array<Hex[]>, color: string): Array<Hex[]> {
+    const newChains: Array<Hex[]> = [];
     const hexesChains: Array<Hex[]> = [];
     for (let i = 0; i < chains.length - 1; i += 1) {
       const first = chains[i];
       for (let j = 1; j < chains.length; j += 1) {
         const second = chains[j];
         if (first && second) {
-          if (first[0].col === chains[0][0].col && second[0].col === first[0].col) {
+          if (first[0].col === chains[i][0].col && second[0].col === first[0].col) {
             const chain: Hex[] = [];
             for (let k = 1; k < second[0].row - first[first.length - 1].row; k += 1) {
-              chain.push(this.getHexByID(`${first[0].col}-${first[first.length - 1].row + k}`));
+              chain.push(this.getHexById(`${first[0].col}-${first[first.length - 1].row + k}`));
             }
-            hexesChains.push(chain);
+            if (chain.length > 0) hexesChains.push(chain);
           }
         }
       }
     }
-
+    console.log('hexesChains', hexesChains.map(arr => arr.map(el => el.id)));
     hexesChains.forEach(chain => {
+      const chainCol = chain[0].col;
       let check = true;
       chain.forEach(el => {
-        const topRight = this.getHexByID(el.nearby.topRight);
-        const botRight = this.getHexByID(el.nearby.botRight);
         if (check) {
-          if (botRight.own !== color && topRight.own === color) { 
-            check = check && this.checkRightHex(botRight, color);
-            console.log
-          } else if (botRight.own === color && topRight.own !== color) { 
-            check = check && this.checkRightHex(topRight, color);
+          const topRight = this.getHexById(el.nearby.topRight);
+          const botRight = this.getHexById(el.nearby.botRight);
+          const topLeft = this.getHexById(el.nearby.topLeft);
+          const botLeft = this.getHexById(el.nearby.botLeft);
+          if (botRight.own !== color || topRight.own !== color) {
+            if (botRight.own !== color && topRight.own === color) { 
+              check = check && this.checkRightHex(botRight, color);
+            } else if (botRight.own === color && topRight.own !== color) { 
+              check = check && this.checkRightHex(topRight, color);
+            }
+          } else if (topLeft.own !== color || botLeft.own !== color){
+            if (botLeft.own !== color && topLeft.own === color) { 
+              check = check && this.checkLefttHex(botLeft, color);
+            } else if (botLeft.own === color && topLeft.own !== color) { 
+              check = check && this.checkLefttHex(topLeft, color);
+            }
           }
         }
       });
       if (check) {
-        const first = chains.shift();
-        const second = chains.shift();
+        const main = chains.find(arr => arr[0].col === chainCol);
         chain.forEach(el => {
-          first.push(el);
+          main.push(el);
         });
-        if (second) {
-          second.forEach(el => {
-            if (el.col === first[0].col) first.push(el);
-          });
-        }
-        chains.unshift(first);
+        newChains.push(main);
       }
     });
+    console.log('newChains', newChains.map(arr => arr.map(el => el.id)));
+    return newChains;
   }
 
   private checkRightHex(hex: Hex, color: string): boolean {
-    const topRight = this.getHexByID(hex.nearby.topRight);
-    const botRight = this.getHexByID(hex.nearby.botRight);
+    const topRight = this.getHexById(hex.nearby.topRight);
+    const botRight = this.getHexById(hex.nearby.botRight);
     if (topRight.own === color && botRight.own === color) return true;
     if (topRight.own === color) return this.checkRightHex(botRight, color);
     if (botRight.own === color) return this.checkRightHex(topRight, color);
+    return false;
+  }
+
+  private checkLefttHex(hex: Hex, color: string): boolean {
+    const topLeft = this.getHexById(hex.nearby.topLeft);
+    const botLeft = this.getHexById(hex.nearby.botLeft);
+    if (topLeft.own === color && botLeft.own === color) return true;
+    if (topLeft.own === color) return this.checkLefttHex(botLeft, color);
+    if (botLeft.own === color) return this.checkLefttHex(topLeft, color);
     return false;
   }
 
@@ -651,10 +676,10 @@ export default class Game extends Phaser.Scene {
     return nextColHex
   }
 
-  public getHexByID(id: string): Hex { return this.hexes.find(hex => hex.id === id) }
+  public getHexById(id: string): Hex { return this.hexes.find(hex => hex.id === id) }
   public playerHexes(): Hex[] { return this.hexes.filter(hex => hex?.own === this.player.color && !hex.landscape) }
   public enemyHexes(): Hex[] { return this.hexes.filter(hex => hex?.own == this.enemyColor && !hex.landscape) }
-  public nearbyHexes(hex: Hex): Hex[] { if (hex) return Object.values(hex?.nearby).map(id => { if (this.isValidID(id)) return this.getHexByID(id) }) }
+  public nearbyHexes(hex: Hex): Hex[] { if (hex) return Object.values(hex?.nearby).map(id => { if (this.isValidID(id)) return this.getHexById(id) }) }
   public outerPlayerHexes(): Hex[] { return this.playerHexes().filter(hex => { if (hex) return this.nearbyHexes(hex).some(el => el?.own !== this.player.color) }) }
   public isValidID(id: string): boolean {
     let counter = 0
@@ -746,7 +771,6 @@ export default class Game extends Phaser.Scene {
     }
   }
 
-  
   public update(): void {
     if (this.gameIsOn) {
       if (!this.input.pointer2.isDown && (this.draged || this.zoomed)) {
@@ -874,5 +898,169 @@ export default class Game extends Phaser.Scene {
       this.hud.timer.updateTime(this.state.game.serverGameTime);
       this.hud.updateHexCounter()
     }
+  }
+
+  private initGraphByColor(color: string): void {
+    this.hexes.filter(el => el.own === color).forEach(el => {
+      if (!this.graphs[color][el.id]) this.graphs[color][el.id] = new Set();
+      Object.values(el.nearby).forEach(value => {
+        if (this.getHexById(value).own === color) this.graphs[color][el.id].add(value);
+      });
+    });
+  }
+
+  private initGraphs(): void {
+    this.initGraphByColor('green');
+    this.initGraphByColor('red');
+  }
+
+  private initNeutralGraphs(): void {
+    this.hexes.filter(el => el.own !== 'green').forEach(el => {
+      if (!this.neutralGraphs['green'][el.id]) this.neutralGraphs['green'][el.id] = new Set();
+      Object.values(el.nearby).forEach(value => {
+        if (this.getHexById(value)?.own !== 'green') this.neutralGraphs['green'][el.id].add(value);
+      });
+    });
+
+    this.hexes.filter(el => el.own !== 'red').forEach(el => {
+      if (!this.neutralGraphs['red'][el.id]) this.neutralGraphs['red'][el.id] = new Set();
+      Object.values(el.nearby).forEach(value => {
+        if (this.getHexById(value)?.own !== 'red') this.neutralGraphs['red'][el.id].add(value);
+      });
+    });
+  }
+
+  public checkClosure(hex: Hex): void {
+    const color = hex.own;
+    if (color !== 'red' && color !== 'green') return;
+    const graph: Igraph = this.graphs[color];
+    
+    if (!graph[hex.id]) {
+      const neighbors = Object.values(hex.nearby);
+      const filteredNeighbors = neighbors.filter(el => graph[el]);
+      filteredNeighbors.forEach((el, index) => {
+        const current = el;
+        const next = filteredNeighbors[index + 1];
+        if (current && next) {
+          const path = this.findPath(graph, current, next);
+          if (path.length > 2) {
+            path.push(hex.id);
+            const innerHexes = this.getInnerHexes(path, hex.own);
+            path.forEach(vertex => {
+              this.clearNeutralGraph(this.getHexById(vertex));
+            });
+            
+            innerHexes.forEach(hexId => {
+              const foundPath = this.findPath(this.neutralGraphs[color], hexId, '1-1');
+              if (foundPath.length <= 0) {
+                const hex = this.getHexById(hexId);
+                this.clearGraph(hex);
+                this.clearNeutralGraph(hex);
+                if (!hex.landscape) hex.clame(color);
+                else {
+                  hex.own = color;
+                  if (hex.class === 'rock') hex.setWorldTexture(color);
+                }
+              }
+            });
+          } else {
+            this.multiClameCheck(hex.own);
+          }
+        }
+      });
+
+      graph[hex.id] = new Set();
+      Object.values(hex.nearby).forEach(value => {
+        if (graph[value]) {
+          graph[hex.id].add(value);
+          graph[value].add(hex.id);
+        }
+      });
+      // console.log(graph);
+    }
+  }
+
+  private getInnerHexes(path: string[], color: string): string[] {
+    const innerHexes: string[] = [];
+    const refactedPath = path.map(el => {
+      const [col, row] = el.split('-');
+      return { id: el, row: Number(row), col: Number(col) };
+    }).sort((a, b) => {
+      if (a.row > b.row) return 1;
+      if (a.row < b.row) return -1;
+      if (a.col > b.col) return 1;
+      if (a.col < b.col) return -1;
+      return 0;
+    });
+
+    const firstRow = refactedPath[0].row;
+    const lastRow = refactedPath[refactedPath.length - 1].row;
+    for (let currentRow: number = firstRow; currentRow < lastRow; currentRow += 1) {
+      const rowElements = refactedPath.filter(el => el.row === currentRow);
+      const left = rowElements[0];
+      const right = rowElements[rowElements.length - 1];
+      for (let i = left.col + 1; i < right.col; i += 1) {
+        const id = `${i}-${currentRow}`;
+        const hex = this.getHexById(id);
+        if (hex?.own !== color) {
+          innerHexes.push(`${i}-${currentRow}`);
+        }
+      }
+    }
+
+    return innerHexes;
+  }
+
+  private clearGraph(hex: Hex): void {
+    const color = hex.own === 'red' ? 'green' : 'red';
+    if (color !== 'red' && color !== 'green') return;
+    const graph = this.graphs[color];
+    delete graph[hex.id];
+    
+    Object.keys(graph).forEach(key => {
+      if (graph[key].has(hex.id)) graph[key].delete(hex.id);
+    });
+  }
+
+  private clearNeutralGraph(hex: Hex): void {
+    const color = hex.own;
+    if (color !== 'red' && color !== 'green') return;
+    const graph = this.neutralGraphs[color];
+    delete graph[hex.id];
+    
+    Object.keys(graph).forEach(key => {
+      if (graph[key].has(hex.id)) graph[key].delete(hex.id);
+    });
+  }
+
+  private findPath(graph: Igraph, startVertex: string, endVertex: string): string[] {
+    const distances: { [key: string]: number} = {};
+    distances[startVertex] = 0;
+    const queque = [startVertex];
+    const parents: { [key: string]: string } = {};
+
+    while (queque.length > 0) {
+      const curVertex = queque.shift();
+      if (graph[curVertex]) {
+        graph[curVertex].forEach(neighbor => {
+          if (!distances[neighbor] && distances[neighbor] !== 0) {
+            distances[neighbor] = distances[curVertex] + 1;
+            parents[neighbor] = curVertex;
+            queque.push(neighbor);
+          }
+        });
+      }
+    }
+
+    const path = [endVertex];
+    let parent = parents[endVertex];
+
+    while (parent && parent) {
+      path.push(parent);
+      parent = parents[parent];
+    }
+    path.reverse();
+    if (distances[endVertex]) return path;
+    return [];
   }
 }

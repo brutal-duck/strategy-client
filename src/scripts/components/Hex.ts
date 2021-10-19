@@ -115,7 +115,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     // if (this.col === 0) this.scene.add.sprite(this.x + w / 4 + 1, this.y + h / 2 - 7, 'fog').setOrigin(1, 0).setScale(this.fogSprite.scale).setDepth(this.fogSprite.depth + 1)
     // if (this.col === this.scene.cols - 1) this.scene.add.sprite(this.x + w * 0.75 - 1, this.y + h / 2 - 7, 'fog').setOrigin(0).setScale(this.fogSprite.scale).setDepth(this.fogSprite.depth + 1)
     // if (this.row === this.scene.rows - 1) this.scene.add.sprite(this.x, this.y + h - 7, 'fog').setOrigin(0).setScale(this.fogSprite.scale).setDepth(10000)
-    // if (this.scene.debuging) this.debug()
+    if (this.scene.debuging) this.debug()
   }
 
 
@@ -168,7 +168,8 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       onComplete: (): void => {
         this.clamingAniRemove()
         this.clame(color, superHex)
-        this.scene.multiClameCheck(color)
+        // this.scene.multiClameCheck(color)
+        this.scene.checkClosure(this);
         this.scene.hud.updateWorldStatusBar()
         this.scene.gameOverCheck(color)
         // this.claming = false
@@ -240,7 +241,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.setNearbyMark()
     if (color === this.scene.player.color && !this.super) {   
       Object.values(this.nearby).forEach(id => {
-        const hex = this.scene.getHexByID(id)
+        const hex = this.scene.getHexById(id)
         if (hex) {
           if (hex.fog) hex.removeFog()
         }
@@ -269,7 +270,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
     if (color === this.scene.player.color && !this.super) {
       Object.values(this.nearby).forEach(id => {
-        const hex = this.scene.getHexByID(id)
+        const hex = this.scene.getHexById(id)
         if (hex) {
           if (hex.fog) hex.removeFog()
           // Object.values(hex.nearby).forEach(lvlPlusId => {
@@ -607,7 +608,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.productionTimer = this.scene.time.addEvent({
       delay,
       callback: (): void => {
-        if (this.scene.gameIsOn) {
+        if (this.scene.gameIsOn && (this.own === 'green' ||  this.own === 'red')) {
           if (this.own === this.scene.player.color) new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y, `+${output}`, 'green', this.own)
           if (this.scene.state.game.AI) this.scene[this.own].hexes += output
           this.scene.hud.updateHexCounter()

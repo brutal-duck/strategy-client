@@ -65,6 +65,9 @@ interface Iposition {
   y: number;
 }
 
+interface Igraph {
+  [key: string] : Set<string>;
+}
 interface IcolorsBtnSettings {
   color: string;
   text: string;

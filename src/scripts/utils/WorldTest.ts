@@ -317,7 +317,7 @@ export default class WorldTest {
     const playerBase = this.scene.player.color === 'green' ? greenBase : redBase
 
     playerBase.removeFog()
-    Object.values(playerBase.nearby).forEach(id => this.scene.getHexByID(id).removeFog())
+    Object.values(playerBase.nearby).forEach(id => this.scene.getHexById(id).removeFog())
     this.scene.centerCamera(playerBase.getCenter().x, playerBase.getCenter().y, true)
   }
 }
