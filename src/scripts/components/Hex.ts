@@ -178,11 +178,12 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   }
 
   public hasSuperNeighbor(): boolean {
+    let has = false;
     Object.values(this.nearby).forEach(id => {
       const hex = this.scene.getHexById(id);
-      if (hex.own === this.own && hex.super) return true;
-    })
-    return false;
+      if (!has && hex.own === this.own && hex.super) has = true;
+    });
+    return has;
   }
 
   public setSocketClaming(color: string, superHex: boolean = false) {
@@ -232,7 +233,8 @@ export default class Hex extends Phaser.GameObjects.Sprite {
           this.productionTimer?.remove()
           // this.setColor('neutral')
           this.own = 'neutral'
-          this.setClaming(color, superHex)
+          if (!this.super) this.setWorldTexture();
+          this.setSocketClaming(color, superHex)
         }
       }
     })
@@ -484,13 +486,15 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     let texture: string
     let flip = false
 
-    if (this.own !== 'neutral' && this.class === 'super') this.class = 'grass';
+    if (this.own !== 'neutral' && this.class === 'super') this.class = 'grass'
     if (this.defence > 1) texture = `${this.own}-tower`
     else if (this.class === 'water') texture = `${this.class}-${this.landscapeNum}`
     else if (this.class === 'base') texture = `${this.class}-${color}`
     else if (this.super && this.class === 'grass') texture = `${color}-fort-${Phaser.Math.Between(1, 2)}`
     else texture = `${color}-${this.class}-${this.landscapeNum}`
     
+    if (lastTexture.includes(`${color}-fort-`) && texture.includes(`${color}-fort-`)) return; 
+
     // if (this.class === 'water' || this.class === 'grass' || this.class === 'rock') flip = Phaser.Math.Between(0, 1) === 1
 
     // if (!this.initTexture) this.initTexture = texture
