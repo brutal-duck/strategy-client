@@ -177,6 +177,14 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     })
   }
 
+  public hasSuperNeighbor(): boolean {
+    Object.values(this.nearby).forEach(id => {
+      const hex = this.scene.getHexById(id);
+      if (hex.own === this.own && hex.super) return true;
+    })
+    return false;
+  }
+
   public setSocketClaming(color: string, superHex: boolean = false) {
     const bgColor = colors[color].light
     const lineColor = colors[color].main

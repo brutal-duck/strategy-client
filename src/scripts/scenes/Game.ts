@@ -936,56 +936,69 @@ export default class Game extends Phaser.Scene {
     const graph: Igraph = this.graphs[color];
     
     if (!graph[hex.id]) {
+      this.addHexInGraph(graph, hex);
       const neighbors = Object.values(hex.nearby);
       const filteredNeighbors = neighbors.filter(el => graph[el]);
       filteredNeighbors.forEach((el, index) => {
         const current = el;
         const next = filteredNeighbors[index + 1];
         if (current && next) {
-          const path = this.findPath(graph, current, next);
-          if (path.length > 2) {
-            path.push(hex.id);
-            const innerHexes = this.getInnerHexes(path, hex.own);
-            path.forEach(vertex => {
-              this.clearNeutralGraph(this.getHexById(vertex));
-            });
+          const distance = this.findPathInGraph(graph, current, next);
+          if (distance > 0) {
+            const hexes = this.hexes.filter(el => el.own === hex.own);
+            const innerHexes = this.getNotOwnInnerHexes(hexes, hex.own);
             
-            innerHexes.forEach(hexId => {
-              const foundPath = this.findPath(this.neutralGraphs[color], hexId, '1-1');
-              if (foundPath.length <= 0) {
-                const hex = this.getHexById(hexId);
-                this.clearGraph(hex);
-                this.clearNeutralGraph(hex);
-                if (!hex.landscape) hex.clame(color);
-                else {
-                  hex.own = color;
-                  if (hex.class === 'rock') hex.setWorldTexture(color);
-                }
-              }
+            innerHexes.forEach(innerHex => {
+              this.checkAndUpdateInnerHex(innerHex, color);
             });
-          } else {
-            this.multiClameCheck(hex.own);
           }
         }
       });
-
-      graph[hex.id] = new Set();
-      Object.values(hex.nearby).forEach(value => {
-        if (graph[value]) {
-          graph[hex.id].add(value);
-          graph[value].add(hex.id);
-        }
-      });
-      // console.log(graph);
     }
   }
 
-  private getInnerHexes(path: string[], color: string): string[] {
-    const innerHexes: string[] = [];
-    const refactedPath = path.map(el => {
-      const [col, row] = el.split('-');
-      return { id: el, row: Number(row), col: Number(col) };
-    }).sort((a, b) => {
+  private checkAndUpdateInnerHex(innerHex: Hex, color: string): void {
+    const outerHexId = '0-0';
+    if (innerHex.own !== 'neutral') {
+      if (!innerHex.super) {
+        if (!innerHex.hasSuperNeighbor()) {
+          const outerDistance = this.findPathInGraph(this.neutralGraphs[color], innerHex.id, outerHexId);
+          if (outerDistance < 0) this.updateInnerHex(innerHex, color);
+        }
+      }
+    } else {
+      const outerDistance = this.findPathInGraph(this.neutralGraphs[color], innerHex.id, outerHexId);
+      if (outerDistance < 0) this.updateInnerHex(innerHex, color);
+    }
+  }
+
+  private updateInnerHex(innerHex: Hex, color: string): void {
+    if (!innerHex.landscape) innerHex.clame(color);
+    else {
+      innerHex.own = color;
+      if (innerHex.class === 'rock') innerHex.setWorldTexture(color);
+    }
+  }
+
+  private addHexInGraph(graph: Igraph, hex: Hex): void {
+    graph[hex.id] = new Set();
+    Object.values(hex.nearby).forEach(value => {
+      if (graph[value]) {
+        graph[hex.id].add(value);
+        graph[value].add(hex.id);
+      }
+    });
+    this.clearOldGraph(hex);
+    this.clearNeutralGraph(hex);
+  }
+  
+  private getNotOwnInnerHexes(hexes: Hex[], color: string): Hex[] {
+    const innerHexes: Hex[] = [];
+    const refactedHexes = hexes.map(el => ({
+      row: el.row,
+      col: el.col,
+      id: el.id,
+    })).sort((a, b) => {
       if (a.row > b.row) return 1;
       if (a.row < b.row) return -1;
       if (a.col > b.col) return 1;
@@ -993,25 +1006,26 @@ export default class Game extends Phaser.Scene {
       return 0;
     });
 
-    const firstRow = refactedPath[0].row;
-    const lastRow = refactedPath[refactedPath.length - 1].row;
+    const firstRow = refactedHexes[0].row;
+    const lastRow = refactedHexes[refactedHexes.length - 1].row;
     for (let currentRow: number = firstRow; currentRow < lastRow; currentRow += 1) {
-      const rowElements = refactedPath.filter(el => el.row === currentRow);
-      const left = rowElements[0];
-      const right = rowElements[rowElements.length - 1];
-      for (let i = left.col + 1; i < right.col; i += 1) {
-        const id = `${i}-${currentRow}`;
-        const hex = this.getHexById(id);
-        if (hex?.own !== color) {
-          innerHexes.push(`${i}-${currentRow}`);
+      const rowElements = refactedHexes.filter(el => el.row === currentRow);
+      if (rowElements) {
+        const left = rowElements[0];
+        const right = rowElements[rowElements.length - 1];
+        for (let i = left?.col; i < right?.col; i += 1) {
+          const id = `${i}-${currentRow}`;
+          const hex = this.getHexById(id);
+          if (hex?.own !== color) {
+            innerHexes.push(hex);
+          }
         }
       }
     }
-
     return innerHexes;
   }
 
-  private clearGraph(hex: Hex): void {
+  private clearOldGraph(hex: Hex): void {
     const color = hex.own === 'red' ? 'green' : 'red';
     if (color !== 'red' && color !== 'green') return;
     const graph = this.graphs[color];
@@ -1033,11 +1047,10 @@ export default class Game extends Phaser.Scene {
     });
   }
 
-  private findPath(graph: Igraph, startVertex: string, endVertex: string): string[] {
+  private findPathInGraph(graph: Igraph, startVertex: string, endVertex: string): number {
     const distances: { [key: string]: number} = {};
     distances[startVertex] = 0;
     const queque = [startVertex];
-    const parents: { [key: string]: string } = {};
 
     while (queque.length > 0) {
       const curVertex = queque.shift();
@@ -1045,22 +1058,12 @@ export default class Game extends Phaser.Scene {
         graph[curVertex].forEach(neighbor => {
           if (!distances[neighbor] && distances[neighbor] !== 0) {
             distances[neighbor] = distances[curVertex] + 1;
-            parents[neighbor] = curVertex;
             queque.push(neighbor);
           }
         });
       }
     }
-
-    const path = [endVertex];
-    let parent = parents[endVertex];
-
-    while (parent && parent) {
-      path.push(parent);
-      parent = parents[parent];
-    }
-    path.reverse();
-    if (distances[endVertex]) return path;
-    return [];
+    
+    return distances[endVertex] || -1;
   }
 }
