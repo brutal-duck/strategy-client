@@ -4,6 +4,9 @@ import Game from "./Game"
 import ExitBtn from './../components/buttons/ExitBtn';
 import MenuBtn from './../components/buttons/MenuBtn';
 import ColorsBtn from './../components/buttons/ColorsBtn';
+import StartGameBtn from './../components/buttons/StartGameBtn';
+import SingleplayerMenu from "../components/modal/SingleplayerMenu";
+import MultiplayerMenu from './../components/modal/MultiplayerMenu';
 
 export default class Modal extends Phaser.Scene {
   constructor() {
@@ -19,7 +22,7 @@ export default class Modal extends Phaser.Scene {
   private enemyColor: string
 
   public gameScene: Game
-  private bg: Phaser.GameObjects.TileSprite
+  public bg: Phaser.GameObjects.TileSprite
   private openCloseAni: Phaser.Tweens.Tween
   
   public init(data: { state: Istate, type: string, info?: any }): void {
@@ -63,11 +66,11 @@ export default class Modal extends Phaser.Scene {
         break;
       
       case 'singleplayerMenu':
-        this.createSingleplayerMenu();
+        new SingleplayerMenu(this);
         break;
 
       case 'multiplayerMenu':
-        this.createMultiplayerMenu();
+        new MultiplayerMenu(this);
         break;
       default: 
         break;
@@ -83,19 +86,19 @@ export default class Modal extends Phaser.Scene {
     };
     const x = this.bg.getCenter().x;
     const y = this.bg.getCenter().y;
-    const windowHeight = 290;
+    const windowHeight = 390;
 
-    const top = this.add.sprite(x, y - windowHeight / 2, 'header').setOrigin(0.5, 0);
+    const top = this.add.sprite(x, y - windowHeight / 2 - 100, 'header-mid').setOrigin(0.5, 0);
     const topGeom = top.getBounds();
-    const mid = this.add.sprite(topGeom.centerX, topGeom.bottom, 'pixel-window').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setInteractive();
+    const mid = this.add.sprite(topGeom.centerX, topGeom.bottom, 'pixel-window-mid').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setInteractive();
     const midGeom = mid.getBounds();
-    const bot = this.add.sprite(midGeom.centerX, midGeom.bottom, 'header').setOrigin(0.5, 0).setFlipY(true);
+    const bot = this.add.sprite(midGeom.centerX, midGeom.bottom, 'header-mid').setOrigin(0.5, 0).setFlipY(true);
 
     const title = this.add.text(x, topGeom.bottom + 30, this.lang.menu, textStyle).setOrigin(0.5).setDepth(2);
     new ExitBtn(this, { x: topGeom.right - 45, y: topGeom.bottom + 30}, (): void => { this.scene.stop(); });
 
     new MenuBtn(this, { x: x, y: mid.getCenter().y }, (): void => { console.log('settings'); });
-    new MenuBtn(this, { x: x, y: mid.getCenter().y + 80 }, (): void => { this.stopGame(); }, 'escape');
+    new MenuBtn(this, { x: x, y: mid.getCenter().y + 120 }, (): void => { this.stopGame(); }, 'escape');
   }
 
   private createSuperHexConfirmWindow(): void {
@@ -146,12 +149,12 @@ export default class Modal extends Phaser.Scene {
       titleColor = this.info.win ? '#a893ff' : '#e86464';
     }
 
-    let windowHeight = 540;
+    let windowHeight = 600;
     const windowWidth = 600;
     if (!this.info.winner) {
-      windowHeight = 460
+      windowHeight = 520
     } else {
-      if (!this.info.win) windowHeight = 460
+      if (!this.info.win) windowHeight = 520
     }
 
     const playerHexes: number = this.gameScene?.playerHexes().length
@@ -204,9 +207,9 @@ export default class Modal extends Phaser.Scene {
     const bot = this.add.sprite(topGeom.centerX, topGeom.bottom + windowHeight, 'header').setOrigin(0.5, 0).setFlipY(true);
 
     let crown: Phaser.GameObjects.Sprite;
-    if (this.info.win) crown = this.add.sprite(x, midGeom.top + 20, 'crown');
+    if (this.info.win) crown = this.add.sprite(x, midGeom.top + 30, 'crown');
 
-    const titleY = crown ? crown.getBounds().bottom + 10 : midGeom.top - 10;
+    const titleY = crown ? crown.getBounds().bottom + 10 : midGeom.top;
     const title = this.add.text(x, titleY, text, titleStyle).setOrigin(0.5, 0);
     const reason = this.add.text(x, title.getBounds().bottom + 10, this.lang[this.info.reason], reasonStyle).setOrigin(0.5, 0);
 
@@ -273,13 +276,13 @@ export default class Modal extends Phaser.Scene {
 
     const x = this.bg.getCenter().x;
     const y = this.bg.getCenter().y;
-    const windowHeight = 390;
+    const windowHeight = 470;
 
-    const top = this.add.sprite(x, y - windowHeight / 2 - 50, 'header').setOrigin(0.5, 0);
+    const top = this.add.sprite(x, y - windowHeight / 2 - 50, 'header-mid').setOrigin(0.5, 0);
     const topGeom = top.getBounds();
-    const mid = this.add.sprite(topGeom.centerX, topGeom.bottom, 'pixel-window').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setInteractive();
+    const mid = this.add.sprite(topGeom.centerX, topGeom.bottom, 'pixel-window-mid').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setInteractive();
     const midGeom = mid.getBounds();
-    const bot = this.add.sprite(midGeom.centerX, midGeom.bottom, 'header').setOrigin(0.5, 0).setFlipY(true);
+    const bot = this.add.sprite(midGeom.centerX, midGeom.bottom, 'header-mid').setOrigin(0.5, 0).setFlipY(true);
 
     const title = this.add.text(x, topGeom.bottom + 30, this.lang.menu, textStyle).setOrigin(0.5).setDepth(2);
     new ExitBtn(this, { x: topGeom.right - 45, y: topGeom.bottom + 30}, (): void => { this.scene.stop(); });
@@ -296,60 +299,6 @@ export default class Modal extends Phaser.Scene {
       (): void => { this.scene.restart({ state: this.state, type: 'singleplayerMenu' }); },
       'singleplayer',
     );
-  }
-
-  private createSingleplayerMenu(): void {
-    const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-      fontFamily: 'Molot',
-      fontSize: '38px',
-      color: '#CFCDCA',
-    };
-
-    const x = this.bg.getCenter().x;
-    const y = this.bg.getCenter().y;
-    const windowHeight = 390;
-
-    const top = this.add.sprite(x, y - windowHeight / 2 - 50, 'header').setOrigin(0.5, 0);
-    const topGeom = top.getBounds();
-    const mid = this.add.sprite(topGeom.centerX, topGeom.bottom, 'pixel-window').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setInteractive();
-    const midGeom = mid.getBounds();
-    const bot = this.add.sprite(midGeom.centerX, midGeom.bottom, 'header').setOrigin(0.5, 0).setFlipY(true);
-
-    const title = this.add.text(x, topGeom.bottom + 30, this.lang.menu, textStyle).setOrigin(0.5).setDepth(2);
-
-    
-    new ExitBtn(
-      this,
-      { x: topGeom.right - 45, y: topGeom.bottom + 30},
-      (): void => { this.scene.restart({ state: this.state, type: 'mainMenu' });},
-    );
-
-  }
-
-  private createMultiplayerMenu(): void {
-    const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-      fontFamily: 'Molot',
-      fontSize: '38px',
-      color: '#CFCDCA',
-    };
-
-    const x = this.bg.getCenter().x;
-    const y = this.bg.getCenter().y;
-    const windowHeight = 390;
-
-    const top = this.add.sprite(x, y - windowHeight / 2 - 50, 'header').setOrigin(0.5, 0);
-    const topGeom = top.getBounds();
-    const mid = this.add.sprite(topGeom.centerX, topGeom.bottom, 'pixel-window').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setInteractive();
-    const midGeom = mid.getBounds();
-    const bot = this.add.sprite(midGeom.centerX, midGeom.bottom, 'header').setOrigin(0.5, 0).setFlipY(true);
-
-    const title = this.add.text(x, topGeom.bottom + 30, this.lang.menu, textStyle).setOrigin(0.5).setDepth(2);
-    new ExitBtn(
-      this,
-      { x: topGeom.right - 45, y: topGeom.bottom + 30},
-      (): void => { this.scene.restart({ state: this.state, type: 'mainMenu' });},
-    );
-
   }
 
   private stopGame(): void {

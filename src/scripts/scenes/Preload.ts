@@ -10,6 +10,7 @@ const fogSoft: string = require('./../../assets/images/fog-soft.png');
 const warning: string = require('./../../assets/images/warning.png');
 const star: string = require('./../../assets/images/star.png');
 const header: string = require('./../../assets/images/modal/header.png');
+const headerMid: string = require('./../../assets/images/modal/header-mid.png');
 const headerLil: string = require('./../../assets/images/modal/header-lil.png');
 const circle: string = require('../../assets/images/circle.png');
 const grayRock1: string = require('./../../assets/images/landscape/gray-rock-1.png');
@@ -73,6 +74,7 @@ const lilStar: string = require('../../assets/images/lil-star.png');
 const lilStarDis: string = require('../../assets/images/lil-star-dis.png');
 const windowPixel: string = require('../../assets/images/modal/pxl-window.png');
 const windowPixelLil: string = require('../../assets/images/modal/pxl-window-lil.png');
+const windowPixelMid: string = require('../../assets/images/modal/pxl-window-mid.png');
 const exitBtn: string = require('../../assets/images/btns/btn-exit.png');
 const menuBtn: string = require('../../assets/images/btns/btn-menu.png');
 const btnSettings: string = require('../../assets/images/btns/btn-settings.png');
@@ -141,6 +143,7 @@ class Preload extends Phaser.Scene {
     this.load.image('warning', warning)
     this.load.image('header', header)
     this.load.image('header-lil', headerLil)
+    this.load.image('header-mid', headerMid)
     this.load.image('circle', circle);
     this.load.image('star', star);
     this.load.image('gray-rock-1', grayRock1)
@@ -204,6 +207,7 @@ class Preload extends Phaser.Scene {
     this.load.image('lil-star-dis', lilStarDis);
     this.load.image('pixel-window', windowPixel);
     this.load.image('pixel-window-lil', windowPixelLil);
+    this.load.image('pixel-window-mid', windowPixelMid);
     this.load.image('exit-btn', exitBtn);
     this.load.image('menu-btn', menuBtn);
     this.load.image('btn-settings', btnSettings);

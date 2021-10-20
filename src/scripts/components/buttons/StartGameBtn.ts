@@ -12,7 +12,7 @@ export default class StartGameBtn extends Button {
   
   private createChildrens(): void {
     const fontStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-      fontSize: '48px',
+      fontSize: '55px',
       fontFamily: 'Molot',
       color: '#EEFDBF',
       shadow: {
@@ -25,7 +25,7 @@ export default class StartGameBtn extends Button {
     };
 
     this.mainSprite = this.scene.add.sprite(this.x, this.y, 'start-game-btn').setScale(0.9);
-    this.text = this.scene.add.text(this.x - 60, this.y - 5, this.str, fontStyle).setOrigin(0, 0.5);
+    this.text = this.scene.add.text(this.x - 70, this.y - 5, this.str, fontStyle).setOrigin(0, 0.5);
     this.add(this.text);
   }
 
@@ -35,5 +35,12 @@ export default class StartGameBtn extends Button {
 
   public removeInteractive(): void {
     this.mainSprite.removeInteractive();
+  }
+
+  public setScale(scale: number): this {
+    super.setScale(scale);
+    this.text.setFontSize(parseInt(this.text.style.fontSize) * scale);
+    this.text.setX(this.x - 70 * scale);
+    return this;
   }
 };

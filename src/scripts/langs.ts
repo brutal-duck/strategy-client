@@ -9,8 +9,9 @@ export default {
     launch: 'запуск...',
     shutdown: 'завершение...',
     ai: 'ИИ',
-    easy: 'легкий',
+    easy: 'лёгкий',
     normal: 'нормальный',
+    hard: 'сложный',
     target: 'цель',
     targetDiscr: 'Найдите и захватите столичную клетку противника',
     notEnought: 'недостаточно',
@@ -50,7 +51,10 @@ export default {
     settingsBtn: 'настройки',
     singleplayerBtn: 'одиночный режим',
     multiplayerBtn: 'мультиплеер',
-    repeatBtn: 'повторить',
+    repeatBtn: 'повторить поиск',
+    choiceOfDifficulty: 'выбор сложности',
+    timeLeft: 'осталось',
+    searchEnemy: 'поиск соперника'
   },
   en: {
     index: 'ru',
