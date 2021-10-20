@@ -48,8 +48,9 @@ export default class MainMenu extends Phaser.Scene {
       y: this.title.y + 200,
     };
     const action = (): void => {
-      this.startGame.setText(this.lang.launch)
-      this.matchMaking()
+      this.scene.launch('Modal', { state: this.state, type: 'mainMenu' });
+      // this.startGame.setText(this.lang.launch)
+      // this.matchMaking()
     }
 
     this.startGame = new StartGameBtn(this, position, action, this.lang.play);

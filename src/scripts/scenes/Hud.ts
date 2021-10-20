@@ -90,7 +90,7 @@ export default class Hud extends Phaser.Scene {
   }
   
   public create(): void {
-    this.menuBtn = new SandwichBtn(this, { x: this.camera.width - 35, y: 35 }, (): void => { this.scene.launch('Modal', { state: this.state, type: 'matchMenu' }) });
+    this.menuBtn = new SandwichBtn(this, { x: this.camera.width - 35, y: 35 }, (): void => { this.scene.launch('Modal', { state: this.state, type: 'gameMenu' }) });
 
     this.createMainBar()
     this.createWorldStatusBar()
@@ -378,14 +378,14 @@ export default class Hud extends Phaser.Scene {
       this.stars.forEach(star => { if (star.texture.key !== 'lil-star') star.setTexture('lil-star') })
       if (this.gameScene.gameIsOn) this.gameScene.stars = 3
     } else if (width >= this.getStarPoint(2)) {
-      if (this.star1.texture.key !== 'star') this.star1.setTexture('lil-star')
-      if (this.star2.texture.key !== 'star') this.star2.setTexture('lil-star')
-      if (this.star3.texture.key === 'star') this.star2.setTexture('lil-star-dis')
+      if (this.star1.texture.key !== 'lil-star') this.star1.setTexture('lil-star')
+      if (this.star2.texture.key !== 'lil-star') this.star2.setTexture('lil-star')
+      if (this.star3.texture.key === 'lil-star') this.star2.setTexture('lil-star-dis')
       if (this.gameScene.gameIsOn) this.gameScene.stars = 2
     } else if (width >= this.getStarPoint(1)) {
-      if (this.star1.texture.key !== 'star') this.star1.setTexture('lil-star')
-      if (this.star2.texture.key === 'star') this.star2.setTexture('lil-star-dis')
-      if (this.star3.texture.key === 'star') this.star2.setTexture('lil-star-dis')
+      if (this.star1.texture.key !== 'lil-star') this.star1.setTexture('lil-star')
+      if (this.star2.texture.key === 'lil-star') this.star2.setTexture('lil-star-dis')
+      if (this.star3.texture.key === 'lil-star') this.star2.setTexture('lil-star-dis')
       if (this.gameScene.gameIsOn) this.gameScene.stars = 1
     } else {
       this.stars.forEach(star => { if (star.texture.key === 'lil-star') star.setTexture('lil-star-dis') })

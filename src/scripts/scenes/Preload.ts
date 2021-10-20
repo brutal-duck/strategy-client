@@ -1,78 +1,70 @@
-import langs from "../langs";
+import langs from '../langs';
 
-const block: string = require("./../../assets/images/block-rounded.png");
-const world: string = require("./../../assets/images/world.png");
-const hex: string = require("./../../assets/images/hex.png");
-const superHex: string = require("./../../assets/images/super-hex.png");
-const hexBorder: string = require("./../../assets/images/hex-border.png");
-const hexBorder2: string = require("./../../assets/images/hex-border-2.png");
-const fog: string = require("./../../assets/images/fog.png");
-const fogSoft: string = require("./../../assets/images/fog-soft.png");
-const warning: string = require("./../../assets/images/warning.png");
-const blink: string = require("./../../assets/images/blink-line.png");
-const grade: string = require("./../../assets/images/grade.png");
-const glow: string = require("./../../assets/images/glow.png");
-const cross: string = require("./../../assets/images/cross.png");
-const star: string = require("./../../assets/images/star.png");
-const starDisabled: string = require("./../../assets/images/star-disabled.png");
-const header: string = require("./../../assets/images/modal/header.png");
-const headerLil: string = require("./../../assets/images/modal/header-lil.png");
-const btnBorder: string = require("./../../assets/images/btns/btn-border.png");
-const btnBorder1: string = require("./../../assets/images/btns/border-1.png");
-
-const grayRock1: string = require("./../../assets/images/landscape/gray-rock-1.png");
-const grayRock2: string = require("./../../assets/images/landscape/gray-rock-2.png");
-const grayRock3: string = require("./../../assets/images/landscape/gray-rock-3.png");
-const redRock1: string = require("./../../assets/images/landscape/red-rock-1.png");
-const redRock2: string = require("./../../assets/images/landscape/red-rock-2.png");
-const redRock3: string = require("./../../assets/images/landscape/red-rock-3.png");
-const greenRock1: string = require("./../../assets/images/landscape/green-rock-1.png");
-const greenRock2: string = require("./../../assets/images/landscape/green-rock-2.png");
-const greenRock3: string = require("./../../assets/images/landscape/green-rock-3.png");
-const greenGrass1: string = require("./../../assets/images/landscape/green-grass-1.png");
-const greenGrass2: string = require("./../../assets/images/landscape/green-grass-2.png");
-const greenGrass3: string = require("./../../assets/images/landscape/green-grass-3.png");
-const greenGrass4: string = require("./../../assets/images/landscape/green-grass-4.png");
-const greenGrass5: string = require("./../../assets/images/landscape/green-grass-5.png");
-const grayGrass1: string = require("./../../assets/images/landscape/gray-grass-1.png");
-const grayGrass2: string = require("./../../assets/images/landscape/gray-grass-2.png");
-const grayGrass3: string = require("./../../assets/images/landscape/gray-grass-3.png");
-const grayGrass4: string = require("./../../assets/images/landscape/gray-grass-4.png");
-const grayGrass5: string = require("./../../assets/images/landscape/gray-grass-5.png");
-const redGrass1: string = require("./../../assets/images/landscape/red-grass-1.png");
-const redGrass2: string = require("./../../assets/images/landscape/red-grass-2.png");
-const redGrass3: string = require("./../../assets/images/landscape/red-grass-3.png");
-const redGrass4: string = require("./../../assets/images/landscape/red-grass-4.png");
-const redGrass5: string = require("./../../assets/images/landscape/red-grass-5.png");
-const water1: string = require("./../../assets/images/landscape/water-1.png");
-const water2: string = require("./../../assets/images/landscape/water-2.png");
-const redX1: string = require("./../../assets/images/landscape/red-x1-1.png");
-const redX12: string = require("./../../assets/images/landscape/red-x1-2.png");
-const greyX1: string = require("./../../assets/images/landscape/gray-x1-1.png");
-const greyX12: string = require("./../../assets/images/landscape/gray-x1-2.png");
-const greenX1: string = require("./../../assets/images/landscape/green-x1-1.png");
-const greenX12: string = require("./../../assets/images/landscape/green-x1-2.png");
-const redX3: string = require("./../../assets/images/landscape/red-x3-1.png");
-const redX32: string = require("./../../assets/images/landscape/red-x3-2.png");
-const grayX3: string = require("./../../assets/images/landscape/gray-x3-1.png");
-const grayX32: string = require("./../../assets/images/landscape/gray-x3-2.png");
-const greenX3: string = require("./../../assets/images/landscape/green-x3-1.png");
-const greenX32: string = require("./../../assets/images/landscape/green-x3-2.png");
-const baseRed: string = require("./../../assets/images/landscape/red-base.png");
-const baseGreen: string = require("./../../assets/images/landscape/green-base.png");
-const baseAlone: string = require("./../../assets/images/landscape/base-alone.png");
-const greenSuper1: string = require("./../../assets/images/landscape/green-super-1.png");
-const greenSuper2: string = require("./../../assets/images/landscape/green-super-2.png");
-const redSuper1: string = require("./../../assets/images/landscape/red-super-1.png");
-const redSuper2: string = require("./../../assets/images/landscape/red-super-2.png");
-const graySuper1: string = require("./../../assets/images/landscape/gray-super-1.png");
-const graySuper2: string = require("./../../assets/images/landscape/gray-super-2.png");
-const greenFort1: string = require("./../../assets/images/landscape/green-fort-1.png");
-const greenFort2: string = require("./../../assets/images/landscape/green-fort-2.png");
-const redFort1: string = require("./../../assets/images/landscape/red-fort-1.png");
-const redFort2: string = require("./../../assets/images/landscape/red-fort-2.png");
-const greenTower: string = require("./../../assets/images/landscape/green-tower.png");
-const redTower: string = require("./../../assets/images/landscape/red-tower.png");
+const block: string = require('./../../assets/images/block-rounded.png');
+const world: string = require('./../../assets/images/world.png');
+const hex: string = require('./../../assets/images/hex.png');
+const superHex: string = require('./../../assets/images/super-hex.png');
+const hexBorder2: string = require('./../../assets/images/hex-border-2.png');
+const fog: string = require('./../../assets/images/fog.png');
+const fogSoft: string = require('./../../assets/images/fog-soft.png');
+const warning: string = require('./../../assets/images/warning.png');
+const star: string = require('./../../assets/images/star.png');
+const header: string = require('./../../assets/images/modal/header.png');
+const headerLil: string = require('./../../assets/images/modal/header-lil.png');
+const circle: string = require('../../assets/images/circle.png');
+const grayRock1: string = require('./../../assets/images/landscape/gray-rock-1.png');
+const grayRock2: string = require('./../../assets/images/landscape/gray-rock-2.png');
+const grayRock3: string = require('./../../assets/images/landscape/gray-rock-3.png');
+const redRock1: string = require('./../../assets/images/landscape/red-rock-1.png');
+const redRock2: string = require('./../../assets/images/landscape/red-rock-2.png');
+const redRock3: string = require('./../../assets/images/landscape/red-rock-3.png');
+const greenRock1: string = require('./../../assets/images/landscape/green-rock-1.png');
+const greenRock2: string = require('./../../assets/images/landscape/green-rock-2.png');
+const greenRock3: string = require('./../../assets/images/landscape/green-rock-3.png');
+const greenGrass1: string = require('./../../assets/images/landscape/green-grass-1.png');
+const greenGrass2: string = require('./../../assets/images/landscape/green-grass-2.png');
+const greenGrass3: string = require('./../../assets/images/landscape/green-grass-3.png');
+const greenGrass4: string = require('./../../assets/images/landscape/green-grass-4.png');
+const greenGrass5: string = require('./../../assets/images/landscape/green-grass-5.png');
+const grayGrass1: string = require('./../../assets/images/landscape/gray-grass-1.png');
+const grayGrass2: string = require('./../../assets/images/landscape/gray-grass-2.png');
+const grayGrass3: string = require('./../../assets/images/landscape/gray-grass-3.png');
+const grayGrass4: string = require('./../../assets/images/landscape/gray-grass-4.png');
+const grayGrass5: string = require('./../../assets/images/landscape/gray-grass-5.png');
+const redGrass1: string = require('./../../assets/images/landscape/red-grass-1.png');
+const redGrass2: string = require('./../../assets/images/landscape/red-grass-2.png');
+const redGrass3: string = require('./../../assets/images/landscape/red-grass-3.png');
+const redGrass4: string = require('./../../assets/images/landscape/red-grass-4.png');
+const redGrass5: string = require('./../../assets/images/landscape/red-grass-5.png');
+const water1: string = require('./../../assets/images/landscape/water-1.png');
+const water2: string = require('./../../assets/images/landscape/water-2.png');
+const redX1: string = require('./../../assets/images/landscape/red-x1-1.png');
+const redX12: string = require('./../../assets/images/landscape/red-x1-2.png');
+const greyX1: string = require('./../../assets/images/landscape/gray-x1-1.png');
+const greyX12: string = require('./../../assets/images/landscape/gray-x1-2.png');
+const greenX1: string = require('./../../assets/images/landscape/green-x1-1.png');
+const greenX12: string = require('./../../assets/images/landscape/green-x1-2.png');
+const redX3: string = require('./../../assets/images/landscape/red-x3-1.png');
+const redX32: string = require('./../../assets/images/landscape/red-x3-2.png');
+const grayX3: string = require('./../../assets/images/landscape/gray-x3-1.png');
+const grayX32: string = require('./../../assets/images/landscape/gray-x3-2.png');
+const greenX3: string = require('./../../assets/images/landscape/green-x3-1.png');
+const greenX32: string = require('./../../assets/images/landscape/green-x3-2.png');
+const baseRed: string = require('./../../assets/images/landscape/red-base.png');
+const baseGreen: string = require('./../../assets/images/landscape/green-base.png');
+const baseAlone: string = require('./../../assets/images/landscape/base-alone.png');
+const greenSuper1: string = require('./../../assets/images/landscape/green-super-1.png');
+const greenSuper2: string = require('./../../assets/images/landscape/green-super-2.png');
+const redSuper1: string = require('./../../assets/images/landscape/red-super-1.png');
+const redSuper2: string = require('./../../assets/images/landscape/red-super-2.png');
+const graySuper1: string = require('./../../assets/images/landscape/gray-super-1.png');
+const graySuper2: string = require('./../../assets/images/landscape/gray-super-2.png');
+const greenFort1: string = require('./../../assets/images/landscape/green-fort-1.png');
+const greenFort2: string = require('./../../assets/images/landscape/green-fort-2.png');
+const redFort1: string = require('./../../assets/images/landscape/red-fort-1.png');
+const redFort2: string = require('./../../assets/images/landscape/red-fort-2.png');
+const greenTower: string = require('./../../assets/images/landscape/green-tower.png');
+const redTower: string = require('./../../assets/images/landscape/red-tower.png');
 
 const startGameBtn: string = require('../../assets/images/btns/btn-play.png');
 const pixelGreen: string = require('../../assets/images/pxl-green.png');
@@ -85,6 +77,9 @@ const exitBtn: string = require('../../assets/images/btns/btn-exit.png');
 const menuBtn: string = require('../../assets/images/btns/btn-menu.png');
 const btnSettings: string = require('../../assets/images/btns/btn-settings.png');
 const btnEscape: string = require('../../assets/images/btns/btn-escape.png');
+const btnRepeat: string = require('../../assets/images/btns/btn-repeat.png');
+const btnSingleplayer: string = require('../../assets/images/btns/btn-singleplayer.png');
+const btnMultiplayer: string = require('../../assets/images/btns/btn-multiplayer.png');
 const btnGreen: string = require('../../assets/images/btns/btn-green.png');
 const btnOrange: string = require('../../assets/images/btns/btn-orange.png');
 const btnRed: string = require('../../assets/images/btns/btn-red.png');
@@ -93,6 +88,7 @@ const crown: string = require('../../assets/images/modal/crown.png');
 const glowWinner: string = require('../../assets/images/modal/glow-winner.png');
 const glowLooser: string = require('../../assets/images/modal/glow-looser.png');
 const wreath: string = require('../../assets/images/modal/wreath.png');
+const modalPlate: string = require('../../assets/images/modal/plate.png');
 
 class Preload extends Phaser.Scene {
   constructor() {
@@ -109,9 +105,23 @@ class Preload extends Phaser.Scene {
   }
 
   public preload(): void {
+    const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+      fontSize: '25px',
+      fontFamily: 'Molot',
+      color: '#FEFEFD',
+      stroke: '#9779f5',
+      strokeThickness: 5,
+      shadow: {
+        color: '#33333388',
+        fill: true,
+        offsetX: 0,
+        offsetY: 5,
+        blur: 10,
+      }
+    };
     const lineLength = this.cameras.main.width
-    const line: Phaser.GameObjects.TileSprite = this.add.tileSprite(0, this.cameras.main.height, 1, 20, 'pixel').setOrigin(0, 1).setTint(0xffe595)
-    this.progressText = this.add.text(this.cameras.main.width / 2, line.getTopCenter().y, this.lang.loadTextures, { font: '16px Molot', color: '#ffe595' }).setOrigin(0.5, 1)
+    const line: Phaser.GameObjects.TileSprite = this.add.tileSprite(0, this.cameras.main.height, 1, 20, 'pixel').setOrigin(0, 1).setTint(0x9779f5)
+    this.progressText = this.add.text(this.cameras.main.width / 2, line.getTopCenter().y - 10, this.lang.loadTextures, textStyle).setOrigin(0.5, 1)
     
     this.load.on('progress', (value: number): void => {
       let percent: number = Math.round(value * 100);
@@ -125,22 +135,14 @@ class Preload extends Phaser.Scene {
     this.load.image('bg', world)
     this.load.image('hex', hex)
     this.load.image('super-hex', superHex);
-    this.load.image('hex-border', hexBorder)
     this.load.image('hex-border-2', hexBorder2)
     this.load.image('fog', fog)
     this.load.image('fog-soft', fogSoft)
     this.load.image('warning', warning)
-    this.load.image('grade', grade)
-    this.load.image('blink', blink)
     this.load.image('header', header)
     this.load.image('header-lil', headerLil)
-    this.load.image('glow', glow)
-    this.load.image('cross', cross)
-    this.load.image('star', star)
-    this.load.image('star-disabled', starDisabled)
-    this.load.image('btn-border', btnBorder)
-    this.load.image('border-1', btnBorder1)
-
+    this.load.image('circle', circle);
+    this.load.image('star', star);
     this.load.image('gray-rock-1', grayRock1)
     this.load.image('gray-rock-2', grayRock2)
     this.load.image('gray-rock-3', grayRock3)
@@ -206,6 +208,9 @@ class Preload extends Phaser.Scene {
     this.load.image('menu-btn', menuBtn);
     this.load.image('btn-settings', btnSettings);
     this.load.image('btn-escape', btnEscape);
+    this.load.image('btn-repeat', btnRepeat);
+    this.load.image('btn-singleplayer', btnSingleplayer);
+    this.load.image('btn-multiplayer', btnMultiplayer);
     this.load.image('btn-green', btnGreen);
     this.load.image('btn-orange', btnOrange);
     this.load.image('btn-red', btnRed);
@@ -214,6 +219,7 @@ class Preload extends Phaser.Scene {
     this.load.image('glow-winner', glowWinner);
     this.load.image('glow-looser', glowLooser);
     this.load.image('wreath', wreath);
+    this.load.image('modal-plate', modalPlate);
   }
   
   public create(): void {

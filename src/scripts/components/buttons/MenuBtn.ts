@@ -2,8 +2,6 @@ import Button from "./Button";
 import Modal from './../../scenes/Modal';
 
 export default class MenuBtn extends Button {
-  private texture: string = 'btn-settings';
-  private text: string = 'settings';
   public scene: Modal;
   constructor(scene: Phaser.Scene, position: Iposition, action: () => void, type: string = 'settings') {
     super(scene, position, action);
@@ -17,6 +15,7 @@ export default class MenuBtn extends Button {
       fontSize: '25px',
       fontFamily: 'Molot',
       color: '#F0FDDA',
+      align: 'center',
       shadow: {
         offsetX: 1,
         offsetY: 1, 
@@ -26,14 +25,11 @@ export default class MenuBtn extends Button {
       },
       wordWrap: { width: 120 },
     };
-    if (this.type === 'leave') {
-      this.text = 'surrenderAndLeave';
-      this.texture = 'btn-escape';
-      textStyle.color = '#EDB0AD';
-    }
+    if (this.type === 'escape') textStyle.color = '#EDB0AD';
+    
 
-    this.mainSprite = this.scene.add.sprite(this.x, this.y, this.texture);
-    const text = this.scene.add.text(this.x + 10, this.y - 3, this.scene.lang[this.text], textStyle).setOrigin(0.5);
+    this.mainSprite = this.scene.add.sprite(this.x, this.y, `btn-${this.type}`);
+    const text = this.scene.add.text(this.x + 10, this.y - 3, this.scene.lang[`${this.type}Btn`], textStyle).setOrigin(0.5);
     this.add(text);
   }
   

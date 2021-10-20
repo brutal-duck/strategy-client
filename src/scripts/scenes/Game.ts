@@ -296,7 +296,7 @@ export default class Game extends Phaser.Scene {
           player.hexes -= 1
           hex.setClearClame(this.player.color)
         }
-        // else if (player.superHex > 0) this.scene.launch('Modal', { state: this.state, type: 'landing' })
+        // else if (player.superHex > 0) this.scene.launch('Modal', { state: this.state, type: 'superHex' })
         else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', this.player.color)
         
         this.hud.updateHexCounter()
@@ -310,7 +310,7 @@ export default class Game extends Phaser.Scene {
         
       } else if (hex.own !== this.player.color && hex.class !== 'base') {
         if (player.superHex > 0 && !hex.clamingAni?.isPlaying()) {
-          if (hex.own !== this.player.color && !hex.landscape && hex.class !== 'base' && !hex.clamingAni?.isPlaying()) this.scene.launch('Modal', { state: this.state, type: 'landing' })
+          if (hex.own !== this.player.color && !hex.landscape && hex.class !== 'base' && !hex.clamingAni?.isPlaying()) this.scene.launch('Modal', { state: this.state, type: 'superHex' })
           else if (hex.class !== 'base' || (hex.landscape && hex.dark)) new FlyAwayMsg(this, x, y, this.lang.wrongPlace, 'red', '', 1000)
         }
         else if ((hex.dark || !hex.landscape) && !hex.clamingAni?.isPlaying()) new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', 'purple')
@@ -353,7 +353,7 @@ export default class Game extends Phaser.Scene {
         } else new FlyAwayMsg(this, x, y, this.lang.upgrading, 'yellow', '', 1000)
       } else if (hex.own !== this.player.color && hex.class !== 'base') {
         if (player.superHex > 0 && !hex.clamingAni?.isPlaying()) {
-          if (hex.own !== this.player.color && !hex.landscape && hex.class !== 'base' && !hex.clamingAni?.isPlaying()) this.scene.launch('Modal', { state: this.state, type: 'landing' })
+          if (hex.own !== this.player.color && !hex.landscape && hex.class !== 'base' && !hex.clamingAni?.isPlaying()) this.scene.launch('Modal', { state: this.state, type: 'superHex' })
           else if (hex.class !== 'base' || (hex.landscape && hex.dark)) new FlyAwayMsg(this, x, y, this.lang.wrongPlace, 'red', '', 1000)
         }
         else if ((hex.dark || !hex.landscape) && !hex.clamingAni?.isPlaying()) new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', 'purple')

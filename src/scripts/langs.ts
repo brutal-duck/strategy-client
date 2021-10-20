@@ -46,6 +46,11 @@ export default {
     no: 'нет',
     enemyLeft: 'противник вышел из игры',
     youLeft: 'вы вышли из игры',
+    escapeBtn: 'сдаться и выйти',
+    settingsBtn: 'настройки',
+    singleplayerBtn: 'одиночный режим',
+    multiplayerBtn: 'мультиплеер',
+    repeatBtn: 'повторить',
   },
   en: {
     index: 'ru',
