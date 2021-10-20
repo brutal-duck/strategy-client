@@ -207,7 +207,7 @@ export default class Modal extends Phaser.Scene {
     const bot = this.add.sprite(topGeom.centerX, topGeom.bottom + windowHeight, 'header').setOrigin(0.5, 0).setFlipY(true);
 
     let crown: Phaser.GameObjects.Sprite;
-    if (this.info.win) crown = this.add.sprite(x, midGeom.top + 30, 'crown');
+    if (this.info.win) crown = this.add.sprite(x, midGeom.top + 40, 'crown');
 
     const titleY = crown ? crown.getBounds().bottom + 10 : midGeom.top;
     const title = this.add.text(x, titleY, text, titleStyle).setOrigin(0.5, 0);
