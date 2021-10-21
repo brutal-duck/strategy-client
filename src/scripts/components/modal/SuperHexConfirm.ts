@@ -8,7 +8,6 @@ export default class SuperHexConfirm {
   private bot: Phaser.GameObjects.Sprite;
   private title: Phaser.GameObjects.Text;
   private superHex: Phaser.GameObjects.Sprite;
-  private text: Phaser.GameObjects.Text;
   private btn1: ColorsBtn;
   private btn2: ColorsBtn;
 
@@ -35,7 +34,6 @@ export default class SuperHexConfirm {
     this.title = this.scene.add.text(x, topGeom.bottom + 10, this.scene.lang.landTroops, textStyle).setOrigin(0.5, 0).setDepth(2);
 
     this.superHex = this.scene.add.sprite(x, this.title.getBottomCenter().y + 30, 'super-hex').setScale(0.5);
-    this.text = this.scene.add.text(x, this.title.getBottomCenter().y + 30, `${this.scene.gameScene[this.scene.gameScene.player.color].superHex}`, textStyle).setOrigin(0.5).setColor('#EAE9EA');
 
     this.btn1 = new ColorsBtn(this.scene, { x: x - 64, y: midGeom.centerY + 45 }, (): void => { this.scene.scene.stop(); }, {
       color: 'red',
@@ -50,7 +48,7 @@ export default class SuperHexConfirm {
     }, {
       color: 'green',
       text: this.scene.lang.yes,
-      icon: true,
+      icon: false,
     });
   }
 
@@ -65,7 +63,6 @@ export default class SuperHexConfirm {
     this.bot.setPosition(topGeom.centerX, midGeom.bottom);
     this.title.setPosition(x, topGeom.bottom + 10);
     this.superHex.setPosition(x, this.title.getBottomCenter().y + 30);
-    this.text.setPosition(x, this.title.getBottomCenter().y + 30);
     this.btn1.setPosition(x - 64, midGeom.centerY + 45);
     this.btn2.setPosition(x + 64, midGeom.centerY + 45);
   }

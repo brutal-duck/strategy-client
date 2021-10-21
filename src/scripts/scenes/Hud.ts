@@ -107,19 +107,20 @@ export default class Hud extends Phaser.Scene {
 
   private createMainBar(): void {
     const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+      fontSize: '35px',
       fontFamily: 'Molot',
-      fontSize: '27px',
-      align: 'center',
-      color: '#FA6969'
+      color: '#ffffff',
+      stroke: '#707070',
+      strokeThickness: 5,
     };
     const player: Iconfig = this.gameScene[this.playerColor];
-    this.hexBar = this.add.sprite(5, 5, 'hex').setScale(0.6).setOrigin(0);
+    this.hexBar = this.add.sprite(10, 10, 'hex').setScale(0.6).setOrigin(0);
     const hexBarGeom = this.hexBar.getBounds();
-    this.hexBarText = this.add.text(hexBarGeom.centerX, hexBarGeom.centerY, String(player.hexes), textStyle).setOrigin(0.5);
+    this.hexBarText = this.add.text(hexBarGeom.right, hexBarGeom.centerY, String(player.hexes), textStyle).setOrigin(0, 0.5);
 
     this.superHexBar = this.add.sprite(hexBarGeom.centerX, hexBarGeom.bottom + 10, 'super-hex').setScale(0.6).setOrigin(0.5, 0);
     const superGeom = this.superHexBar.getBounds();
-    this.superHexBarText = this.add.text(superGeom.centerX, superGeom.centerY, String(player.superHex), textStyle).setOrigin(0.5).setColor('#E9E7EA');
+    this.superHexBarText = this.add.text(superGeom.right, superGeom.centerY, String(player.superHex), textStyle).setOrigin(0, 0.5).setStroke('#97759E', 5);
 
     this.allElements.push(this.hexBar, this.hexBarText, this.superHexBar, this.superHexBarText)
   }
@@ -465,10 +466,11 @@ export default class Hud extends Phaser.Scene {
     this.warnBaseWasFoundText?.setX(this.worldStatusBar.getCenter().x)
     this.warnCity?.setX(this.worldStatusBar.getCenter().x)
     
-    this.hexBar?.setPosition(5, 5)
-    this.hexBarText?.setPosition(this.hexBar.getCenter().x + 1, this.hexBar.getCenter().y - 2)
-    this.superHexBar?.setPosition(this.hexBar.getBottomCenter().x, this.hexBar.getBottomCenter().y + 10)
-    this.superHexBarText?.setPosition(this.superHexBar.getCenter().x + 1, this.superHexBar.getCenter().y - 2)
+    this.hexBar?.setPosition(10, 10)
+    this.hexBarText?.setOrigin(this.hexBar.getBounds().right, this.hexBar.getBounds().centerY);
+    this.superHexBar?.setPosition(this.hexBar.getBounds().centerX, this.hexBar.getBounds().bottom + 10);
+    this.superHexBarText?.setPosition(this.superHexBar.getBounds().right, this.superHexBar.getBounds().centerY);
+
 
     this.hexBarP2?.setPosition(this.camera.width - 10, this.camera.height - 10)
     this.hexBarTextP2?.setPosition(this.hexBarP2.getCenter().x + 1, this.hexBarP2.getCenter().y - 2)
