@@ -45,7 +45,6 @@ export default class Modal extends Phaser.Scene {
   }
 
   public resize(): void {
-    console.log('resize modal');
     const maxHeight = 1080;
     const currentHeight = Number(document.body.clientHeight);
     const currentWidth = Number(document.body.clientWidth);

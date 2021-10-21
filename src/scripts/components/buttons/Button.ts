@@ -143,6 +143,9 @@ export default class Button extends Phaser.GameObjects.Group {
     this.mainSprite.setScale(scale);
     return this;
   }
+  public get scale(): number {
+    return this.mainSprite.scale;
+  }
 
   public set x(x: number) {
     this.position.x = x;

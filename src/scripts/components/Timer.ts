@@ -140,4 +140,15 @@ export default class Timer {
   public stop(): void {
     this.timeEvent.remove()
   }
+
+  public get scale(): number {
+    return this.minutes.scale;
+  }
+
+  public setScale(scale: number): this  {
+    this.minutes.setScale(scale);
+    this.seconds.setScale(scale);
+    this.colon.setScale(scale);
+    return this;
+  };
 }
