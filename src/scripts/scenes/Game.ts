@@ -338,7 +338,6 @@ export default class Game extends Phaser.Scene {
         } else if (hex.defence === 1 && player.hexes >= hex.defence) {
           this.state.socket.hexClick(hex.id);
         } else if (hex.defence > 1 && player.hexes >= hex.defence) {
-          new FlyAwayMsg(this, x, y, `-${1}`, 'red', this.player.color)
           this.state.socket.hexClick(hex.id);
         }
         else new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', this.player.color)
@@ -864,6 +863,7 @@ export default class Game extends Phaser.Scene {
           }
           if (socketHex.defence !== socketHex.newDefence && !hex.upgradeAni?.isPlaying() && socketHex.newDefence > socketHex.defence) {
             if (socketHex.newDefence > 1) {
+              console.log('upgrade')
               hex.upgradeSocketDefence();
               if (socketHex.newOwn === this.player.color) {
                 new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, `-${hex.defence + 1}`, 'red', this.player.color)
@@ -874,7 +874,7 @@ export default class Game extends Phaser.Scene {
             hex.setSocketClearClame(socketHex.newOwn, socketHex.super);
           }
 
-          if (hex.defence !== socketHex.defence && !hex.upgradeAni?.isPlaying() && !hex.clamingAni?.isPlaying()) {
+          if (hex.defence !== socketHex.defence) {
             hex.defence = socketHex.defence;
             if (hex.defence > 1) {
               hex.defenceLvl.setText(String(hex.defence));
