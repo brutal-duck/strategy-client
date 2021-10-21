@@ -42,6 +42,8 @@ export default class Hud extends Phaser.Scene {
   private worldStatusAni: Phaser.Tweens.Tween
   public timer: Timer
 
+  private roundLeft: Phaser.GameObjects.Sprite
+  private roundRight: Phaser.GameObjects.Sprite
   private hexBar: Phaser.GameObjects.Sprite
   private hexBarText: Phaser.GameObjects.Text
   private tilesBarText: Phaser.GameObjects.Text
@@ -150,18 +152,21 @@ export default class Hud extends Phaser.Scene {
     this.worldStatusBar = this.add.tileSprite(this.camera.width / 2, barY, this.lineWidth, 50, 'pixel').setOrigin(0.5).setVisible(false);
 
     const barGeom = this.worldStatusBar.getBounds();
-    this.barMask = this.add.graphics().fillStyle(0x000000).fillRoundedRect(barGeom.left, barGeom.top, this.lineWidth, barGeom.height, barGeom.height / 2).setVisible(false);
-    
-    this.playerStatusBar = this.add.tileSprite(barGeom.left, barGeom.centerY, 1, barGeom.height, `pixel-${this.playerColor}`).setDepth(4).setOrigin(0, 0.5).setVisible(false);
-    this.playerStatusBarBg = this.add.tileSprite(barGeom.left, barGeom.centerY, 1, barGeom.height, `pixel-${this.playerColor}`).setDepth(3).setOrigin(0, 0.5).setVisible(false);
-    this.enemyStatusBar = this.add.tileSprite(barGeom.right, barGeom.centerY, 1, barGeom.height, `pixel-${this.enemyColor}`).setDepth(4).setOrigin(1, 0.5).setVisible(false);
-    this.enemyStatusBarBg = this.add.tileSprite(barGeom.right, barGeom.centerY, 1, barGeom.height, `pixel-${this.enemyColor}`).setDepth(3).setOrigin(1, 0.5).setVisible(false);
-    
-    const mask = new Phaser.Display.Masks.GeometryMask(this, this.barMask);
-    this.playerStatusBar.setMask(mask);
-    this.enemyStatusBar.setMask(mask);
-    this.playerStatusBarBg.setMask(mask);
-    this.enemyStatusBarBg.setMask(mask);
+
+    const scale = 42 / 50;
+    this.roundLeft = this.add.sprite(barGeom.left, barGeom.centerY, 'round-bar').setOrigin(0, 0.5).setScale(scale).setVisible(false);
+    this.roundRight = this.add.sprite(barGeom.right, barGeom.centerY, 'round-bar').setFlipX(true).setOrigin(1, 0.5).setScale(scale).setVisible(false);
+    const leftMask = new Phaser.Display.Masks.BitmapMask(this, this.roundLeft);
+    const rightMask = new Phaser.Display.Masks.BitmapMask(this, this.roundRight);
+
+    this.playerStatusBar = this.add.tileSprite(barGeom.left, barGeom.centerY, 1, barGeom.height, `pixel-${this.playerColor}`).setDepth(4).setOrigin(0, 0.5);
+    this.enemyStatusBar = this.add.tileSprite(barGeom.right, barGeom.centerY, 1, barGeom.height, `pixel-${this.enemyColor}`).setDepth(4).setOrigin(1, 0.5);
+    this.playerStatusBarBg = this.add.tileSprite(barGeom.left, barGeom.centerY, 1, barGeom.height, `pixel-${this.playerColor}`).setDepth(3).setOrigin(0, 0.5);
+    this.enemyStatusBarBg = this.add.tileSprite(barGeom.right, barGeom.centerY, 1, barGeom.height, `pixel-${this.enemyColor}`).setDepth(3).setOrigin(1, 0.5);
+    this.playerStatusBar.setMask(leftMask).mask.invertAlpha = true;
+    this.enemyStatusBar.setMask(rightMask).mask.invertAlpha = true;
+    this.playerStatusBarBg.setMask(leftMask).mask.invertAlpha = true;
+    this.enemyStatusBarBg.setMask(rightMask).mask.invertAlpha = true;
 
 
     this.star1 = this.add.sprite(barGeom.left + this.getStarPoint(1), barGeom.centerY + 3, 'lil-star-dis').setDepth(6)
@@ -455,14 +460,12 @@ export default class Hud extends Phaser.Scene {
 
     this.worldStatusBar?.setPosition(this.camera.width / 2, this.worldStatusBar.y).setSize(this.camera.width / 2.5, 50)
     const barGeom = this.worldStatusBar.getBounds();
-
-    this.barMask.destroy();
-    this.barMask = this.add.graphics().fillStyle(0x00ff00).fillRoundedRect(barGeom.left, barGeom.top, this.lineWidth, barGeom.height, barGeom.height / 2).setVisible(false);
-    const mask = new Phaser.Display.Masks.GeometryMask(this, this.barMask);
-    this.playerStatusBar?.setPosition(barGeom.left, barGeom.centerY).setSize(this.getLineWidth(greenHexes), barGeom.height).clearMask().setMask(mask);
-    this.enemyStatusBar?.setPosition(barGeom.right, barGeom.centerY).setSize(this.getLineWidth(redHexes), barGeom.height).clearMask().setMask(mask);
-    this.playerStatusBarBg?.setPosition(barGeom.left, barGeom.centerY).setSize(this.getLineWidth(greenHexes), barGeom.height).clearMask().setMask(mask);
-    this.enemyStatusBarBg?.setPosition(barGeom.right, barGeom.centerY).setSize(this.getLineWidth(redHexes), barGeom.height).clearMask().setMask(mask);
+    this.roundLeft?.setPosition(barGeom.left, barGeom.centerY);
+    this.roundRight?.setPosition(barGeom.right, barGeom.centerY);
+    this.playerStatusBar?.setPosition(barGeom.left, barGeom.centerY).setSize(this.getLineWidth(greenHexes), barGeom.height);
+    this.enemyStatusBar?.setPosition(barGeom.right, barGeom.centerY).setSize(this.getLineWidth(redHexes), barGeom.height);
+    this.playerStatusBarBg?.setPosition(barGeom.left, barGeom.centerY).setSize(this.getLineWidth(greenHexes), barGeom.height);
+    this.enemyStatusBarBg?.setPosition(barGeom.right, barGeom.centerY).setSize(this.getLineWidth(redHexes), barGeom.height);
     this.timer?.setPosition(barGeom.centerX, barGeom.bottom + 2);
 
     this.star1?.setPosition(barGeom.left + this.getStarPoint(1), barGeom.centerY + 3);

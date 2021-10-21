@@ -12,6 +12,12 @@ export default class MultiplayerMenu {
   private repeatBtn: MenuBtn;
   private singletBtn: MenuBtn;
   private countTime: number;
+  private top: Phaser.GameObjects.Sprite;
+  private mid: Phaser.GameObjects.Sprite;
+  private bot: Phaser.GameObjects.Sprite;
+  private title: Phaser.GameObjects.Text;
+  private exit: ExitBtn;
+
   constructor(scene: Modal) {
     this.scene = scene;
     this.scene.state.game.AI = '';
@@ -58,13 +64,13 @@ export default class MultiplayerMenu {
     const y = this.scene.bg.getCenter().y;
     const windowHeight = 470;
 
-    const top = this.scene.add.sprite(x, y - windowHeight / 2 - 50, 'header-mid').setOrigin(0.5, 0);
-    const topGeom = top.getBounds();
-    const mid = this.scene.add.sprite(topGeom.centerX, topGeom.bottom, 'pixel-window-mid').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setInteractive();
-    const midGeom = mid.getBounds();
-    const bot = this.scene.add.sprite(midGeom.centerX, midGeom.bottom, 'header-mid').setOrigin(0.5, 0).setFlipY(true);
+    this.top = this.scene.add.sprite(x, y - windowHeight / 2 - 50, 'header-mid').setOrigin(0.5, 0);
+    const topGeom = this.top.getBounds();
+    this.mid = this.scene.add.sprite(topGeom.centerX, topGeom.bottom, 'pixel-window-mid').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setInteractive();
+    const midGeom = this.mid.getBounds();
+    this.bot = this.scene.add.sprite(midGeom.centerX, midGeom.bottom, 'header-mid').setOrigin(0.5, 0).setFlipY(true);
 
-    const title = this.scene.add.text(x, topGeom.bottom + 30, this.scene.lang.searchEnemy, textStyle).setOrigin(0.5).setDepth(2);
+    this.title = this.scene.add.text(x, topGeom.bottom + 30, this.scene.lang.searchEnemy, textStyle).setOrigin(0.5).setDepth(2);
 
     this.repeatBtn = new MenuBtn(
       this.scene, 
@@ -82,10 +88,10 @@ export default class MultiplayerMenu {
       false,
     );
 
-    this.timerBg = this.scene.add.sprite(x, mid.getBounds().centerY, 'modal-plate').setAlpha(0);
-    this.timerText = this.scene.add.text(x, mid.getBounds().centerY, `${this.scene.lang.timeLeft}: ${SEARCH_DELAY}`, timerStyle).setOrigin(0.5).setAlpha(0);
+    this.timerBg = this.scene.add.sprite(x, midGeom.centerY, 'modal-plate').setAlpha(0);
+    this.timerText = this.scene.add.text(x, midGeom.centerY, `${this.scene.lang.timeLeft}: ${SEARCH_DELAY}`, timerStyle).setOrigin(0.5).setAlpha(0);
 
-    new ExitBtn(
+    this.exit = new ExitBtn(
       this.scene,
       { x: topGeom.right - 45, y: topGeom.bottom + 30},
       (): void => { this.scene.scene.restart({ state: this.scene.state, type: 'mainMenu' });},
@@ -93,8 +99,6 @@ export default class MultiplayerMenu {
   }
 
   private showBtn(): void {
-
-
     if (this.singletBtn.alpha !== 1) {
       this.scene.tweens.add({
         targets: [this.singletBtn, this.repeatBtn],
@@ -147,6 +151,24 @@ export default class MultiplayerMenu {
   }
 
   public resize(): void {
+    const x = this.scene.bg.getCenter().x;
+    const y = this.scene.bg.getCenter().y;
+    const windowHeight = 470;
 
+    this.top.setPosition(x, y - windowHeight / 2 - 50);
+    const topGeom = this.top.getBounds();
+    this.mid.setPosition(topGeom.centerX, topGeom.bottom);
+    const midGeom = this.mid.getBounds();
+    this.bot.setPosition(midGeom.centerX, midGeom.bottom);
+
+    this.title.setPosition(x, topGeom.bottom + 30);
+
+    this.repeatBtn.setPosition(x, y);
+    this.singletBtn.setPosition(x, y + 140);
+
+    this.timerBg.setPosition(x, midGeom.centerY);
+    this.timerText.setPosition(x, midGeom.centerY);
+
+    this.exit.setPosition(topGeom.right - 45, topGeom.bottom + 30)
   }
 }

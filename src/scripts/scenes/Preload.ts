@@ -91,6 +91,8 @@ const glowWinner: string = require('../../assets/images/modal/glow-winner.png');
 const glowLooser: string = require('../../assets/images/modal/glow-looser.png');
 const wreath: string = require('../../assets/images/modal/wreath.png');
 const modalPlate: string = require('../../assets/images/modal/plate.png');
+const roundBar: string = require('../../assets/images/round-bar.png');
+const timerPlate: string = require('../../assets/images/timer-plate.png');
 
 class Preload extends Phaser.Scene {
   constructor() {
@@ -224,6 +226,8 @@ class Preload extends Phaser.Scene {
     this.load.image('glow-looser', glowLooser);
     this.load.image('wreath', wreath);
     this.load.image('modal-plate', modalPlate);
+    this.load.image('round-bar', roundBar);
+    this.load.image('timer-plate', timerPlate);
   }
   
   public create(): void {
