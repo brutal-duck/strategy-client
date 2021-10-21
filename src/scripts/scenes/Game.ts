@@ -880,8 +880,8 @@ export default class Game extends Phaser.Scene {
               hex.defenceLvl.setText(String(hex.defence));
             } else {
               hex.defenceLvl.setVisible(false)
-              hex.setWorldTexture()
             }
+            hex.setWorldTexture()
           }
         });
       }

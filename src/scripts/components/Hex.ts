@@ -192,8 +192,8 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.clamingAniRemove()
     if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
 
-    this.lineBg = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setTint(bgColor).setOrigin(0.5, 0).setDepth(10000).setVisible(!this.fog)
-    this.line = this.scene.add.tileSprite(this.lineBg.getLeftCenter().x, this.lineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(10000).setVisible(!this.fog)
+    this.lineBg = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setTint(bgColor).setOrigin(0.5, 0).setDepth(10000).setVisible(!this.fog || color === this.scene.player.color);
+    this.line = this.scene.add.tileSprite(this.lineBg.getLeftCenter().x, this.lineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(10000).setVisible(!this.fog || color === this.scene.player.color);
     if (!this.scene.claming.find(id => id === this.id)) this.scene.claming.push(this.id)
 
     this.clamingAni = this.scene.tweens.add({
@@ -560,7 +560,6 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   }
   
   public breakSocketDefence(): void {
-    this.defence--
     if (this.defence === 1) {
       this.defenceLvl.setVisible(false)
       this.setWorldTexture()
