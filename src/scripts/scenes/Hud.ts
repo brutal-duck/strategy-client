@@ -30,13 +30,10 @@ export default class Hud extends Phaser.Scene {
   private star3: Phaser.GameObjects.Sprite
 
   private worldStatusBar: Phaser.GameObjects.TileSprite
-  private barMask: Phaser.GameObjects.Graphics;
   private playerName: Phaser.GameObjects.Text
   private enemyName: Phaser.GameObjects.Text
   private playerStatusBar: Phaser.GameObjects.TileSprite
   private enemyStatusBar: Phaser.GameObjects.TileSprite
-  private playerStatusBarBg: Phaser.GameObjects.TileSprite
-  private enemyStatusBarBg: Phaser.GameObjects.TileSprite
   private playerClamedHexCounter: Phaser.GameObjects.Text // счетчик захваченных гексов игрока
   private enemyHexCounter: Phaser.GameObjects.Text // счетчик захваченных гексов противника
   private worldStatusAni: Phaser.Tweens.Tween
@@ -161,12 +158,8 @@ export default class Hud extends Phaser.Scene {
 
     this.playerStatusBar = this.add.tileSprite(barGeom.left, barGeom.centerY, 1, barGeom.height, `pixel-${this.playerColor}`).setDepth(4).setOrigin(0, 0.5);
     this.enemyStatusBar = this.add.tileSprite(barGeom.right, barGeom.centerY, 1, barGeom.height, `pixel-${this.enemyColor}`).setDepth(4).setOrigin(1, 0.5);
-    this.playerStatusBarBg = this.add.tileSprite(barGeom.left, barGeom.centerY, 1, barGeom.height, `pixel-${this.playerColor}`).setDepth(3).setOrigin(0, 0.5);
-    this.enemyStatusBarBg = this.add.tileSprite(barGeom.right, barGeom.centerY, 1, barGeom.height, `pixel-${this.enemyColor}`).setDepth(3).setOrigin(1, 0.5);
     this.playerStatusBar.setMask(leftMask).mask.invertAlpha = true;
     this.enemyStatusBar.setMask(rightMask).mask.invertAlpha = true;
-    this.playerStatusBarBg.setMask(leftMask).mask.invertAlpha = true;
-    this.enemyStatusBarBg.setMask(rightMask).mask.invertAlpha = true;
 
 
     this.star1 = this.add.sprite(barGeom.left + this.getStarPoint(1), barGeom.centerY + 3, 'lil-star-dis').setDepth(6)
@@ -181,8 +174,6 @@ export default class Hud extends Phaser.Scene {
       this.worldStatusBar,
       this.playerStatusBar,
       this.enemyStatusBar,
-      this.playerStatusBarBg,
-      this.enemyStatusBarBg,
       this.warnBaseWasFoundText,
       this.warnCity,
     )
@@ -338,17 +329,13 @@ export default class Hud extends Phaser.Scene {
 
     if (!this.playerStatusBar.visible && playerLineWidth > 1) {
       this.playerStatusBar.setVisible(true)
-      this.playerStatusBarBg.setVisible(true)
     }
 
     if (!this.enemyStatusBar.visible && enemyLineWidth > 1) {
       this.enemyStatusBar.setVisible(true)
-      this.enemyStatusBarBg.setVisible(true)
     }
 
     if (playerLineWidth !== this.playerStatusBar.getBounds().width || enemyLineWidth !== this.enemyStatusBar.getBounds().width) {
-      this.playerStatusBarBg.setSize(playerLineWidth, this.playerStatusBar.height).setDepth(3)
-      this.enemyStatusBarBg.setSize(enemyLineWidth, this.enemyStatusBar.height).setDepth(3)
       this.playerStatusBar.setDepth(4)
       this.enemyStatusBar.setDepth(4)
 
@@ -356,10 +343,8 @@ export default class Hud extends Phaser.Scene {
       this.worldStatusAni = this.tweens.add({
         onStart: (): void => {
           if (this.playerStatusBar.getBounds().width < playerLineWidth) {
-            this.enemyStatusBarBg.setDepth(1)
             this.enemyStatusBar.setDepth(2)
           } else {
-            this.playerStatusBarBg.setDepth(1)
             this.playerStatusBar.setDepth(2)
           }
         },
@@ -464,8 +449,6 @@ export default class Hud extends Phaser.Scene {
     this.roundRight?.setPosition(barGeom.right, barGeom.centerY);
     this.playerStatusBar?.setPosition(barGeom.left, barGeom.centerY).setSize(this.getLineWidth(greenHexes), barGeom.height);
     this.enemyStatusBar?.setPosition(barGeom.right, barGeom.centerY).setSize(this.getLineWidth(redHexes), barGeom.height);
-    this.playerStatusBarBg?.setPosition(barGeom.left, barGeom.centerY).setSize(this.getLineWidth(greenHexes), barGeom.height);
-    this.enemyStatusBarBg?.setPosition(barGeom.right, barGeom.centerY).setSize(this.getLineWidth(redHexes), barGeom.height);
     this.timer?.setPosition(barGeom.centerX, barGeom.bottom + 2);
 
     this.star1?.setPosition(barGeom.left + this.getStarPoint(1), barGeom.centerY + 3);
