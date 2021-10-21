@@ -5,6 +5,9 @@ export default class ColorsBtn extends Button {
   private color: string;
   private text: string;
   private icon: boolean;
+  private text1: Phaser.GameObjects.Text
+  private text2: Phaser.GameObjects.Text
+  private iconSprite: Phaser.GameObjects.Sprite
   public scene: Modal;
   constructor(scene: Modal, position: Iposition, action: () => void, settings: IcolorsBtnSettings) {
     super(scene, position, action);
@@ -32,22 +35,40 @@ export default class ColorsBtn extends Button {
 
     this.mainSprite = this.scene.add.sprite(this.x, this.y, `btn-${this.color}`);
     if (!this.icon) {
-      const text = this.scene.add.text(this.x, this.y, this.text, textStyle).setOrigin(0.5);
-      this.add(text);
+      this.text1 = this.scene.add.text(this.x, this.y, this.text, textStyle).setOrigin(0.5);
+      this.add(this.text1);
     } else {
-      const text1 = this.scene.add.text(0, this.y, this.text, textStyle).setOrigin(0, 0.5);
-      const text2 = this.scene.add.text(0, this.y, '-1', textStyle).setOrigin(0, 0.5).setColor('#FF7464').setFontSize(20);
-      const icon = this.scene.add.sprite(0, this.y + 1, 'super-hex').setOrigin(0, 0.5).setScale(0.19);
+      this.text1 = this.scene.add.text(0, this.y, this.text, textStyle).setOrigin(0, 0.5);
+      this.text2 = this.scene.add.text(0, this.y, '-1', textStyle).setOrigin(0, 0.5).setColor('#FF7464').setFontSize(20);
+      this.iconSprite = this.scene.add.sprite(0, this.y + 1, 'super-hex').setOrigin(0, 0.5).setScale(0.19);
 
-      const width = text1.displayWidth + text2.displayWidth + icon.displayWidth;
+      const width = this.text1.displayWidth + this.text2.displayWidth + this.iconSprite.displayWidth;
 
-      text1.setX(this.x - width / 2);
-      text2.setX(text1.getBounds().right + 2);
-      icon.setX(text2.getBounds().right + 2);
+      this.text1.setX(this.x - width / 2);
+      this.text2.setX(this.text1.getBounds().right + 2);
+      this.iconSprite.setX(this.text2.getBounds().right + 2);
 
-      this.add(text1);
-      this.add(text2);
-      this.add(icon);
+      this.add(this.text1);
+      this.add(this.text2);
+      this.add(this.iconSprite);
     }
+  }
+
+  public setPosition(x: number, y: number): this {
+    if (this.icon) {
+      const width = this.text1.displayWidth + this.text2.displayWidth + this.iconSprite.displayWidth;
+
+      this.text1.setX(x - width / 2);
+      this.text2.setX(this.text1.getBounds().right + 2);
+      this.iconSprite.setX(this.text2.getBounds().right + 2);
+      this.text1.setY(y);
+      this.text2.setY(y);
+      this.iconSprite.setY(y);
+    } else {
+      this.text1.setX(x);
+      this.text1.setY(y);
+    }
+    this.mainSprite.setPosition(x, y);
+    return this;
   }
 }

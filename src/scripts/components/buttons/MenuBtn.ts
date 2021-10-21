@@ -31,7 +31,7 @@ export default class MenuBtn extends Button {
     
 
     this.mainSprite = this.scene.add.sprite(this.x, this.y, `btn-${this.type}`).setAlpha(this.visibility ? 1 : 0);
-    const text = this.scene.add.text(this.x + 10, this.y - 3, this.scene.lang[`${this.type}Btn`], textStyle).setAlpha(this.visibility ? 1 : 0).setOrigin(0.5);
+    const text = this.scene.add.text(this.x, this.y, this.scene.lang[`${this.type}Btn`], textStyle).setAlpha(this.visibility ? 1 : 0).setOrigin(0.4, 0.49);
     this.add(text);
   }
   

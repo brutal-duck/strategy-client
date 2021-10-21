@@ -4,10 +4,11 @@ import Game from "./Game"
 import ExitBtn from './../components/buttons/ExitBtn';
 import MenuBtn from './../components/buttons/MenuBtn';
 import ColorsBtn from './../components/buttons/ColorsBtn';
-import StartGameBtn from './../components/buttons/StartGameBtn';
 import SingleplayerMenu from "../components/modal/SingleplayerMenu";
 import MultiplayerMenu from './../components/modal/MultiplayerMenu';
-
+import Menu from '../components/modal/Menu';
+import GameMenu from './../components/modal/GameMenu';
+import SuperHexConfirm from './../components/modal/SuperHexConfirm';
 export default class Modal extends Phaser.Scene {
   constructor() {
     super('Modal')
@@ -21,25 +22,61 @@ export default class Modal extends Phaser.Scene {
   private playerColor: string
   private enemyColor: string
 
+  private gameMenu: GameMenu;
+  private mainMenu: Menu;
+  private superHexConfirm: SuperHexConfirm;
+  private singleplayerMenu: SingleplayerMenu;
+  private multiplayerMenu: MultiplayerMenu;
   public gameScene: Game
   public bg: Phaser.GameObjects.TileSprite
-  private openCloseAni: Phaser.Tweens.Tween
+  private openCloseAni: Phaser.Tweens.Tween;
+  private createn: boolean = false;
   
   public init(data: { state: Istate, type: string, info?: any }): void {
     this.state = data.state
     this.type = data.type
     this.info = data.info
     this.lang = langs.ru
+    this.createn = false;
     this.gameScene = this.game.scene.getScene('Game') as Game
     if (this.gameScene.player) {
       this.playerColor = this.gameScene.player.color
       this.enemyColor = this.gameScene.player.color === 'red' ? 'green' : 'red'
     }
+
+
   }
 
+  public resize(): void {
+    console.log('resize modal');
+    const maxHeight = 1080;
+    const currentHeight = Number(document.body.clientHeight);
+    const currentWidth = Number(document.body.clientWidth);
+    this.cameras.main.setZoom(currentHeight / maxHeight);
+    const percent = (maxHeight - currentHeight) / currentHeight;
+    const bgWidth = currentWidth * percent + currentWidth;
+    const bgHeight = currentHeight * percent +  currentHeight;
+    this.bg?.setDisplaySize(bgWidth, bgHeight);
+    this.bg?.setPosition(0 - currentWidth * percent / 2, 0 - currentHeight * percent / 2);
+    if (this.createn) {
+      this.mainMenu?.resize();
+      this.gameMenu?.resize();
+      this.superHexConfirm?.resize();
+      this.singleplayerMenu?.resize();
+      this.multiplayerMenu?.resize();
+    }
+
+  }
 
   public create(): void {
-    this.bg = this.add.tileSprite(0, 0, this.cameras.main.width, this.cameras.main.height, 'pixel').setOrigin(0).setTint(0x000000).setAlpha(0).setInteractive()
+    this.createn = false;
+    this.gameMenu = undefined;
+    this.mainMenu = undefined;
+    this.superHexConfirm = undefined;
+    this.singleplayerMenu = undefined;
+    this.multiplayerMenu = undefined;
+    this.bg = this.add.tileSprite(0, 0, 0, 0, 'pixel').setOrigin(0).setTint(0x000000).setAlpha(0).setInteractive();
+    this.resize();
     this.bg.on('pointerup', (): void => { if (this.type !== 'gameOver') this.close() })
     const duration = this.type === 'gameOver' ? 1000 : 200
     this.openCloseAni = this.tweens.add({
@@ -50,11 +87,11 @@ export default class Modal extends Phaser.Scene {
 
     switch (this.type) {
       case 'gameMenu':
-        this.createGameMenuWindow();
+        this.gameMenu = new GameMenu(this);
         break;
 
       case 'superHex':
-        this.createSuperHexConfirmWindow();
+        this.superHexConfirm = new SuperHexConfirm(this);
         break;
 
       case 'gameOver':
@@ -62,79 +99,20 @@ export default class Modal extends Phaser.Scene {
         break;
       
       case 'mainMenu':
-        this.createMainMenu();
+        this.mainMenu = new Menu(this);
         break;
       
       case 'singleplayerMenu':
-        new SingleplayerMenu(this);
+        this.singleplayerMenu = new SingleplayerMenu(this);
         break;
 
       case 'multiplayerMenu':
-        new MultiplayerMenu(this);
+        this.multiplayerMenu = new MultiplayerMenu(this);
         break;
       default: 
         break;
     }
-  }
-
-
-  private createGameMenuWindow(): void {
-    const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-      fontFamily: 'Molot',
-      fontSize: '38px',
-      color: '#CFCDCA',
-    };
-    const x = this.bg.getCenter().x;
-    const y = this.bg.getCenter().y;
-    const windowHeight = 390;
-
-    const top = this.add.sprite(x, y - windowHeight / 2 - 100, 'header-mid').setOrigin(0.5, 0);
-    const topGeom = top.getBounds();
-    const mid = this.add.sprite(topGeom.centerX, topGeom.bottom, 'pixel-window-mid').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setInteractive();
-    const midGeom = mid.getBounds();
-    const bot = this.add.sprite(midGeom.centerX, midGeom.bottom, 'header-mid').setOrigin(0.5, 0).setFlipY(true);
-
-    const title = this.add.text(x, topGeom.bottom + 30, this.lang.menu, textStyle).setOrigin(0.5).setDepth(2);
-    new ExitBtn(this, { x: topGeom.right - 45, y: topGeom.bottom + 30}, (): void => { this.scene.stop(); });
-
-    new MenuBtn(this, { x: x, y: mid.getCenter().y }, (): void => { console.log('settings'); });
-    new MenuBtn(this, { x: x, y: mid.getCenter().y + 120 }, (): void => { this.stopGame(); }, 'escape');
-  }
-
-  private createSuperHexConfirmWindow(): void {
-    const x = this.bg.getCenter().x
-    const y = this.bg.getCenter().y
-    const windowHeight = 160
-    const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-      fontFamily: 'Molot',
-      fontSize: '26px',
-      color: '#A893F5',
-    };
-    const top = this.add.sprite(x, y - 100, 'header-lil').setOrigin(0.5, 0);
-    const topGeom = top.getBounds();
-    const mid = this.add.sprite(topGeom.centerX, topGeom.bottom,  'pixel-window-lil').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setInteractive();
-    const bot = this.add.sprite(topGeom.centerX, topGeom.bottom + windowHeight, 'header-lil').setFlipY(true).setOrigin(0.5, 0);
-
-    const title: Phaser.GameObjects.Text = this.add.text(x, topGeom.bottom + 10, this.lang.landTroops, textStyle).setOrigin(0.5, 0).setDepth(2);
-
-    this.add.sprite(x, title.getBottomCenter().y + 30, 'super-hex').setScale(0.5);
-    this.add.text(x, title.getBottomCenter().y + 30, `${this.gameScene[this.gameScene.player.color].superHex}`, textStyle).setOrigin(0.5).setColor('#EAE9EA');
-
-    new ColorsBtn(this, { x: x - 64, y: mid.getCenter().y + 45 }, (): void => { this.close() }, {
-      color: 'red',
-      text: this.lang.no,
-      icon: false,
-    });
-
-    new ColorsBtn(this, { x: x + 64, y: mid.getCenter().y + 45 }, (): void => { 
-      if (this.gameScene.state.game.AI) this.gameScene.superHexClameConfirmed();
-      else this.gameScene.superHexSocketClameConfirmed();
-      this.close();
-    }, {
-      color: 'green',
-      text: this.lang.yes,
-      icon: true,
-    });
+    this.createn = true;
   }
 
   private createGameOverWindow(): void {
@@ -260,55 +238,11 @@ export default class Modal extends Phaser.Scene {
     const lineStar2 = this.add.sprite(barGeom.left + lineWidth * 0.75, barGeom.centerY, stars > 1 ? 'lil-star' : 'lil-star-dis').setScale(0.8).setDepth(3);
     const lineStar3 = this.add.sprite(barGeom.right, barGeom.centerY, stars > 2 ? 'lil-star' : 'lil-star-dis').setScale(0.8).setDepth(3);
 
-    const btn = new ColorsBtn(this, { x: x, y: barGeom.bottom + 70 }, (): void => { this.stopGame(); }, {
+    const btn = new ColorsBtn(this, { x: x, y: barGeom.bottom + 70 }, (): void => { this.scene.stop(); }, {
       color: 'green',
       text: this.lang.continue,
       icon: false,
     }).setScale(1.5);
-  }
-
-  private createMainMenu(): void {
-    const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-      fontFamily: 'Molot',
-      fontSize: '38px',
-      color: '#CFCDCA',
-    };
-
-    const x = this.bg.getCenter().x;
-    const y = this.bg.getCenter().y;
-    const windowHeight = 470;
-
-    const top = this.add.sprite(x, y - windowHeight / 2 - 50, 'header-mid').setOrigin(0.5, 0);
-    const topGeom = top.getBounds();
-    const mid = this.add.sprite(topGeom.centerX, topGeom.bottom, 'pixel-window-mid').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setInteractive();
-    const midGeom = mid.getBounds();
-    const bot = this.add.sprite(midGeom.centerX, midGeom.bottom, 'header-mid').setOrigin(0.5, 0).setFlipY(true);
-
-    const title = this.add.text(x, topGeom.bottom + 30, this.lang.menu, textStyle).setOrigin(0.5).setDepth(2);
-    new ExitBtn(this, { x: topGeom.right - 45, y: topGeom.bottom + 30}, (): void => { this.scene.stop(); });
-
-    new MenuBtn(
-      this, 
-      { x: x, y: mid.getCenter().y }, 
-      (): void => { this.scene.restart({ state: this.state, type: 'multiplayerMenu' }); },
-      'multiplayer',
-    );
-    new MenuBtn(
-      this, 
-      { x: x, y: mid.getCenter().y + 150 }, 
-      (): void => { this.scene.restart({ state: this.state, type: 'singleplayerMenu' }); },
-      'singleplayer',
-    );
-  }
-
-  private stopGame(): void {
-    this.close();
-    this.gameScene.gameIsOn = false;
-    this.gameScene.hud.scene.stop();
-    this.gameScene.world.recreate(this.gameScene.gameIsOn);
-    if (this.state.game.AI) this.gameScene.AI.remove();
-    if (!this.state.game.AI) this.state.socket?.closeSocket();
-    this.scene.start('MainMenu', this.state);
   }
 
   private close(): void {

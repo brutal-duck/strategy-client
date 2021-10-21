@@ -25,7 +25,7 @@ export default class StartGameBtn extends Button {
     };
 
     this.mainSprite = this.scene.add.sprite(this.x, this.y, 'start-game-btn').setScale(0.9);
-    this.text = this.scene.add.text(this.x - 70, this.y - 5, this.str, fontStyle).setOrigin(0, 0.5);
+    this.text = this.scene.add.text(this.x, this.y - 5, this.str, fontStyle).setOrigin(0.3, 0.5);
     this.add(this.text);
   }
 
@@ -40,7 +40,7 @@ export default class StartGameBtn extends Button {
   public setScale(scale: number): this {
     super.setScale(scale);
     this.text.setFontSize(parseInt(this.text.style.fontSize) * scale);
-    this.text.setX(this.x - 70 * scale);
+    this.text.setX(this.x);
     return this;
   }
 };
