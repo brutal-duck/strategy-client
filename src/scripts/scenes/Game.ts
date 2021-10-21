@@ -59,15 +59,8 @@ export default class Game extends Phaser.Scene {
   public chosenHex: Hex
 
   public claming: string[]
-  public graphs: { red: Igraph, green: Igraph } = {
-    red: {},
-    green: {},
-  };
-
-  public neutralGraphs: { red: Igraph, green: Igraph } = {
-    red: {},
-    green: {},
-  };
+  public graphs: { red: Igraph, green: Igraph };
+  public neutralGraphs: { red: Igraph, green: Igraph };
 
   public init(state: Istate) {
     this.state = state
@@ -910,6 +903,8 @@ export default class Game extends Phaser.Scene {
   }
 
   private initGraphs(): void {
+    this.graphs = { red: {}, green: {} };
+    this.neutralGraphs = { red: {}, green: {} };
     this.initGraphByColor('green');
     this.initGraphByColor('red');
   }
