@@ -54,6 +54,11 @@ export default class FlyAwayMsg {
       color: this.colors[this.color], 
       wordWrap: { width: 120 },
     };
+    if (this.color === 'yellow') {
+      msgStyle.color = '#ffffff';
+      msgStyle.stroke = '#7958df';
+      msgStyle.strokeThickness = 3;
+    }
 
     if (this.text) {
       this.msg = this.scene.add.text(this.x, this.y, this.text, msgStyle).setOrigin(0.5).setDepth(depth)

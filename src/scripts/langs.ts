@@ -54,7 +54,8 @@ export default {
     repeatBtn: 'повторить поиск',
     choiceOfDifficulty: 'выбор сложности',
     timeLeft: 'осталось',
-    searchEnemy: 'поиск соперника'
+    searchEnemy: 'поиск соперника',
+    cantLevelUp: 'невозможно улучшить',
   },
   en: {
     index: 'ru',
