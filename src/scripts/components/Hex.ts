@@ -232,7 +232,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
         else {
           this.productionTimer?.remove()
           // this.setColor('neutral')
-          this.own = 'neutral'
+          // this.own = 'neutral'
           if (!this.super) this.setWorldTexture();
           this.setSocketClaming(color, superHex)
         }
@@ -534,10 +534,10 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
   public upgradeSocketDefence(): void {
     this.upgradeAniRemove()
-    const bgColor = colors[this.scene.player.color].light
-    const lineColor = colors[this.scene.player.color].main
-    this.defLineBg = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x, this.defenceLvl.getBottomCenter().y + 7, 50, 5, 'pixel').setTint(bgColor).setOrigin(0.5, 0).setDepth(10000).setVisible(this.own === this.scene.player.color)
-    this.defLine = this.scene.add.tileSprite(this.defLineBg.getLeftCenter().x, this.defLineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(10000).setVisible(this.own === this.scene.player.color)
+    const bgColor = colors[this.own].light
+    const lineColor = colors[this.own].main
+    this.defLineBg = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x, this.defenceLvl.getBottomCenter().y + 7, 50, 5, 'pixel').setTint(bgColor).setOrigin(0.5, 0).setDepth(10000);
+    this.defLine = this.scene.add.tileSprite(this.defLineBg.getLeftCenter().x, this.defLineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(10000);
 
     this.upgradeAni = this.scene.tweens.add({
       targets: this.defLine,
