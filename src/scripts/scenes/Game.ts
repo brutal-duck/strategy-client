@@ -105,7 +105,6 @@ export default class Game extends Phaser.Scene {
 
 
   public launch(state: Istate): void {
-    console.log(this.state.enemy);
     this.state.game.isStarted = true;
     this.state = state
     this.player = state.player

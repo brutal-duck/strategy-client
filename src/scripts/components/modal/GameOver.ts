@@ -33,6 +33,8 @@ export default class GameOver {
   private lineStar2: Phaser.GameObjects.Sprite;
   private lineStar3: Phaser.GameObjects.Sprite;
   private btn: ColorsBtn;
+  private playerStatusRightRound: Phaser.GameObjects.Sprite;
+  private enemyStatusLeftRound: Phaser.GameObjects.Sprite;
 
   constructor(scene: Modal) {
     this.scene = scene;
@@ -155,6 +157,11 @@ export default class GameOver {
     this.enemyLine = this.scene.add.tileSprite(barGeom.right, barGeom.centerY, enemyLineWidth, barGeom.height, `pixel-${this.enemyColor}`).setDepth(2).setOrigin(1, 0.5);
     this.playerLine.setMask(leftMask).mask.invertAlpha = true;
     this.enemyLine.setMask(rightMask).mask.invertAlpha = true;
+    if (this.playerLine.width > this.lineBg.width * 0.55) {
+      this.playerStatusRightRound = this.scene.add.sprite(this.playerLine.getBounds().right - 1, barGeom.centerY, `round-${this.playerColor}-lil`).setDepth(2).setOrigin(0, 0.5);
+    } else if (this.enemyLine.width > this.lineBg.width * 0.55) {
+      this.enemyStatusLeftRound = this.scene.add.sprite(this.enemyLine.getBounds().left + 1, barGeom.centerY, `round-${this.enemyColor}-lil`).setFlipX(true).setOrigin(1, 0.5);
+    }
 
     if (this.playerLine.width > lineWidth - 1) this.scene.gameScene.stars = 3;
     const stars = this.scene.info.winner ? this.scene.gameScene.stars : 0
@@ -227,6 +234,9 @@ export default class GameOver {
 
     this.playerLine.setPosition(barGeom.left, barGeom.centerY);
     this.enemyLine.setPosition(barGeom.right, barGeom.centerY);
+
+    this.playerStatusRightRound?.setPosition(this.playerLine.getBounds().right - 1, barGeom.centerY);
+    this.enemyStatusLeftRound?.setPosition(this.enemyLine.getBounds().left + 1, barGeom.centerY)
 
     this.lineStar1.setPosition(x, barGeom.centerY);
     this.lineStar2.setPosition(barGeom.left + barGeom.width * 0.75, barGeom.centerY,);
