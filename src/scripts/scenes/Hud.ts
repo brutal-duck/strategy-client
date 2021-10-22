@@ -414,6 +414,7 @@ export default class Hud extends Phaser.Scene {
     this.totalHexes = this.gameScene.playerHexes().length + this.gameScene.enemyHexes().length
     const width = this.worldStatusBar.getBounds().width
     const p = width / this.totalHexes
+    if (sum / this.totalHexes > 0.55) p * sum - 25;
     return p * sum
   }
 

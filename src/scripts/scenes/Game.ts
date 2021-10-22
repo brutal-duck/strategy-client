@@ -266,7 +266,7 @@ export default class Game extends Phaser.Scene {
       this.chosenHex = hex
       const x = hex.getCenter().x
       const y = hex.getCenter().y
-      const player = this[this.player.color]
+      const player: Iconfig = this[this.player.color]
 
       if (
         hex.own !== this.player.color && hex.class !== 'base' &&
@@ -277,17 +277,15 @@ export default class Game extends Phaser.Scene {
           new FlyAwayMsg(this, x, y, `-${hex.defence}`, 'red', this.player.color)
           player.hexes -= hex.defence
           hex.setClaming(this.player.color)
-
-        // } else if (player.hexes >= hex.defence + 1) {
         } else if (hex.defence === 1 && player.hexes >= hex.defence + 1) {
           new FlyAwayMsg(this, x, y, `-${2}`, 'red', this.player.color)
           player.hexes -= 2
           hex.setClearClame(this.player.color)
           const graph = this.graphs[hex.own];
           const neutralGraph = this.neutralGraphs[hex.own === 'green' ? 'red' : 'green'];
+          this.addHexInGraph(this.neutralGraphs[hex.own], hex);
           this.clearGraph(hex, graph);
           this.clearGraph(hex, neutralGraph);
-
         } else if (hex.defence > 1 && player.hexes >= hex.defence) {
           new FlyAwayMsg(this, x, y, `-${1}`, 'red', this.player.color)
           player.hexes -= 1
@@ -374,7 +372,14 @@ export default class Game extends Phaser.Scene {
     this.hud.updateHexCounter()
 
     if (this.chosenHex.own === 'neutral') this.chosenHex.setClaming(this.player.color, true)
-    else this.chosenHex.setClearClame(this.player.color, true)
+    else {
+      const graph = this.graphs[this.chosenHex.own];
+      const neutralGraph = this.neutralGraphs[this.chosenHex.own === 'green' ? 'red' : 'green'];
+      this.addHexInGraph(this.neutralGraphs[this.chosenHex.own], this.chosenHex);
+      this.clearGraph(this.chosenHex, graph);
+      this.clearGraph(this.chosenHex, neutralGraph);
+      this.chosenHex.setClearClame(this.player.color, true);
+    }
   }
 
   public superHexSocketClameConfirmed(): void {
