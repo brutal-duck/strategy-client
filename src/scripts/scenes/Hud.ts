@@ -29,6 +29,8 @@ export default class Hud extends Phaser.Scene {
   private star2: Phaser.GameObjects.Sprite
   private star3: Phaser.GameObjects.Sprite
 
+  private playerStatusRightRound: Phaser.GameObjects.Sprite;
+  private enemyStatusLeftRound: Phaser.GameObjects.Sprite;
   private worldStatusBar: Phaser.GameObjects.TileSprite
   private playerName: Phaser.GameObjects.Text
   private enemyName: Phaser.GameObjects.Text
@@ -157,6 +159,8 @@ export default class Hud extends Phaser.Scene {
     const leftMask = new Phaser.Display.Masks.BitmapMask(this, this.roundLeft);
     const rightMask = new Phaser.Display.Masks.BitmapMask(this, this.roundRight);
 
+    this.playerStatusRightRound = this.add.sprite(0, 0, `round-${this.playerColor}`).setOrigin(0, 0.5).setVisible(false);
+    this.enemyStatusLeftRound = this.add.sprite(0, 0, `round-${this.enemyColor}`).setFlipX(true).setOrigin(1, 0.5).setVisible(false);
     this.playerStatusBar = this.add.tileSprite(barGeom.left, barGeom.centerY, 1, barGeom.height, `pixel-${this.playerColor}`).setDepth(4).setOrigin(0, 0.5);
     this.enemyStatusBar = this.add.tileSprite(barGeom.right, barGeom.centerY, 1, barGeom.height, `pixel-${this.enemyColor}`).setDepth(4).setOrigin(1, 0.5);
     this.playerStatusBar.setMask(leftMask).mask.invertAlpha = true;
@@ -175,6 +179,8 @@ export default class Hud extends Phaser.Scene {
       this.worldStatusBar,
       this.playerStatusBar,
       this.enemyStatusBar,
+      this.playerStatusRightRound,
+      this.enemyStatusLeftRound,
       this.warnBaseWasFoundText,
       this.warnCity,
     )
@@ -349,6 +355,20 @@ export default class Hud extends Phaser.Scene {
             this.playerStatusBar.setDepth(2)
           }
         },
+        onUpdate: () => {
+          if (this.playerStatusBar.width > this.worldStatusBar.width * 0.55) {
+            const playerGeom = this.playerStatusBar.getBounds();
+            this.playerStatusRightRound.setPosition(playerGeom.right - 2, playerGeom.centerY).setVisible(true).setDepth(5);
+            this.enemyStatusLeftRound.setVisible(false);
+          } else if (this.enemyStatusBar.width > this.worldStatusBar.width * 0.55) {
+            const enemyGeom = this.enemyStatusBar.getBounds();
+            this.enemyStatusLeftRound.setPosition(enemyGeom.left + 2, enemyGeom.centerY).setVisible(true).setDepth(5);
+            this.playerStatusRightRound.setVisible(false);
+          } else {
+            if (this.enemyStatusLeftRound.visible) this.enemyStatusLeftRound.setVisible(false).setDepth(4);
+            if (this.playerStatusRightRound.visible) this.playerStatusRightRound.setVisible(false).setDepth(4);
+          }
+        },
         targets: [ this.playerStatusBar, this.enemyStatusBar ],
         width: (target: Phaser.GameObjects.TileSprite): number => {
           if (target === this.playerStatusBar) return playerLineWidth
@@ -451,6 +471,8 @@ export default class Hud extends Phaser.Scene {
     this.playerStatusBar?.setPosition(barGeom.left, barGeom.centerY).setSize(this.getLineWidth(greenHexes), barGeom.height);
     this.enemyStatusBar?.setPosition(barGeom.right, barGeom.centerY).setSize(this.getLineWidth(redHexes), barGeom.height);
     this.timer?.setPosition(barGeom.centerX, barGeom.bottom + 2);
+    this.playerStatusRightRound.setPosition(this.playerStatusBar.getBounds().right - 1, this.playerStatusBar.getBounds().centerY);
+    this.enemyStatusLeftRound.setPosition(this.enemyStatusBar.getBounds().left + 1, this.enemyStatusBar.getBounds().centerY);
 
     this.star1?.setPosition(barGeom.left + this.getStarPoint(1), barGeom.centerY + 3);
     this.star2?.setPosition(barGeom.left + this.getStarPoint(2), barGeom.centerY + 3);
@@ -467,7 +489,7 @@ export default class Hud extends Phaser.Scene {
     this.warnCity?.setX(this.worldStatusBar.getCenter().x)
     
     this.hexBar?.setPosition(10, 10)
-    this.hexBarText?.setOrigin(this.hexBar.getBounds().right, this.hexBar.getBounds().centerY);
+    this.hexBarText?.setPosition(this.hexBar.getBounds().right, this.hexBar.getBounds().centerY);
     this.superHexBar?.setPosition(this.hexBar.getBounds().centerX, this.hexBar.getBounds().bottom + 10);
     this.superHexBarText?.setPosition(this.superHexBar.getBounds().right, this.superHexBar.getBounds().centerY);
 

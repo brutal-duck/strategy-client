@@ -90,6 +90,7 @@ class Boot extends Phaser.Scene {
       const { error, userData }: { error: boolean, userData: IuserData } = res.data;
       if (!error) {
         this.state.player.id = userData.id;
+        this.state.player.name = String(userData.vkId);
         this.userIsReady = true;
       }
     });

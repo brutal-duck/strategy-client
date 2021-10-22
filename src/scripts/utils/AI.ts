@@ -94,13 +94,13 @@ export default class AI {
       
       this.paths.forEach((path, i) => { if (path.length !== 0) this.clame(i, tiles) })
 
-      console.log('--turn', this.turns, this.priority.toUpperCase(), 'try', this.clameTry, '%', AIcapturedPercent)
+      // console.log('--turn', this.turns, this.priority.toUpperCase(), 'try', this.clameTry, '%', AIcapturedPercent)
     }
   }
 
   private atackBase(): void {
     const nearbyBaseHexes = this.nearbyHexes(this.playerBase).filter(hex => hex.own !== this.color && this.nearbyHexes(hex).some(nrbHex => nrbHex.own === this.color))
-    console.log('AI ~ atackBase ~ nearbyBaseHexes', nearbyBaseHexes.map(el => el.id))
+    // console.log('AI ~ atackBase ~ nearbyBaseHexes', nearbyBaseHexes.map(el => el.id))
     if (nearbyBaseHexes.length > 0) this.AIClame(Phaser.Utils.Array.GetRandom(nearbyBaseHexes))
     else this.playerBaseReached = false
   }
@@ -118,7 +118,7 @@ export default class AI {
       delay: 50 + (200 * i),
       callback: (): void => {
         let hex = this.paths[i][0]
-        console.log('clame ~ hex', hex?.id, this.paths.map(el => el?.map(hex => hex?.id)))
+        // console.log('clame ~ hex', hex?.id, this.paths.map(el => el?.map(hex => hex?.id)))
 
         if (!hex?.clamingAni?.isPlaying() && hex?.own === this.color) {
           this.paths[i].splice(0, 1)
@@ -173,7 +173,7 @@ export default class AI {
     })
 
     distances.sort((a, b) => a.distance - b.distance)
-    console.log('~ distances', this.lastPaths[0]?.from === distances[0].from, distances.map(el => { return { from: el.from.id, to: el.to.id, distance: el.distance } }))
+    // console.log('~ distances', this.lastPaths[0]?.from === distances[0].from, distances.map(el => { return { from: el.from.id, to: el.to.id, distance: el.distance } }))
     
     for (let i = 0; i < 1; i++) { this.setPath(this.findPath(distances[i].from, this.playerBase, 3)) }
     if (this.lastPaths[0]?.from === distances[0].from && this.lastPaths[0]?.to === distances[0].to && this.clameTry > this.clameTryReach) this.clameRandomHex()
@@ -193,7 +193,7 @@ export default class AI {
   private clameRandomHex(forced: boolean = false): void {
     const outerHex = this.outerAIHexes()[Phaser.Math.Between(0, this.outerAIHexes().length - 1)]
     const randomNearbyHexes = this.nearbyHexes(outerHex).filter(hex => !hex.landscape && hex.own !== this.color)
-    console.log('clameRandomHex')
+    // console.log('clameRandomHex')
     if (forced) this.AIClame(Phaser.Utils.Array.GetRandom(randomNearbyHexes))
     else if (randomNearbyHexes.length > 0) this.paths[0] = [randomNearbyHexes[Phaser.Math.Between(0, randomNearbyHexes.length - 1)]]
   }
@@ -246,14 +246,14 @@ export default class AI {
       if (step.id === to.id) break
     }
 
-    console.log('findPath ~ path', path.map(el => el.id))
+    // console.log('findPath ~ path', path.map(el => el.id))
     return path
   }
 
 
   private AIClame(hex: Hex): void {
     if (hex && this.nearbyHexes(hex).some(el => el?.own === this.color)) {
-      console.log('clame', hex.id);
+      // console.log('clame', hex.id);
       
       if (hex.own === 'neutral') {
         this.scene[this.color].hexes--

@@ -18,7 +18,7 @@ export default class Socket implements Isocket {
 
     this.io.on('connect', () => {
       console.log('connect');
-      if (this.state.game.isStarted) {
+      if (this.state.game.isStarted && !this.state.game.AI) {
         this.loose = true;
       }
     });
@@ -26,6 +26,7 @@ export default class Socket implements Isocket {
     this.io.on('gameStart', (data: IstartGameData) => {
       console.log('gameStart');
       this.state.player.color = data.player.color;
+      this.state.enemy = data.enemy;
       this.state.game.seed = data.seed;
       this.state.startGame = true;
       this.clearState();

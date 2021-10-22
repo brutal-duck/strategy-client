@@ -105,14 +105,15 @@ export default class Game extends Phaser.Scene {
 
 
   public launch(state: Istate): void {
+    console.log(this.state.enemy);
     this.state.game.isStarted = true;
     this.state = state
     this.player = state.player
     this.enemyColor = this.player.color === 'red' ? 'green' : 'red'
     this.green = Object.assign({}, config)
     this.red = Object.assign({}, config)
-    this.green.name = 'green_player'
-    this.red.name = 'red_player'
+    this[this.player.color].name = this.state.player.name;
+    this[this.enemyColor].name = this.state.enemy?.name || this.state.game.AI.toUpperCase() + '_BOT';
     this.stars = 0
     this.baseWasFound = false
     this.claming = [] // массив захватываемых в данный момент клеток
@@ -279,10 +280,14 @@ export default class Game extends Phaser.Scene {
           hex.setClaming(this.player.color)
 
         // } else if (player.hexes >= hex.defence + 1) {
-        } else if (hex.defence === 1 && player.hexes >= hex.defence) {
+        } else if (hex.defence === 1 && player.hexes >= hex.defence + 1) {
           new FlyAwayMsg(this, x, y, `-${2}`, 'red', this.player.color)
           player.hexes -= 2
           hex.setClearClame(this.player.color)
+          const graph = this.graphs[hex.own];
+          const neutralGraph = this.neutralGraphs[hex.own === 'green' ? 'red' : 'green'];
+          this.clearGraph(hex, graph);
+          this.clearGraph(hex, neutralGraph);
 
         } else if (hex.defence > 1 && player.hexes >= hex.defence) {
           new FlyAwayMsg(this, x, y, `-${1}`, 'red', this.player.color)
@@ -1029,8 +1034,12 @@ export default class Game extends Phaser.Scene {
     const color = hex.own === 'red' ? 'green' : 'red';
     if (color !== 'red' && color !== 'green') return;
     const graph = this.graphs[color];
+    this.clearGraph(hex, graph);
+  }
+
+  private clearGraph(hex: Hex, graph:Igraph): void {
     delete graph[hex.id];
-    
+      
     Object.keys(graph).forEach(key => {
       if (graph[key].has(hex.id)) graph[key].delete(hex.id);
     });
@@ -1040,11 +1049,7 @@ export default class Game extends Phaser.Scene {
     const color = hex.own;
     if (color !== 'red' && color !== 'green') return;
     const graph = this.neutralGraphs[color];
-    delete graph[hex.id];
-    
-    Object.keys(graph).forEach(key => {
-      if (graph[key].has(hex.id)) graph[key].delete(hex.id);
-    });
+    this.clearGraph(hex, graph);
   }
 
   private findPathInGraph(graph: Igraph, startVertex: string, endVertex: string): number {

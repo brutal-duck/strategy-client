@@ -1,5 +1,6 @@
 interface Istate {
   player: Iplayer
+  enemy: Ienemy
   game: IGame
   platform: string
   startGame: boolean
@@ -15,6 +16,10 @@ interface Isocket {
   findGame: () => void;
   hexClick: (hexId: string) => void;
   clearState: () => void;
+}
+interface Ienemy {
+  id: string;
+  name: string;
 }
 interface Iplayer {
   name: string
@@ -58,6 +63,7 @@ interface IuserData {
   id: string;
   poinst: number;
   wins: number;
+  vkId: number;
 }
 
 interface Iposition {
@@ -100,4 +106,5 @@ interface IsocketHex {
 interface IstartGameData {
   seed: string;
   player: IsocketPlayer
+  enemy: Ienemy
 }
