@@ -125,7 +125,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
     this.line = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x - 25, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setOrigin(0).setTint(lineColor).setDepth(10000).setVisible(color === this.scene.player.color || !this.fog)
     this.scene.claming.push(this.id)
-    // this.claming = true
+    this.super = this.super || superHex;
 
     if (color !== this.scene.player.color) {
       new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y + 20, '', 'yellow', 'warning', 7000)
@@ -155,7 +155,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     const lineColor = colors[color].main
     this.clamingAniRemove()
     if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
-
+    this.super = this.super || superHex;
     this.lineBg = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setTint(bgColor).setOrigin(0.5, 0).setDepth(10000).setVisible(color === this.scene.player.color || !this.fog)
     this.line = this.scene.add.tileSprite(this.lineBg.getLeftCenter().x, this.lineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(10000).setVisible(color === this.scene.player.color || !this.fog)
     if (!this.scene.claming.find(id => id === this.id)) this.scene.claming.push(this.id)

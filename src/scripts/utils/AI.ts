@@ -23,6 +23,7 @@ export default class AI {
   private allowAttackBase: boolean
   private playerBaseReached: boolean
   private lastPaths: { from: Hex, to: Hex, distance: number }[]
+  private paused: boolean
 
   constructor(scene: Game, difficulty: string = 'normal') {
     this.scene = scene
@@ -30,6 +31,12 @@ export default class AI {
   }
 
   public init(): void {
+    this.paused = false;
+    this.scene.input.keyboard.addKey('Q').on('up', (): void => { 
+      this.paused = !this.paused;
+      console.log('ai pause', this.paused);
+    });
+
     this.launched = false
     this.color = this.scene.player.color === 'green' ? 'red' : 'green'
     this.side = this.AIHexes().find(hex => hex.class === 'base').col > this.scene.world.cols / 2 ? 'right' : 'left'
@@ -63,7 +70,7 @@ export default class AI {
       this.launched = true
       this.cicle = this.scene.time.addEvent({
         delay: 2500,
-        callback: (): void => { this.turn() },
+        callback: (): void => { if (!this.paused) this.turn() },
         loop: true
       })
     }

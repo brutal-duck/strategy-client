@@ -940,6 +940,8 @@ export default class Game extends Phaser.Scene {
     const graph: Igraph = this.graphs[color];
     if (!graph[hex.id]) {
       this.addHexInGraph(graph, hex);
+      this.clearOldGraph(hex);
+      this.clearNeutralGraph(hex);
       const neighbors = Object.values(hex.nearby);
       const filteredNeighbors = neighbors.filter(el => graph[el]);
       filteredNeighbors.forEach((el, index) => {
@@ -976,24 +978,25 @@ export default class Game extends Phaser.Scene {
   }
 
   private updateInnerHex(innerHex: Hex, color: string): void {
-    if (!innerHex.landscape) innerHex.clame(color);
-    else {
+    if (!innerHex.landscape) {
+      this.addHexInGraph(this.graphs[color], innerHex);
+      this.clearOldGraph(innerHex);
+      this.clearNeutralGraph(innerHex);
+      innerHex.clame(color);
+    } else {
       innerHex.own = color;
       if (innerHex.class === 'rock') innerHex.setWorldTexture(color);
     }
-    this.addHexInGraph(this.graphs[color], innerHex);
   }
 
   private addHexInGraph(graph: Igraph, hex: Hex): void {
-    graph[hex.id] = new Set();
+    graph[hex.id] = graph[hex.id] || new Set();
     Object.values(hex.nearby).forEach(value => {
       if (graph[value]) {
         graph[hex.id].add(value);
         graph[value].add(hex.id);
       }
     });
-    this.clearOldGraph(hex);
-    this.clearNeutralGraph(hex);
   }
   
   private getNotOwnInnerHexes(hexes: Hex[], color: string): Hex[] {
@@ -1048,6 +1051,8 @@ export default class Game extends Phaser.Scene {
     const color = hex.own;
     if (color !== 'red' && color !== 'green') return;
     const graph = this.neutralGraphs[color];
+    const addedGraph = this.neutralGraphs[hex.own === 'red' ? 'green' : 'red'];
+    this.addHexInGraph(addedGraph, hex);
     this.clearGraph(hex, graph);
   }
 
@@ -1055,7 +1060,6 @@ export default class Game extends Phaser.Scene {
     const distances: { [key: string]: number} = {};
     distances[startVertex] = 0;
     const queque = [startVertex];
-
     while (queque.length > 0) {
       const curVertex = queque.shift();
       if (graph[curVertex]) {
@@ -1067,7 +1071,6 @@ export default class Game extends Phaser.Scene {
         });
       }
     }
-    
     return distances[endVertex] || -1;
   }
 }

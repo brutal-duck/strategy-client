@@ -1,6 +1,6 @@
 interface Istate {
   player: Iplayer
-  enemy: Ienemy
+  enemy?: Ienemy
   game: IGame
   platform: string
   startGame: boolean
