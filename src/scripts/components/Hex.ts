@@ -111,7 +111,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.classText = this.scene.add.text(this.getCenter().x, this.getCenter().y + 10, '', { font: '17px Molot', color: 'black' }).setOrigin(0.5, 0).setDepth(this.depth + 10).setStroke('#ffffff', 2)
     this.fogSprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y, 'fog').setAlpha(1).setScale(1.01).setDepth(this.depth + 20)
     this.nearbyMark = this.scene.add.sprite(this.getCenter().x, this.getCenter().y - 1, 'hex-border-2').setDepth(this.depth + 10).setScale(0.95).setVisible(false).setAlpha(0.4)
-    this.defenceLvl = this.scene.add.text(this.getCenter().x, this.getCenter().y - 10, '', { font: '40px Molot', color: '#EFEAE8' }).setOrigin(0.5).setDepth(this.worldSprite.depth * 1.5).setVisible(!this.fog);
+    this.defenceLvl = this.scene.add.text(this.getCenter().x, this.getCenter().y - 10, '', { font: '40px Molot', color: '#EFEAE8' }).setOrigin(0.5).setDepth(this.worldSprite.depth * 1.5);
     // if (this.col === 0) this.scene.add.sprite(this.x + w / 4 + 1, this.y + h / 2 - 7, 'fog').setOrigin(1, 0).setScale(this.fogSprite.scale).setDepth(this.fogSprite.depth + 1)
     // if (this.col === this.scene.cols - 1) this.scene.add.sprite(this.x + w * 0.75 - 1, this.y + h / 2 - 7, 'fog').setOrigin(0).setScale(this.fogSprite.scale).setDepth(this.fogSprite.depth + 1)
     // if (this.row === this.scene.rows - 1) this.scene.add.sprite(this.x, this.y + h - 7, 'fog').setOrigin(0).setScale(this.fogSprite.scale).setDepth(10000)
@@ -376,6 +376,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.own = 'neutral'
     // this.color = 'neutral'
     this.defence = 1
+    this.defenceLvl.setText('');
     this.defenceLvl.setVisible(false)
     this.landscape = false
     this.super = false
@@ -451,6 +452,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     })
     
     this.fog = false
+    this.defenceLvl.setVisible(true);
     this.worldSprite.setVisible(true)
 
     if (this.dark) this.dark = false
@@ -569,7 +571,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   private setTowerSprite(): void {
     const fadeingSprite: Phaser.GameObjects.Sprite = this.scene.add.sprite(this.worldSprite.x, this.worldSprite.y, this.worldSprite.texture.key).setDepth(this.worldSprite.depth + 1).setScale(this.worldSprite.scale)
     this.worldSprite.setTexture(`${this.own}-tower`)
-    this.fogSprite.setTexture(`${this.own}-tower`).setTint(0x000000).setScale(this.worldSprite.scale - 0.01)
+    this.fogSprite.setTexture(`${this.own}-tower`).setTint(0x000000).setScale(this.worldSprite.scale + 0.01)
     this.scene.tweens.add({
       targets: fadeingSprite,
       alpha: 0,

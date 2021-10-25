@@ -444,8 +444,7 @@ export default class Hud extends Phaser.Scene {
       .setPosition(barGeom.centerX, barGeom.centerY)
       .clear()
       .fillStyle(0x00ff00)
-      .fillRoundedRect(- barGeom.width / 2, - barGeom.height / 2, barGeom.width, barGeom.height, barGeom.height / 2)
-      .setVisible(false);
+      .fillRoundedRect(- barGeom.width / 2, - barGeom.height / 2, barGeom.width, barGeom.height, barGeom.height / 2);
 
     this.playerStatusBar?.setPosition(barGeom.left, barGeom.centerY).setSize(this.getLineWidth(greenHexes), barGeom.height);
     this.enemyStatusBar?.setPosition(barGeom.right, barGeom.centerY).setSize(this.getLineWidth(redHexes), barGeom.height);
