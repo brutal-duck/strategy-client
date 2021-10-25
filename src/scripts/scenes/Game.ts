@@ -286,7 +286,7 @@ export default class Game extends Phaser.Scene {
           this.addHexInGraph(this.neutralGraphs[hex.own], hex);
           this.clearGraph(hex, graph);
           this.clearGraph(hex, neutralGraph);
-        } else if (hex.defence > 1 && player.hexes >= hex.defence) {
+        } else if (hex.defence > 1 && player.hexes >= 1) {
           new FlyAwayMsg(this, x, y, `-${1}`, 'red', this.player.color)
           player.hexes -= 1
           hex.setClearClame(this.player.color)
@@ -957,7 +957,6 @@ export default class Game extends Phaser.Scene {
           if (distance > 0) {
             const hexes = this.hexes.filter(el => el.own === hex.own);
             const innerHexes = this.getNotOwnInnerHexes(hexes, hex.own);
-            
             innerHexes.forEach(innerHex => {
               this.checkAndUpdateInnerHex(innerHex, color);
             });
@@ -984,10 +983,10 @@ export default class Game extends Phaser.Scene {
 
   private updateInnerHex(innerHex: Hex, color: string): void {
     if (!innerHex.landscape) {
+      innerHex.clame(color);
       this.addHexInGraph(this.graphs[color], innerHex);
       this.clearOldGraph(innerHex);
       this.clearNeutralGraph(innerHex);
-      innerHex.clame(color);
     } else {
       innerHex.own = color;
       if (innerHex.class === 'rock') innerHex.setWorldTexture(color);
