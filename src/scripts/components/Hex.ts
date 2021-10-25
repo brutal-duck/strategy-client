@@ -569,7 +569,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   }
 
   private setTowerSprite(): void {
-    const fadeingSprite: Phaser.GameObjects.Sprite = this.scene.add.sprite(this.worldSprite.x, this.worldSprite.y, this.worldSprite.texture.key).setDepth(this.worldSprite.depth + 1).setScale(this.worldSprite.scale)
+    const fadeingSprite: Phaser.GameObjects.Sprite = this.scene.add.sprite(this.worldSprite.x, this.worldSprite.y, this.worldSprite.texture.key).setDepth(this.worldSprite.depth + 1).setScale(this.worldSprite.scale).setVisible(!this.fog);
     this.worldSprite.setTexture(`${this.own}-tower`)
     this.fogSprite.setTexture(`${this.own}-tower`).setTint(0x000000).setScale(this.worldSprite.scale + 0.01)
     this.scene.tweens.add({
