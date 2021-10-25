@@ -159,10 +159,12 @@ export default class GameOver {
     this.enemyLine.setMask(rightMask).mask.invertAlpha = true;
     if (this.playerLine.width > this.lineBg.width * 0.55) {
       this.playerLine.setSize(this.playerLine.width - 20, this.playerLine.height);
+      this.enemyLine.setSize(this.enemyLine.width + 20, this.enemyLine.height);
       this.playerStatusRightRound = this.scene.add.sprite(this.playerLine.getBounds().right - 1, barGeom.centerY, `round-${this.playerColor}-lil`).setDepth(2).setOrigin(0, 0.5);
     } else if (this.enemyLine.width > this.lineBg.width * 0.55) {
       this.enemyLine.setSize(this.enemyLine.width - 20, this.enemyLine.height);
-      this.enemyStatusLeftRound = this.scene.add.sprite(this.enemyLine.getBounds().left + 1, barGeom.centerY, `round-${this.enemyColor}-lil`).setFlipX(true).setOrigin(1, 0.5);
+      this.playerLine.setSize(this.playerLine.width + 20, this.playerLine.height);
+      this.enemyStatusLeftRound = this.scene.add.sprite(this.enemyLine.getBounds().left + 1, barGeom.centerY, `round-${this.enemyColor}-lil`).setFlipX(true).setOrigin(1, 0.5).setDepth(2);
     }
 
     if (this.playerLine.width > lineWidth - 1) this.scene.gameScene.stars = 3;
