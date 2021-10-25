@@ -279,8 +279,8 @@ export default class Game extends Phaser.Scene {
           hex.setClaming(this.player.color)
         } else if (hex.defence === 1 && player.hexes >= hex.defence + 1) {
           new FlyAwayMsg(this, x, y, `-${2}`, 'red', this.player.color)
-          player.hexes -= 2
-          hex.setClearClame(this.player.color)
+          player.hexes -= 2;
+          hex.setClearClame(this.player.color);
           const graph = this.graphs[hex.own];
           const neutralGraph = this.neutralGraphs[hex.own === 'green' ? 'red' : 'green'];
           this.addHexInGraph(this.neutralGraphs[hex.own], hex);
@@ -995,7 +995,7 @@ export default class Game extends Phaser.Scene {
     }
   }
 
-  private addHexInGraph(graph: Igraph, hex: Hex): void {
+  public addHexInGraph(graph: Igraph, hex: Hex): void {
     graph[hex.id] = graph[hex.id] || new Set();
     Object.values(hex.nearby).forEach(value => {
       if (graph[value]) {
@@ -1045,7 +1045,7 @@ export default class Game extends Phaser.Scene {
     this.clearGraph(hex, graph);
   }
 
-  private clearGraph(hex: Hex, graph:Igraph): void {
+  public clearGraph(hex: Hex, graph:Igraph): void {
     delete graph[hex.id];
       
     Object.keys(graph).forEach(key => {

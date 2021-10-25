@@ -269,7 +269,11 @@ export default class AI {
       } else if (hex.own === this.scene.player.color) {
         this.scene[this.color].hexes -= 2
         hex.setClearClame(this.color)
-
+        const graph = this.scene.graphs[hex.own];
+        const neutralGraph = this.scene.neutralGraphs[hex.own === 'green' ? 'red' : 'green'];
+        this.scene.addHexInGraph(this.scene.neutralGraphs[hex.own], hex);
+        this.scene.clearGraph(hex, graph);
+        this.scene.clearGraph(hex, neutralGraph);
       } else if (hex.own === this.color) {
         hex.upgradeDefence(this.color)
       }
