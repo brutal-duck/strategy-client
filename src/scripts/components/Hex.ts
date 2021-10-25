@@ -111,7 +111,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.classText = this.scene.add.text(this.getCenter().x, this.getCenter().y + 10, '', { font: '17px Molot', color: 'black' }).setOrigin(0.5, 0).setDepth(this.depth + 10).setStroke('#ffffff', 2)
     this.fogSprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y, 'fog').setAlpha(1).setScale(1.01).setDepth(this.depth + 20)
     this.nearbyMark = this.scene.add.sprite(this.getCenter().x, this.getCenter().y - 1, 'hex-border-2').setDepth(this.depth + 10).setScale(0.95).setVisible(false).setAlpha(0.4)
-    this.defenceLvl = this.scene.add.text(this.getCenter().x, this.getCenter().y - 10, '', { font: '40px Molot', color: '#EFEAE8' }).setOrigin(0.5).setDepth(this.worldSprite.depth * 1.5)
+    this.defenceLvl = this.scene.add.text(this.getCenter().x, this.getCenter().y - 10, '', { font: '40px Molot', color: '#EFEAE8' }).setOrigin(0.5).setDepth(this.worldSprite.depth * 1.5).setVisible(!this.fog);
     // if (this.col === 0) this.scene.add.sprite(this.x + w / 4 + 1, this.y + h / 2 - 7, 'fog').setOrigin(1, 0).setScale(this.fogSprite.scale).setDepth(this.fogSprite.depth + 1)
     // if (this.col === this.scene.cols - 1) this.scene.add.sprite(this.x + w * 0.75 - 1, this.y + h / 2 - 7, 'fog').setOrigin(0).setScale(this.fogSprite.scale).setDepth(this.fogSprite.depth + 1)
     // if (this.row === this.scene.rows - 1) this.scene.add.sprite(this.x, this.y + h - 7, 'fog').setOrigin(0).setScale(this.fogSprite.scale).setDepth(10000)
@@ -526,7 +526,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       onComplete: (): void => {
         this.upgradeAniRemove()
         this.defence++
-        this.defenceLvl.setText(`${this.defence}`).setVisible(true)
+        this.defenceLvl.setText(`${this.defence}`).setVisible(!this.fog);
         if (this.worldSprite.texture.key !== `${this.own}-tower`) this.setTowerSprite()
       }
     })
@@ -545,7 +545,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       duration: this.scene.green.clameTime,
       onComplete: (): void => {
         this.upgradeAniRemove()
-        this.defenceLvl.setText(`${this.defence}`).setVisible(true)
+        this.defenceLvl.setText(`${this.defence}`).setVisible(!this.fog);
         if (this.worldSprite.texture.key !== `${this.own}-tower`) this.setTowerSprite()
       }
     })

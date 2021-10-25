@@ -99,11 +99,7 @@ export default class Hud extends Phaser.Scene {
     this.timer = new Timer(this, this.worldStatusBar.getCenter().x, this.worldStatusBar.getBottomCenter().y + 2, this.gameScene.green.matchTime)
     this.allElements.push(this.bg, this.timer.minutes, this.timer.seconds, this.timer.colon, this.menuBtn)
 
-    // debug // !
-    // if (!this.state.game.AI) this.createColorSwitcher()
-    // this.createHexBarPlayer2()
-    this.debugText = this.add.text(-26, this.camera.height, '', { font: '20px Molot', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-9).setOrigin(0, 1).setVisible(false)
-    this.input.keyboard.addKey('A').on('up', (): void => { this.debugText.setVisible(!this.debugText.visible) })
+    this.debugText = this.add.text(-26, this.camera.height, '', { font: '20px Molot', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-9).setOrigin(0, 1).setVisible(true);
   }
 
 
@@ -126,16 +122,6 @@ export default class Hud extends Phaser.Scene {
 
     this.allElements.push(this.hexBar, this.hexBarText, this.superHexBar, this.superHexBarText)
   }
-
-
-  private createHexBarPlayer2(): void {
-    this.hexBarP2 = this.add.sprite(this.camera.width - 10, this.camera.height - 10, 'hex').setScale(0.65).setTint(colors[this.enemyColor].light).setOrigin(1)
-    this.hexBarTextP2 = this.add.text(this.hexBarP2.getCenter().x + 1, this.hexBarP2.getCenter().y - 2, String(this.playerColor === 'green' ? this.gameScene.red.hexes : this.gameScene.green.hexes), {
-      font: '36px Molot', color: '#BED3C0'
-    }).setOrigin(0.5).setStroke('black', 3)
-    this.allElements.push(this.hexBarP2, this.hexBarTextP2)
-  }
-
 
   private createWorldStatusBar(): void {
     const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
@@ -307,22 +293,6 @@ export default class Hud extends Phaser.Scene {
       }
     })
   }
-
-
-  private createColorSwitcher(): void {
-    this.switcher = this.add.tileSprite(this.camera.width / 2, this.camera.height, 60, 60, 'pixel').setOrigin(0.5, 1).setTint(colors[this.playerColor].main).setInteractive()
-    this.switcher.on('pointerup', () => {
-      if (this.gameScene.player.color === 'green') {
-        this.gameScene.player.color = 'red'
-        this.gameScene.enemyColor = 'green'
-      } else {
-        this.gameScene.player.color = 'green'
-        this.gameScene.enemyColor = 'red'
-      }
-      this.switcher.setTint(colors[this.gameScene.player.color].main)
-    })
-  }
-
 
   public updateWorldStatusBar(): void {
     const playerHexes: number = this.gameScene.playerHexes().length
@@ -504,11 +474,7 @@ export default class Hud extends Phaser.Scene {
     let text = `
       width:  ${this.gameScene?.camera.width}\n
       height:  ${this.gameScene?.camera.height}\n
-      worldView_width:  ${this.gameScene?.camera.worldView.width}\n
-      worldView_height:  ${this.gameScene?.camera.worldView.height}\n
-      worldView_x:  ${this.gameScene?.camera.midPoint.x}\n
-      worldView_y:  ${this.gameScene?.camera.midPoint.y}\n
-      zoom:  ${this.gameScene?.camera.zoom}\n
+      zoom:  ${this.gameScene?.camera.zoom.toFixed(2)}\n
     `
 
     // zoomed:  ${this.gameScene?.zoomed}\n
@@ -527,6 +493,6 @@ export default class Hud extends Phaser.Scene {
 
 
   public update(): void {
-    if (this.gameScene.debuging) this.debug()
+    this.debug()
   }
 }
