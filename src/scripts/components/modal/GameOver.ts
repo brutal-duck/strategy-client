@@ -25,16 +25,13 @@ export default class GameOver {
   private timer: Phaser.GameObjects.Text;
   private timerBg: Phaser.GameObjects.Sprite;
   private lineBg: Phaser.GameObjects.TileSprite;
-  private roundLeft: Phaser.GameObjects.Sprite;
-  private roundRight: Phaser.GameObjects.Sprite;
   private playerLine: Phaser.GameObjects.TileSprite;
   private enemyLine: Phaser.GameObjects.TileSprite;
   private lineStar1: Phaser.GameObjects.Sprite;
   private lineStar2: Phaser.GameObjects.Sprite;
   private lineStar3: Phaser.GameObjects.Sprite;
   private btn: ColorsBtn;
-  private playerStatusRightRound: Phaser.GameObjects.Sprite;
-  private enemyStatusLeftRound: Phaser.GameObjects.Sprite;
+  private maskGraphics: Phaser.GameObjects.Graphics;
 
   constructor(scene: Modal) {
     this.scene = scene;
@@ -147,25 +144,17 @@ export default class GameOver {
     this.timerBg = this.scene.add.sprite(x, this.timeSpend.y - 10, 'timer-plate').setOrigin(0.5, 0);
     this.lineBg = this.scene.add.tileSprite(x, this.timer.getBounds().bottom + 20, lineWidth, 40, 'pixel').setOrigin(0.5, 0).setVisible(false);
     const barGeom = this.lineBg.getBounds();
-    const scale = 35 / 50;
-    this.roundLeft = this.scene.add.sprite(barGeom.left, barGeom.centerY, 'round-bar').setOrigin(0, 0.5).setScale(scale).setVisible(false);
-    this.roundRight = this.scene.add.sprite(barGeom.right, barGeom.centerY, 'round-bar').setFlipX(true).setOrigin(1, 0.5).setScale(scale).setVisible(false);
-    const leftMask = new Phaser.Display.Masks.BitmapMask(this.scene, this.roundLeft);
-    const rightMask = new Phaser.Display.Masks.BitmapMask(this.scene, this.roundRight);
+
+    this.maskGraphics = this.scene.add.graphics({ x: barGeom.centerX, y: barGeom.centerY })
+      .fillStyle(0x00ff00)
+      .fillRoundedRect(- barGeom.width / 2, -barGeom.height / 2, barGeom.width, barGeom.height, barGeom.height / 2)
+      .setVisible(false);
+    const mask = new Phaser.Display.Masks.GeometryMask(this.scene, this.maskGraphics);
 
     this.playerLine = this.scene.add.tileSprite(barGeom.left, barGeom.centerY, playerLineWidth, barGeom.height, `pixel-${this.playerColor}`).setDepth(2).setOrigin(0, 0.5);
     this.enemyLine = this.scene.add.tileSprite(barGeom.right, barGeom.centerY, enemyLineWidth, barGeom.height, `pixel-${this.enemyColor}`).setDepth(2).setOrigin(1, 0.5);
-    this.playerLine.setMask(leftMask).mask.invertAlpha = true;
-    this.enemyLine.setMask(rightMask).mask.invertAlpha = true;
-    if (this.playerLine.width > this.lineBg.width * 0.55) {
-      this.playerLine.setSize(this.playerLine.width - 20, this.playerLine.height);
-      this.enemyLine.setSize(this.enemyLine.width + 20, this.enemyLine.height);
-      this.playerStatusRightRound = this.scene.add.sprite(this.playerLine.getBounds().right - 1, barGeom.centerY, `round-${this.playerColor}-lil`).setDepth(2).setOrigin(0, 0.5);
-    } else if (this.enemyLine.width > this.lineBg.width * 0.55) {
-      this.enemyLine.setSize(this.enemyLine.width - 20, this.enemyLine.height);
-      this.playerLine.setSize(this.playerLine.width + 20, this.playerLine.height);
-      this.enemyStatusLeftRound = this.scene.add.sprite(this.enemyLine.getBounds().left + 1, barGeom.centerY, `round-${this.enemyColor}-lil`).setFlipX(true).setOrigin(1, 0.5).setDepth(2);
-    }
+    this.playerLine.setMask(mask);
+    this.enemyLine.setMask(mask);
 
     if (this.playerLine.width > lineWidth - 1) this.scene.gameScene.stars = 3;
     const stars = this.scene.info.winner ? this.scene.gameScene.stars : 0
@@ -233,14 +222,14 @@ export default class GameOver {
 
     this.lineBg.setPosition(x, this.timer.getBounds().bottom + 20);
     const barGeom = this.lineBg.getBounds();
-    this.roundLeft.setPosition(barGeom.left, barGeom.centerY);
-    this.roundRight.setPosition(barGeom.right, barGeom.centerY);
+    this.maskGraphics
+      .setPosition(barGeom.centerX, barGeom.centerY)
+      .clear()
+      .fillStyle(0x00ff00)
+      .fillRoundedRect(- barGeom.width / 2, - barGeom.height / 2, barGeom.width, barGeom.height, barGeom.height / 2);
 
     this.playerLine.setPosition(barGeom.left, barGeom.centerY);
     this.enemyLine.setPosition(barGeom.right, barGeom.centerY);
-
-    this.playerStatusRightRound?.setPosition(this.playerLine.getBounds().right - 1, barGeom.centerY);
-    this.enemyStatusLeftRound?.setPosition(this.enemyLine.getBounds().left + 1, barGeom.centerY)
 
     this.lineStar1.setPosition(x, barGeom.centerY);
     this.lineStar2.setPosition(barGeom.left + barGeom.width * 0.75, barGeom.centerY,);

@@ -91,11 +91,6 @@ const glowWinner: string = require('../../assets/images/modal/glow-winner.png');
 const glowLooser: string = require('../../assets/images/modal/glow-looser.png');
 const wreath: string = require('../../assets/images/modal/wreath.png');
 const modalPlate: string = require('../../assets/images/modal/plate.png');
-const roundBar: string = require('../../assets/images/round-bar.png');
-const roundGreen: string = require('../../assets/images/round-green.png');
-const roundRed: string = require('../../assets/images/round-red.png');
-const roundGreenLil: string = require('../../assets/images/round-green-lil.png');
-const roundRedLil: string = require('../../assets/images/round-red-lil.png');
 const timerPlate: string = require('../../assets/images/timer-plate.png');
 
 class Preload extends Phaser.Scene {
@@ -230,12 +225,7 @@ class Preload extends Phaser.Scene {
     this.load.image('glow-looser', glowLooser);
     this.load.image('wreath', wreath);
     this.load.image('modal-plate', modalPlate);
-    this.load.image('round-bar', roundBar);
     this.load.image('timer-plate', timerPlate);
-    this.load.image('round-green', roundGreen);
-    this.load.image('round-red', roundRed);
-    this.load.image('round-green-lil', roundGreenLil);
-    this.load.image('round-red-lil', roundRedLil);
   }
   
   public create(): void {
