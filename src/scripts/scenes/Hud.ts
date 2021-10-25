@@ -4,6 +4,7 @@ import { colors } from "../gameConfig"
 import langs from "../langs"
 import Game from "./Game"
 
+const DISPLAY_PERCENT = 5;
 export default class Hud extends Phaser.Scene {
   constructor() {
     super('Hud')
@@ -40,9 +41,8 @@ export default class Hud extends Phaser.Scene {
   private enemyHexCounter: Phaser.GameObjects.Text // счетчик захваченных гексов противника
   private worldStatusAni: Phaser.Tweens.Tween
   public timer: Timer
+  private maskGraphics: Phaser.GameObjects.Graphics;
 
-  private roundLeft: Phaser.GameObjects.Sprite
-  private roundRight: Phaser.GameObjects.Sprite
   private hexBar: Phaser.GameObjects.Sprite
   private hexBarText: Phaser.GameObjects.Text
   private tilesBarText: Phaser.GameObjects.Text
@@ -102,7 +102,7 @@ export default class Hud extends Phaser.Scene {
     // debug // !
     // if (!this.state.game.AI) this.createColorSwitcher()
     // this.createHexBarPlayer2()
-    this.debugText = this.add.text(-26, this.camera.height, '', { font: '10px Molot', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-9).setOrigin(0, 1).setVisible(false)
+    this.debugText = this.add.text(-26, this.camera.height, '', { font: '20px Molot', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-9).setOrigin(0, 1).setVisible(false)
     this.input.keyboard.addKey('A').on('up', (): void => { this.debugText.setVisible(!this.debugText.visible) })
   }
 
@@ -145,27 +145,25 @@ export default class Hud extends Phaser.Scene {
       stroke: '#707070',
       strokeThickness: 3,
     };
+    const currentHeight = document.body.clientHeight / 100 * DISPLAY_PERCENT;
+
     this.playerName = this.add.text(this.camera.width / 2 - 10, 4, this.gameScene[this.playerColor].name, textStyle).setOrigin(1, 0)
     this.enemyName = this.add.text(this.camera.width / 2 + 10, 4, this.gameScene[this.enemyColor].name, textStyle)
     this.lineWidth = this.camera.width / 2.5
     const barY = this.playerName.getBottomCenter().y + 29;
-    this.worldStatusBar = this.add.tileSprite(this.camera.width / 2, barY, this.lineWidth, 50, 'pixel').setOrigin(0.5).setVisible(false);
+    this.worldStatusBar = this.add.tileSprite(this.camera.width / 2, barY, this.lineWidth, currentHeight, 'pixel').setOrigin(0.5).setVisible(false);
 
     const barGeom = this.worldStatusBar.getBounds();
 
-    const scale = 42 / 50;
-    this.roundLeft = this.add.sprite(barGeom.left, barGeom.centerY, 'round-bar').setOrigin(0, 0.5).setScale(scale).setVisible(false);
-    this.roundRight = this.add.sprite(barGeom.right, barGeom.centerY, 'round-bar').setFlipX(true).setOrigin(1, 0.5).setScale(scale).setVisible(false);
-    const leftMask = new Phaser.Display.Masks.BitmapMask(this, this.roundLeft);
-    const rightMask = new Phaser.Display.Masks.BitmapMask(this, this.roundRight);
-
-    this.playerStatusRightRound = this.add.sprite(0, 0, `round-${this.playerColor}`).setOrigin(0, 0.5).setVisible(false);
-    this.enemyStatusLeftRound = this.add.sprite(0, 0, `round-${this.enemyColor}`).setFlipX(true).setOrigin(1, 0.5).setVisible(false);
+    this.maskGraphics = this.add.graphics({ x: barGeom.centerX, y: barGeom.centerY })
+      .fillStyle(0x00ff00)
+      .fillRoundedRect(- barGeom.width / 2, -barGeom.height / 2, barGeom.width, barGeom.height, barGeom.height / 2)
+      .setVisible(false);
+    const mask = new Phaser.Display.Masks.GeometryMask(this, this.maskGraphics);
     this.playerStatusBar = this.add.tileSprite(barGeom.left, barGeom.centerY, 1, barGeom.height, `pixel-${this.playerColor}`).setDepth(4).setOrigin(0, 0.5);
     this.enemyStatusBar = this.add.tileSprite(barGeom.right, barGeom.centerY, 1, barGeom.height, `pixel-${this.enemyColor}`).setDepth(4).setOrigin(1, 0.5);
-    this.playerStatusBar.setMask(leftMask).mask.invertAlpha = true;
-    this.enemyStatusBar.setMask(rightMask).mask.invertAlpha = true;
-
+    this.playerStatusBar.setMask(mask);
+    this.enemyStatusBar.setMask(mask);
 
     this.star1 = this.add.sprite(barGeom.left + this.getStarPoint(1), barGeom.centerY + 3, 'lil-star-dis').setDepth(6)
     this.star2 = this.add.sprite(barGeom.left + this.getStarPoint(2), barGeom.centerY + 3, 'lil-star-dis').setDepth(6)
@@ -355,20 +353,6 @@ export default class Hud extends Phaser.Scene {
             this.playerStatusBar.setDepth(2)
           }
         },
-        onUpdate: () => {
-          if (this.playerStatusBar.width > this.worldStatusBar.width * 0.55) {
-            const playerGeom = this.playerStatusBar.getBounds();
-            this.playerStatusRightRound.setPosition(playerGeom.right - 2, playerGeom.centerY).setVisible(true).setDepth(5);
-            this.enemyStatusLeftRound.setVisible(false);
-          } else if (this.enemyStatusBar.width > this.worldStatusBar.width * 0.55) {
-            const enemyGeom = this.enemyStatusBar.getBounds();
-            this.enemyStatusLeftRound.setPosition(enemyGeom.left + 2, enemyGeom.centerY).setVisible(true).setDepth(5);
-            this.playerStatusRightRound.setVisible(false);
-          } else {
-            if (this.enemyStatusLeftRound.visible) this.enemyStatusLeftRound.setVisible(false).setDepth(4);
-            if (this.playerStatusRightRound.visible) this.playerStatusRightRound.setVisible(false).setDepth(4);
-          }
-        },
         targets: [ this.playerStatusBar, this.enemyStatusBar ],
         width: (target: Phaser.GameObjects.TileSprite): number => {
           if (target === this.playerStatusBar) return playerLineWidth
@@ -457,6 +441,7 @@ export default class Hud extends Phaser.Scene {
   public resize(): void {
     const greenHexes: number = this.gameScene?.hexes.filter(hex => hex.own === 'green').length
     const redHexes: number = this.gameScene?.hexes.filter(hex => hex.own === 'red').length
+    const currentHeight = document.body.clientHeight / 100 * 5;
 
     this.bg?.setPosition(0, 0).setSize(this.camera.width, this.bg.height)
     this.menuBtn?.setPosition(this.camera.width - 35, 35)
@@ -465,15 +450,19 @@ export default class Hud extends Phaser.Scene {
     this.playerName?.setPosition(this.camera.width / 2 - 10, 4)
     this.enemyName?.setPosition(this.camera.width / 2 + 10, 4)
 
-    this.worldStatusBar?.setPosition(this.camera.width / 2, this.worldStatusBar.y).setSize(this.camera.width / 2.5, 50)
+    this.worldStatusBar?.setPosition(this.camera.width / 2, this.worldStatusBar.y).setSize(this.camera.width / 2.5, currentHeight)
     const barGeom = this.worldStatusBar.getBounds();
-    this.roundLeft?.setPosition(barGeom.left, barGeom.centerY);
-    this.roundRight?.setPosition(barGeom.right, barGeom.centerY);
+    const scale = currentHeight / 50 * 0.85;
+    this.maskGraphics
+      .setPosition(barGeom.centerX, barGeom.centerY)
+      .clear()
+      .fillStyle(0x00ff00)
+      .fillRoundedRect(- barGeom.width / 2, - barGeom.height / 2, barGeom.width, barGeom.height, barGeom.height / 2)
+      .setVisible(false);
+
     this.playerStatusBar?.setPosition(barGeom.left, barGeom.centerY).setSize(this.getLineWidth(greenHexes), barGeom.height);
     this.enemyStatusBar?.setPosition(barGeom.right, barGeom.centerY).setSize(this.getLineWidth(redHexes), barGeom.height);
     this.timer?.setPosition(barGeom.centerX, barGeom.bottom + 2);
-    this.playerStatusRightRound.setPosition(this.playerStatusBar.getBounds().right - 1, this.playerStatusBar.getBounds().centerY);
-    this.enemyStatusLeftRound.setPosition(this.enemyStatusBar.getBounds().left + 1, this.enemyStatusBar.getBounds().centerY);
 
     this.star1?.setPosition(barGeom.left + this.getStarPoint(1), barGeom.centerY + 3);
     this.star2?.setPosition(barGeom.left + this.getStarPoint(2), barGeom.centerY + 3);
@@ -497,6 +486,7 @@ export default class Hud extends Phaser.Scene {
 
     this.hexBarP2?.setPosition(this.camera.width - 10, this.camera.height - 10)
     this.hexBarTextP2?.setPosition(this.hexBarP2.getCenter().x + 1, this.hexBarP2.getCenter().y - 2)
+    this.debugText?.setPosition(-26, this.camera.height);
   }
 
 
@@ -512,8 +502,6 @@ export default class Hud extends Phaser.Scene {
 
   private debug(): void {
     let text = `
-      desktop:  ${this.game.device.os.desktop}\n
-      android:  ${this.game.device.os.android}\n
       width:  ${this.gameScene?.camera.width}\n
       height:  ${this.gameScene?.camera.height}\n
       worldView_width:  ${this.gameScene?.camera.worldView.width}\n
