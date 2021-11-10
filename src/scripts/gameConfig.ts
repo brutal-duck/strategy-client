@@ -1,7 +1,7 @@
 const config: Iconfig = {
   name: '',
   hexes: 10,
-  superHex: 1,
+  superHex: 0,
   hexProductionSpeed: 50000,
   clameTime: 2000,
   superReclameTime: 4000,

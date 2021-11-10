@@ -349,7 +349,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       case 'x3': {
         this.landscapeNum = Phaser.Math.Between(1, 2)
         this.resources = 30
-        this.removeFog()
+        // this.removeFog()
         break
       }
       case 'super': {
