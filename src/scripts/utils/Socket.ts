@@ -7,6 +7,7 @@ export default class Socket implements Isocket {
   public loose: boolean;
   public draw: boolean;
   public reason: string;
+  public points: number;
   
   constructor(state: Istate) {
     this.state = state;
@@ -32,10 +33,11 @@ export default class Socket implements Isocket {
       this.clearState();
     });
 
-    this.io.on('winGame', ({ reason }: IendGameData) => {
+    this.io.on('winGame', ({ reason, points }: IendGameData) => {
       console.log('win!');
       this.win = true;
       this.reason = reason;
+      this.points = points;
     });
 
     this.io.on('looseGame', ({ reason }: IendGameData) => {

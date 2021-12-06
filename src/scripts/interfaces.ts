@@ -7,10 +7,11 @@ interface Istate {
   socket: Isocket
 }
 interface Isocket {
-  win: boolean
-  loose: boolean
-  draw: boolean
-  reason: string
+  win: boolean;
+  loose: boolean;
+  draw: boolean;
+  reason: string;
+  points: number;
   init: () => void;
   closeSocket: () => void;
   findGame: () => void;
@@ -82,6 +83,7 @@ interface IcolorsBtnSettings {
 
 interface IendGameData {
   reason: string;
+  points?: number
 }
 
 interface IupdateHexData {

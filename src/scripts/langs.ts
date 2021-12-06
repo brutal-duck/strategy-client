@@ -56,6 +56,7 @@ export default {
     timeLeft: 'осталось',
     searchEnemy: 'поиск соперника',
     cantLevelUp: 'невозможно улучшить',
+    points: 'Очков:'
   },
   en: {
     index: 'ru',

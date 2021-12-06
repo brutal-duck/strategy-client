@@ -62,6 +62,9 @@ class Boot extends Phaser.Scene {
       this.userIsReady = true;
       this.state.socket = new Socket(this.state);
     });
+    bridge.send('VKWebAppStorageGet', { keys: ['points']}).then(data => {
+      this.state.player.points = Number(data.keys[0].value) || 0;
+    });
 
   }
 
@@ -73,6 +76,14 @@ class Boot extends Phaser.Scene {
       this.state.player.id = data.id;
       this.userIsReady = true;
       this.state.socket = new Socket(this.state);
+    });
+    bridgeMock.send('VKWebAppStorageGet', { keys: ['points']}).then(data => {
+      if (data.keys[0]) {
+        this.state.player.points = Number(data.keys[0].value) || 0;
+      } else {
+        this.state.player.points = 0;
+      }
+      console.log(123)
     });
   }
 

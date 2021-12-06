@@ -1,12 +1,14 @@
-import FlyAwayMsg from "../components/FlyAwayMsg"
-import Hex from "../components/Hex"
-import Zoom from "../components/Zoom"
-import { config } from "../gameConfig"
-import langs from "../langs"
-import AI from "../utils/AI"
-import World from "../utils/World"
-import WorldTest from "../utils/WorldTest"
-import Hud from "./Hud"
+import bridgeMock from "@vkontakte/vk-bridge-mock";
+import bridge from "@vkontakte/vk-bridge";
+import FlyAwayMsg from "../components/FlyAwayMsg";
+import Hex from "../components/Hex";
+import Zoom from "../components/Zoom";
+import { config } from "../gameConfig";
+import langs from "../langs";
+import AI from "../utils/AI";
+import World from "../utils/World";
+import WorldTest from "../utils/WorldTest";
+import Hud from "./Hud";
 
 export default class Game extends Phaser.Scene {
   constructor() {
@@ -806,6 +808,16 @@ export default class Game extends Phaser.Scene {
     }
   }
 
+  private incPlayerPoints(): void {
+    this.player.points += this.state.socket.points;
+    if (process.env.DEV === 'true') {
+      bridgeMock.send('VKWebAppStorageSet', { key: 'points', value: String(this.player.points) });
+    } else {
+      bridge.send('VKWebAppStorageSet', { key: 'points', value: String(this.player.points) });
+    }
+    this.state.socket.points = 0;
+  }
+
   private checkSocketGameOver(): void {
     if (this.state.socket.win) {
       console.log(this.state, 'this.state');
@@ -814,9 +826,10 @@ export default class Game extends Phaser.Scene {
       else if (this.state.socket.reason === 'TIME_IS_UP') text = 'timeIsUp';
       if (this.hexes.every(el => !el.clamingAni?.isPaused())) { 
         this.time.addEvent({
-          delay: 100,
+          delay: 200,
           callback: (): void => {     
             this.gameOver(text, this.player.color);
+            this.incPlayerPoints();
           },
           callbackScope: this,
         });
@@ -829,7 +842,7 @@ export default class Game extends Phaser.Scene {
         if (this.state.socket.reason === 'ENEMY_LEFT') text = 'youSurrendered';
         else if (this.state.socket.reason === 'TIME_IS_UP') text = 'timeIsUp';
         this.time.addEvent({
-          delay: 100,
+          delay: 200,
           callback: (): void => {
             this.gameOver(text, this.player.color === 'red' ? 'green' : 'red');
           },
