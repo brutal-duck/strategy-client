@@ -38,7 +38,6 @@ export default class Socket implements Isocket {
       this.win = true;
       this.reason = reason;
       this.points = points;
-      console.log({ reason, points })
     });
 
     this.io.on('looseGame', ({ reason }: IendGameData) => {

@@ -820,6 +820,7 @@ export default class Game extends Phaser.Scene {
 
   private checkSocketGameOver(): void {
     if (this.state.socket.win) {
+      this.state.socket.win = false;
       console.log(this.state, 'this.state');
       let text = 'enemyBaseHasCaptured';
       if (this.state.socket.reason === 'ENEMY_LEFT') text = 'enemySurrendered';
@@ -836,6 +837,7 @@ export default class Game extends Phaser.Scene {
       }
     }
     if (this.state.socket.loose) {
+      this.state.socket.loose = false;
       console.log(this.state, 'this.state');
       if (this.hexes.every(el => !el.clamingAni?.isPaused())) {
         let text = 'yourBaseHasCaptured';
@@ -851,16 +853,6 @@ export default class Game extends Phaser.Scene {
       }
     }
 
-    if (this.state.socket.loose) {
-      console.log(this.state, 'this.state');
-      if (this.hexes.every(el => !el.clamingAni?.isPaused())) {
-        this.time.addEvent({
-          delay: 100,
-          callback: (): void => { this.gameOver('timeIsUp'); },
-          callbackScope: this,
-        });
-      }
-    }
   }
 
   private updateHexState(): void {
