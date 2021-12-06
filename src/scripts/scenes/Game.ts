@@ -67,6 +67,7 @@ export default class Game extends Phaser.Scene {
   public init(state: Istate) {
     this.state = state
     this.lang = langs.ru
+    this.state.game.updateHex = false;
     this.hud = this.game.scene.getScene('Hud') as Hud
     this.gameIsOn = false
 
