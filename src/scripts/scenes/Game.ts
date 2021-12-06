@@ -90,9 +90,7 @@ export default class Game extends Phaser.Scene {
 
     this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', this.player.color) })
     this.input.keyboard.addKey('S').on('up', (): void => { this.hexes.forEach(hex => hex.removeFog()) })
-    this.input.keyboard.addKey('Z').on('up', (): void => {
-      console.log(this.pointerHex)
-    })
+    this.input.keyboard.addKey('Z').on('up', (): void => { console.log(this.pointerHex) })
     this.input.keyboard.addKey('C').on('up', (): void => { this.hud.setWarning(600, 600, '4-4') })
   }
 
@@ -376,6 +374,11 @@ export default class Game extends Phaser.Scene {
     this[`${this.player.color}`].superHex--
     this.hud.updateHexCounter()
 
+    Object.values(this.chosenHex.nearby).forEach(el => {
+      const hex = this.getHexById(el);
+      if (hex) hex.removeFog();
+    })
+    
     if (this.chosenHex.own === 'neutral') this.chosenHex.setClaming(this.player.color, true)
     else {
       const graph = this.graphs[this.chosenHex.own];
@@ -389,6 +392,10 @@ export default class Game extends Phaser.Scene {
 
   public superHexSocketClameConfirmed(): void {
     this.chosenHex.removeFog()
+    Object.values(this.chosenHex.nearby).forEach(el => {
+      const hex = this.getHexById(el);
+      if (hex) hex.removeFog();
+    })
     this.hud.updateHexCounter()
     this.state.socket.hexClick(this.chosenHex.id);
   }

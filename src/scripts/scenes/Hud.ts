@@ -76,6 +76,8 @@ export default class Hud extends Phaser.Scene {
 
   private debugText: Phaser.GameObjects.Text
 
+  private incAnimationHex: Phaser.Tweens.Tween;
+  private incAnimationSuperHex: Phaser.Tweens.Tween;
 
   public init(state: Istate): void {
     this.state = state
@@ -120,16 +122,43 @@ export default class Hud extends Phaser.Scene {
     };
     const scale = currentIconsHeight / 50;
     const player: Iconfig = this.gameScene[this.playerColor];
-    this.hexBar = this.add.sprite(10, 10, 'hex').setScale(scale * 0.6).setOrigin(0);
+    this.hexBar = this.add.sprite(40, 40, 'hex').setScale(scale * 0.6);
     const hexBarGeom = this.hexBar.getBounds();
     this.hexBarText = this.add.text(hexBarGeom.right, hexBarGeom.centerY, String(player.hexes), textStyle).setOrigin(0, 0.5);
 
-    this.superHexBar = this.add.sprite(hexBarGeom.centerX, hexBarGeom.bottom + 10, 'super-hex').setScale(scale * 0.6).setOrigin(0.5, 0);
+    this.superHexBar = this.add.sprite(hexBarGeom.centerX, hexBarGeom.bottom + 30, 'super-hex').setScale(scale * 0.6);
     const superGeom = this.superHexBar.getBounds();
     this.superHexBarText = this.add.text(superGeom.right, superGeom.centerY, String(player.superHex), textStyle).setOrigin(0, 0.5).setStroke('#97759E', 5);
 
     this.allElements.push(this.hexBar, this.hexBarText, this.superHexBar, this.superHexBarText)
   }
+
+  private setIncAnimHex(): void {
+    if (this.incAnimationHex) return;
+    this.incAnimationHex = this.tweens.add({
+      targets: this.hexBar,
+      duration: 200,
+      scale: '+= 0.2',
+      yoyo: true,
+      onComplete: () => {
+        this.incAnimationHex = null;
+      }
+    });
+  }
+
+  private setIncAnimSuperHex(): void {
+    if (this.incAnimationSuperHex) return;
+    this.incAnimationSuperHex = this.tweens.add({
+      targets: this.superHexBar,
+      duration: 200,
+      scale: '+= 0.2',
+      yoyo: true,
+      onComplete: () => {
+        this.incAnimationSuperHex = null;
+      }
+    });
+  }
+
 
   private createWorldStatusBar(): void {
     const currentTextHeight = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
@@ -372,6 +401,12 @@ export default class Hud extends Phaser.Scene {
   }
 
   public updateHexCounter(): void {
+    if (Number(this.hexBarText.text) < this.gameScene[this.playerColor].hexes) {
+      this.setIncAnimHex();
+    }
+    if (Number(this.superHexBarText.text) < this.gameScene[this.playerColor].superHex) {
+      this.setIncAnimSuperHex();
+    }
     this.hexBarText.setText(`${this.gameScene[this.playerColor].hexes}`)
     this.superHexBarText.setText(`${this.gameScene[this.playerColor].superHex}`)
     this.hexBarTextP2?.setText(`${this.playerColor === 'green' ? this.gameScene.red.hexes : this.gameScene.green.hexes}`)
@@ -464,9 +499,9 @@ export default class Hud extends Phaser.Scene {
     this.warnBaseWasFoundText?.setX(this.worldStatusBar.getCenter().x)
     this.warnCity?.setX(this.worldStatusBar.getCenter().x)
     
-    this.hexBar?.setPosition(10, 10).setScale(0.6 * iconsScale)
+    this.hexBar?.setPosition(40, 40).setScale(0.6 * iconsScale)
     this.hexBarText?.setPosition(this.hexBar.getBounds().right, this.hexBar.getBounds().centerY).setFontSize(curCountFontSize);
-    this.superHexBar?.setPosition(this.hexBar.getBounds().centerX, this.hexBar.getBounds().bottom + 10).setScale(0.6 * iconsScale);
+    this.superHexBar?.setPosition(this.hexBar.getBounds().centerX, this.hexBar.getBounds().bottom + 30).setScale(0.6 * iconsScale);
     this.superHexBarText?.setPosition(this.superHexBar.getBounds().right, this.superHexBar.getBounds().centerY).setFontSize(curCountFontSize);
 
 

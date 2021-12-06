@@ -83,7 +83,6 @@ class Boot extends Phaser.Scene {
       } else {
         this.state.player.points = 0;
       }
-      console.log(123)
     });
   }
 
