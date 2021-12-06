@@ -69,6 +69,7 @@ export default class Socket implements Isocket {
   public findGame(): void {
     this.io.emit('findGame', {
       id: this.state.player.id,
+      name: this.state.player.name,
     });
   }
 

@@ -26,9 +26,9 @@ interface Iplayer {
   color: string
   vk_id?: string
   ok_id?: string
-  poinst?: number
+  points?: number
   wins?: number
-  id: string
+  id: number
 }
 interface  IsocketPlayer {
   color: string

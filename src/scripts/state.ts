@@ -2,9 +2,7 @@ let state: Istate = {
   player: {
     name: 'player1',
     color: '',
-    vk_id: '',
-    ok_id: '',
-    id: '',
+    id: 0,
   },
   game: {
     seed: '',

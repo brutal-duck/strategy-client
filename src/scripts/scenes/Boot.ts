@@ -1,13 +1,8 @@
 import * as Webfont from '../libs/Webfonts.js';
 import bridgeMock from '@vkontakte/vk-bridge-mock'
 import bridge from '@vkontakte/vk-bridge'
-import { FAPI } from '../libs/Fapi.js'
-import * as platform from 'platform';
-import axios from 'axios';
-
 import state from '../state';
 import Socket from './../utils/Socket';
-
 const pixel: any = require("./../../assets/images/pixel.png");
 
 class Boot extends Phaser.Scene {
@@ -23,7 +18,7 @@ class Boot extends Phaser.Scene {
 
 
   public preload(): void {
-    this.load.image('pixel', pixel)
+    this.load.image('pixel', pixel);
   }
 
   public init(): void {
@@ -34,24 +29,15 @@ class Boot extends Phaser.Scene {
     this.fontsReady = false;
     this.userIsReady = false;
     
-    // let search: string = window.location.search;
-    // let params: URLSearchParams = new URLSearchParams(search);
-    // let vk: string = params.get('api_url');
-    // let ok: string = params.get('api_server');
 
-    // if (vk === 'https://api.vk.com/api.php') this.state.platform = "vk";
-    // else if (ok === 'https://api.ok.ru/') this.state.platform = "ok";
+    if (process.env.DEV === 'true') {
+      this.initMockUser();
+    } else {
+      this.checkUser();
+    }
 
-    // if (platform.os.family === 'Android' || platform.os.family === 'iOS') this.state.mobile = true;
-    // if (process.env.DEV === 'true') this.state.platform = 'vk'
-
-    if (this.game.device.os.windows) this.state.platform = 'windows web'
-    else if (this.game.device.os.android) this.state.platform = 'android'
-
-    console.log('Platform:', this.state.platform);
     
     this.setFonts()
-    this.checkUser()
   }
 
   
@@ -69,11 +55,26 @@ class Boot extends Phaser.Scene {
 
   
   private checkUser() {
-    const vkId = 12345 + Phaser.Math.Between(1, 20);
-    this.checkUserOnServer(vkId);
-    this.state.socket = new Socket(this.state)
+    bridge.send('VKWebAppInit');
+    bridge.send('VKWebAppGetUserInfo').then(data => {
+      this.state.player.name = data.first_name + ' ' + data.last_name;
+      this.state.player.id = data.id;
+      this.userIsReady = true;
+      this.state.socket = new Socket(this.state);
+    });
+
   }
 
+
+  private initMockUser(): void {
+    bridgeMock.send('VKWebAppInit');
+    bridgeMock.send('VKWebAppGetUserInfo').then(data => {
+      this.state.player.name = data.first_name + ' ' + data.last_name;
+      this.state.player.id = data.id;
+      this.userIsReady = true;
+      this.state.socket = new Socket(this.state);
+    });
+  }
 
   public update(): void {
     if (this.userIsReady && this.fontsReady) {
@@ -81,19 +82,6 @@ class Boot extends Phaser.Scene {
       this.fontsReady = false;
       this.start();
     }
-  }
-
-  private checkUserOnServer(vkId: number): void {
-    const data: { id: number } = { id: vkId };
-    console.log(vkId);
-    axios.post(process.env.API + '/checkUser', data).then(res => {
-      const { error, userData }: { error: boolean, userData: IuserData } = res.data;
-      if (!error) {
-        this.state.player.id = userData.id;
-        this.state.player.name = String(userData.vkId);
-        this.userIsReady = true;
-      }
-    });
   }
 
   public start(): void {
