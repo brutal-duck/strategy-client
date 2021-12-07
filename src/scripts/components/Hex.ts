@@ -641,34 +641,39 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     if (this.own === this.scene.player.color) {
       const { x, y } = this.getCenter();
       new FlyAwayMsg(this.scene, x, y, `+${this.resources}`, 'green', this.class === 'super' ? 'purple' : this.own);
-      const hudScene = this.scene.game.scene.getScene('Hud') as Hud;
-      const dx = x - this.scene.midPoint.x;
-      const dy = y - this.scene.midPoint.y;
-      const startX = this.scene.camera.width / 2 + dx * this.scene.camera.zoom;
-      const startY = this.scene.camera.height / 2 + dy * this.scene.camera.zoom;
-      const texture = this.class === 'super' ? 'super-hex' : 'hex';
-      const target = this.class === 'super' ? hudScene.superHexBar : hudScene.hexBar;
-      const hex = hudScene.add.sprite(startX, startY, texture).setScale(hudScene.hexBar.scale * 0.8);
-      this.scene.tweens.add({
-        duration: 300,
-        targets: hex,
-        x: target.x,
-        y: target.y,
-        onComplete: () => {
-          hex?.destroy();
-        },
-      })
+      this.flyOnHudAnim();
     }
     this.scene.hud.updateHexCounter();
     this.resources = 0;
   }
 
+  private flyOnHudAnim(): void {
+    const { x, y } = this.getCenter();
+    const hudScene = this.scene.game.scene.getScene('Hud') as Hud;
+    const dx = x - this.scene.midPoint.x;
+    const dy = y - this.scene.midPoint.y;
+    const startX = this.scene.camera.width / 2 + dx * this.scene.camera.zoom;
+    const startY = this.scene.camera.height / 2 + dy * this.scene.camera.zoom;
+    const texture = this.class === 'super' ? 'super-hex' : 'hex';
+    const target = this.class === 'super' ? hudScene.superHexBar : hudScene.hexBar;
+    const hex = hudScene.add.sprite(startX, startY, texture).setScale(hudScene.hexBar.scale * 0.8);
+    this.scene.tweens.add({
+      duration: 300,
+      targets: hex,
+      x: target.x,
+      y: target.y,
+      onComplete: () => {
+        hex?.destroy();
+      },
+    });
+  }
+  
   public giveResourceAnimFromSocket(): void {
     if (this.resources <= 0) return; 
     if (this.own === this.scene.player.color) {
       const { x, y } = this.getCenter();
       new FlyAwayMsg(this.scene, x, y, `+${this.resources}`, 'green', this.class === 'super' ? 'purple' : this.own);
-
+      this.flyOnHudAnim();
     }
     this.resources = 0
   }
