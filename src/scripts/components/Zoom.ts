@@ -91,7 +91,8 @@ export default class Zoom {
     this.scene.camera.zoomEffect.reset();
     const widthZoom = this.scene.camera.width / this.scene.worldWidth;
     const heightZoom = this.scene.camera.height / this.scene.worldHeight;
-    this.minZoom = this.scene.camera.width > this.scene.camera.height ? widthZoom : heightZoom;
+    const newZoom = this.scene.camera.width > this.scene.camera.height ? widthZoom : heightZoom;
+    this.minZoom = newZoom > this.minZoom ? newZoom : this.minZoom;
 
     if (inOrOut === '+' && this.zoom < this.maxZoom) this.zoom += this.zoomStap;
     else if (inOrOut === '-') {

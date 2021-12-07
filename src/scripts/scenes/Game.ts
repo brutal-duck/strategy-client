@@ -144,7 +144,7 @@ export default class Game extends Phaser.Scene {
   private setInput(): void {
     const holdedPoint = { x: 0, y: 0 }
     const vectorStep = this.game.device.os.desktop ? 0.5 : 2 // Сила "натяжения" точки для быстрого драга
-    const dragStep = this.game.device.os.desktop ? 1 : 1.5
+    const dragStep = this.game.device.os.desktop ? 1 : 1.7
     let ani: Phaser.Tweens.Tween
 
     this.midPoint = this.physics.add.sprite(0, 0, 'pixel').setVisible(false).setScale(5).setTint(0x000000).setDepth(10)
