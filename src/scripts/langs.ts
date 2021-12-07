@@ -42,7 +42,7 @@ export default {
     surrenderAndLeave: 'сдаться и выйти',
     tiles: 'плиток',
     superTiles: 'супер-плиток',
-    landTroops: 'Отправить десант?',
+    landTroops: 'Это далекая территория,\nотправить десант?',
     yes: 'да',
     no: 'нет',
     enemyLeft: 'противник вышел из игры',

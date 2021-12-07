@@ -46,10 +46,10 @@ export default class Hud extends Phaser.Scene {
   public timer: Timer
   private maskGraphics: Phaser.GameObjects.Graphics;
 
-  private hexBar: Phaser.GameObjects.Sprite
+  public hexBar: Phaser.GameObjects.Sprite
   private hexBarText: Phaser.GameObjects.Text
   private tilesBarText: Phaser.GameObjects.Text
-  private superHexBar: Phaser.GameObjects.Sprite
+  public superHexBar: Phaser.GameObjects.Sprite
   private superHexBarText: Phaser.GameObjects.Text
   private superTilesBarText: Phaser.GameObjects.Text
 
@@ -133,12 +133,13 @@ export default class Hud extends Phaser.Scene {
     this.allElements.push(this.hexBar, this.hexBarText, this.superHexBar, this.superHexBarText)
   }
 
-  private setIncAnimHex(): void {
+  private setIncAnimHex(sign: string): void {
     if (this.incAnimationHex) return;
     this.incAnimationHex = this.tweens.add({
       targets: this.hexBar,
-      duration: 200,
-      scale: '+= 0.2',
+      duration: 150,
+      tint: {from: 0xffffff, to: sign === '-' ? 0xff0000 : 0xffffff},
+      scale: `${sign}= 0.1`,
       yoyo: true,
       onComplete: () => {
         this.incAnimationHex = null;
@@ -146,12 +147,13 @@ export default class Hud extends Phaser.Scene {
     });
   }
 
-  private setIncAnimSuperHex(): void {
+  private setIncAnimSuperHex(sign: string): void {
     if (this.incAnimationSuperHex) return;
     this.incAnimationSuperHex = this.tweens.add({
       targets: this.superHexBar,
-      duration: 200,
-      scale: '+= 0.2',
+      duration: 150,
+      tint: {from: 0xffffff, to: sign === '-' ? 0xff0000 : 0xffffff},
+      scale: `${sign}= 0.1`,
       yoyo: true,
       onComplete: () => {
         this.incAnimationSuperHex = null;
@@ -402,10 +404,15 @@ export default class Hud extends Phaser.Scene {
 
   public updateHexCounter(): void {
     if (Number(this.hexBarText.text) < this.gameScene[this.playerColor].hexes) {
-      this.setIncAnimHex();
+      this.setIncAnimHex('+');
+    } else if (Number(this.hexBarText.text) > this.gameScene[this.playerColor].hexes) {
+      this.setIncAnimHex('-');
     }
+
     if (Number(this.superHexBarText.text) < this.gameScene[this.playerColor].superHex) {
-      this.setIncAnimSuperHex();
+      this.setIncAnimSuperHex('+');
+    } else if (Number(this.superHexBarText.text) > this.gameScene[this.playerColor].superHex) {
+      this.setIncAnimSuperHex('-');
     }
     this.hexBarText.setText(`${this.gameScene[this.playerColor].hexes}`)
     this.superHexBarText.setText(`${this.gameScene[this.playerColor].superHex}`)
