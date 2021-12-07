@@ -182,7 +182,7 @@ export default class Game extends Phaser.Scene {
 
 
     this.worldBG.on('drag', (pointer): void => {
-      if (!this.input.pointer2.isDown && (this.draged || this.zoomed)) {
+      if (!this.input.pointer2.isDown && this.draged) {
         this.holdCounter = 0
 
         const diffrenceX = holdedPoint.x - pointer.x
