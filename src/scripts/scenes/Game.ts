@@ -260,8 +260,10 @@ export default class Game extends Phaser.Scene {
     if (this.draged) {
       this.draged = false
       // this.zoomed = false
-    } else if (this.twoPointerZoom) this.twoPointerZoom = false
-    else {
+    } else if (this.twoPointerZoom) {
+      this.twoPointerZoom = false;
+      this.draged = false;
+    } else {
       // console.log('hex.on ~', hex)
       this.chosenHex = hex
       const x = hex.getCenter().x
@@ -323,8 +325,10 @@ export default class Game extends Phaser.Scene {
   public socketPointerUp(hex: Hex): void {
     if (this.draged) {
       this.draged = false;
-    } else if (this.twoPointerZoom) this.twoPointerZoom = false;
-    else {
+    } else if (this.twoPointerZoom) {
+      this.twoPointerZoom = false;
+      this.draged = false;
+    } else {
       // console.log('hex.on ~', hex)
       this.chosenHex = hex
       const x = hex.getCenter().x
