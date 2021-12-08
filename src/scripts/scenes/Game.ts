@@ -463,6 +463,8 @@ export default class Game extends Phaser.Scene {
     this.camera.zoomEffect.reset()
     this.camera.pan(x, y, duration, ease)
     if (zoom) this.camera.zoomTo(1.6, duration, ease)
+    this.midPoint.x = x;
+    this.midPoint.y = y;
   }
 
   public cameraFly(updateStartFlyX: boolean = false, fly: boolean = true): void {

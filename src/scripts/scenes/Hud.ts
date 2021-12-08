@@ -100,7 +100,7 @@ export default class Hud extends Phaser.Scene {
     this.timer = new Timer(this, this.worldStatusBar.getCenter().x, this.worldStatusBar.getBottomCenter().y + 2, this.gameScene.green.matchTime)
     this.allElements.push(this.bg, this.timer.minutes, this.timer.seconds, this.timer.colon, this.menuBtn)
 
-    this.debugText = this.add.text(-26, this.camera.height, '', { font: '20px Molot', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-9).setOrigin(0, 1).setVisible(true);
+    this.debugText = this.add.text(-26, this.camera.height, '', { font: '20px Molot', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-9).setOrigin(0, 1).setVisible(false);
   }
 
 
