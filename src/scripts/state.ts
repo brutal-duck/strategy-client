@@ -1,8 +1,10 @@
 let state: Istate = {
+  tutorial: 0,
   player: {
     name: 'player1',
     color: '',
     id: 0,
+    points: 0,
   },
   game: {
     seed: '',

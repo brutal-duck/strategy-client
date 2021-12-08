@@ -33,15 +33,11 @@ export default class Hud extends Phaser.Scene {
   private star2: Phaser.GameObjects.Sprite
   private star3: Phaser.GameObjects.Sprite
 
-  private playerStatusRightRound: Phaser.GameObjects.Sprite;
-  private enemyStatusLeftRound: Phaser.GameObjects.Sprite;
   private worldStatusBar: Phaser.GameObjects.TileSprite
   private playerName: Phaser.GameObjects.Text
   private enemyName: Phaser.GameObjects.Text
   private playerStatusBar: Phaser.GameObjects.TileSprite
   private enemyStatusBar: Phaser.GameObjects.TileSprite
-  private playerClamedHexCounter: Phaser.GameObjects.Text // счетчик захваченных гексов игрока
-  private enemyHexCounter: Phaser.GameObjects.Text // счетчик захваченных гексов противника
   private worldStatusAni: Phaser.Tweens.Tween
   public timer: Timer
   private maskGraphics: Phaser.GameObjects.Graphics;
@@ -207,8 +203,6 @@ export default class Hud extends Phaser.Scene {
       this.worldStatusBar,
       this.playerStatusBar,
       this.enemyStatusBar,
-      this.playerStatusRightRound,
-      this.enemyStatusLeftRound,
       this.warnBaseWasFoundText,
       this.warnCity,
     )
@@ -344,15 +338,7 @@ export default class Hud extends Phaser.Scene {
     const playerLineWidth = this.getLineWidth(playerHexes)
     const enemyLineWidth = this.getLineWidth(enemyHexes)
 
-    this.checkStarsProgress(playerLineWidth)
-
-    if (!this.playerStatusBar.visible && playerLineWidth > 1) {
-      this.playerStatusBar.setVisible(true)
-    }
-
-    if (!this.enemyStatusBar.visible && enemyLineWidth > 1) {
-      this.enemyStatusBar.setVisible(true)
-    }
+    this.checkStarsProgress(playerLineWidth);
 
     if (playerLineWidth !== this.playerStatusBar.getBounds().width || enemyLineWidth !== this.enemyStatusBar.getBounds().width) {
       this.playerStatusBar.setDepth(4)
@@ -376,9 +362,6 @@ export default class Hud extends Phaser.Scene {
         ease: 'Power2',
       })
     }
-
-    this.playerClamedHexCounter?.setText(`${playerHexes}`)
-    this.enemyHexCounter?.setText(`${enemyHexes}`)
   }
 
   private checkStarsProgress(width: number): void {
@@ -552,5 +535,27 @@ export default class Hud extends Phaser.Scene {
 
   public update(): void {
     this.debug()
+
+    if (this.state.tutorial === 0) {
+      this.hexBar.setVisible(false);
+      this.hexBarText.setVisible(false);
+      this.superHexBarText.setVisible(false);
+      this.superHexBar.setVisible(false);
+      this.worldStatusBar.setVisible(false);
+      this.playerName.setVisible(false);
+      this.enemyName.setVisible(false);
+      this.playerStatusBar.setVisible(false);
+      this.enemyStatusBar.setVisible(false);
+      this.timer.setVisible(false);
+      this.star1.setVisible(false);
+      this.star2.setVisible(false);
+      this.star3.setVisible(false);
+      this.menuBtn.setVisible(false);
+    } else if (this.state.tutorial === 1) {
+      this.hexBar.setVisible(true);
+      this.hexBarText.setVisible(true);
+      this.playerStatusBar.setVisible(false);
+      this.enemyStatusBar.setVisible(false);
+    }
   }
 }

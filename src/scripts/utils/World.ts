@@ -1,6 +1,14 @@
 import Hex from "../components/Hex"
 import Game from "../scenes/Game"
 
+import {
+  topLeft,
+  bottomLeft,
+  vertical,
+  horizontal,
+  center,
+  tutorialPresets,
+} from '../presets';
 export default class World {
   public scene: Game
   public game: boolean
@@ -74,11 +82,11 @@ export default class World {
     this.parsedSeed = []
     this.generateSeed()
     this.parseSeed()
-    this.anglePreset1 = this.getTLAnglePresets()[this.parsedSeed[0]]
-    this.anglePreset2 = this.getBLAnglePresets()[this.parsedSeed[1]]
-    this.sidePreset1 = this.getVertSidePresets()[this.parsedSeed[2]]
-    this.sidePreset2 = this.getHorzSidePresets()[this.parsedSeed[3]]
-    this.centerPreset = this.getCenterPresets()[this.parsedSeed[4]]
+    this.anglePreset1 = topLeft[this.parsedSeed[0]]
+    this.anglePreset2 = bottomLeft[this.parsedSeed[1]]
+    this.sidePreset1 = vertical[this.parsedSeed[2]]
+    this.sidePreset2 = horizontal[this.parsedSeed[3]]
+    this.centerPreset = center[this.parsedSeed[4]]
     this.spawnPresets = [ this.anglePreset1, this.anglePreset2, this.sidePreset1, this.sidePreset2, this.centerPreset ]
 
     this.greenBaseID = ''
@@ -167,18 +175,26 @@ export default class World {
     this.parseSeed()
 
     this.spawnPresets = [
-      this.getTLAnglePresets()[this.parsedSeed[0]],
-      this.getBLAnglePresets()[this.parsedSeed[1]],
-      this.getVertSidePresets()[this.parsedSeed[2]],
-      this.getHorzSidePresets()[this.parsedSeed[3]],
-      this.getCenterPresets()[this.parsedSeed[4]]
-    ]
-
+      topLeft[this.parsedSeed[0]],
+      bottomLeft[this.parsedSeed[1]],
+      vertical[this.parsedSeed[2]],
+      horizontal[this.parsedSeed[3]],
+      center[this.parsedSeed[4]]
+    ];
+    
     this.greenBaseID = ''
     this.redBaseID = ''
     this.createWorld()
   }
 
+  public createTutorialWorld(game: boolean): void {
+    this.game = game;
+    this.scene.hexes.forEach(hex => hex.removeClass());
+    this.spawnPresets = tutorialPresets;
+    this.greenBaseID = ''
+    this.redBaseID = ''
+    this.createWorld()
+  }
 
   private setBase(): void {
     this.spawnPresets[this.baseIndex] = this.spawnPresets[this.baseIndex].map(row => row.map(col => col = col === 'spawn' ? 'base' : col))
@@ -214,11 +230,11 @@ export default class World {
       this.seed = ''
       const base = Phaser.Math.Between(0, 3)
       const segments = [
-        Phaser.Math.Between(0, this.getTLAnglePresets().length - 1),
-        Phaser.Math.Between(0, this.getBLAnglePresets().length - 1),
-        Phaser.Math.Between(0, this.getVertSidePresets().length - 1),
-        Phaser.Math.Between(0, this.getHorzSidePresets().length - 1),
-        Phaser.Math.Between(0, this.getCenterPresets().length - 1)
+        Phaser.Math.Between(0, topLeft.length - 1),
+        Phaser.Math.Between(0, bottomLeft.length - 1),
+        Phaser.Math.Between(0, vertical.length - 1),
+        Phaser.Math.Between(0, horizontal.length - 1),
+        Phaser.Math.Between(0, center.length - 1)
       ]
 
       for (let i = 0; i < 5; i++) {
@@ -249,161 +265,7 @@ export default class World {
         return el.replace('b', '')
       } else return el
     })
-
-    // console.log('~ this.parsedSeed', this.parsedSeed)
   }
-
-
-  private getTLAnglePresets(): string[][][] {
-    const presets = [
-      [
-        ['water','water','water','water','water','water','water','water','water'],
-        ['water','water','water','water','water','water','water','water','water'],
-        ['water','water','','','','','','',''],
-        ['water','water','','spawn','','x1','','',''],
-        ['water','water','','','','','','',''],
-        ['water','water','','x1','','','rock','rock',''],
-        ['water','water','','','','','','water','water'],
-      ],
-      [
-        ['water','water','water','water','water','water','water','water','water'],
-        ['water','water','water','water','water','water','water','water','water'],
-        ['water','water','water','','','','','water','water'],
-        ['water','water','','','','x1','','',''],
-        ['water','water','','','','','','',''],
-        ['water','water','','x1','','','','spawn',''],
-        ['water','water','','','rock','rock','','',''],
-      ],
-    ]
-
-    return presets
-  }
-
-
-  private getBLAnglePresets(): string[][][] {
-    const presets = [
-      [
-        ['water','water','','rock','','','','',''],
-        ['water','water','','','','','','','rock'],
-        ['water','water','','','spawn','','','water','rock'],
-        ['water','water','x1','','','','','','rock'],
-        ['water','water','','','x1','','','',''],
-        ['water','water','water','water','water','water','water','water','water'],
-        ['water','water','water','water','water','water','water','water','water'],
-      ],
-      [
-        ['water','water','water','','','x1','','',''],
-        ['water','water','water','','','','','spawn',''],
-        ['water','water','water','','','','','',''],
-        ['water','water','water','water','','','','x1',''],
-        ['water','water','water','water','water','water','water','water','water'],
-        ['water','water','water','water','water','water','water','water','water'],
-        ['water','water','water','water','water','water','water','water','water'],
-      ],
-    ]
-
-    return presets
-  }
-
-
-  private getVertSidePresets(): string[][][] {
-    const presets = [
-      [
-        ['water','water','water','water','water','water','water','water','water'],
-        ['water','water','water','water','water','water','water','water','water'],
-        ['','','','','','','','',''],
-        ['','','','','','','','',''],
-        ['','','x1','','spawn','','x1','','water'],
-        ['','','','','','','','',''],
-        ['','','rock','rock','rock','rock','','','water'],
-      ],
-      [
-        ['water','water','water','water','water','water','water','water','water'],
-        ['water','water','water','water','water','water','water','water','water'],
-        ['super','water','','','','','','',''],
-        ['','water','','','','','','','x1'],
-        ['','water','water','','','','','',''],
-        ['','','','','x1','','','spawn',''],
-        ['rock','rock','rock','','','','','',''],
-      ],
-  
-    ]
-
-    return presets
-  }
-
-  private getHorzSidePresets(): string[][][] {
-    const presets = [
-      [
-        ['water','water','water','','','water','water','',''],
-        ['water','water','','','','','x1','',''],
-        ['water','water','','','','','','',''],
-        ['water','water','','','','spawn','','',''],
-        ['water','water','','','','','','',''],
-        ['water','water','','','','','x1','',''],
-        ['water','water','water','','','water','water','',''],
-      ],
-      [
-        ['water','water','rock','rock','','','','water','water'],
-        ['water','water','rock','','','','','','water'],
-        ['water','water','','','','','','','water'],
-        ['water','water','x1','','','spawn','','x1','water'],
-        ['water','water','','','','','','','water'],
-        ['water','water','rock','','','','','',''],
-        ['water','water','rock','rock','','','','water','water'],
-      ],
-    ]
-
-    return presets
-  }
-
-
-  private getCenterPresets(): string[][][] {
-    const presets = [
-      [
-        ['super','','','','','','water','water',''],
-        ['','rock','','','','','','water','water'],
-        ['','','','','','','','',''],
-        ['','','','','x3','','','',''],
-        ['water','','','','','','','',''],
-        ['water','water','','','','','','rock',''],
-        ['','water','','','','','','','super'],
-      ],
-      [
-        ['','','','','','','','','rock'],
-        ['','','','','','','','',''],
-        ['','','rock','rock','x3','rock','rock','',''],
-        ['','','super','','','','super','',''],
-        ['','','rock','rock','','rock','rock','',''],
-        ['','','','','','','','',''],
-        ['rock','','','','','','','',''],
-      ],
-      [
-        ['rock','rock','water','','water','','','','water'],
-        ['rock','rock','','','','water','','',''],
-        ['rock','super','','','','','','',''],
-        ['rock','','','','x3','','','','rock'],
-        ['','','','','','','','super','rock'],
-        ['','','','water','','','','rock','rock'],
-        ['water','','','','water','','water','rock','rock'],
-      ],
-    ]
-
-    return presets
-  }
-
-
-  /**
-    [
-      ['','','','','','','','',''],
-      ['','','','','','','','',''],
-      ['','','','','','','','',''],
-      ['','','','','','','','',''],
-      ['','','','','','','','',''],
-      ['','','','','','','','',''],
-      ['','','','','','','','',''],
-    ],
-   */
   
 
 

@@ -1,6 +1,8 @@
 import Modal from './../../scenes/Modal';
 import { colors } from '../../gameConfig';
 import ColorsBtn from '../buttons/ColorsBtn';
+import bridgeMock from '@vkontakte/vk-bridge-mock';
+import bridge from '@vkontakte/vk-bridge';
 
 export default class GameOver {
   private scene: Modal;
@@ -243,8 +245,21 @@ export default class GameOver {
     this.scene.gameScene.gameIsOn = false
     this.scene.gameScene.hud.scene.stop()
     this.scene.gameScene.world.recreate(this.scene.gameScene.gameIsOn)
-    if (this.scene.state.game.AI) this.scene.gameScene.AI.remove()
+    if (this.scene.state.game.AI) this.scene.gameScene.AI?.remove()
     this.scene.scene.start('MainMenu', this.scene.state)
     this.scene.state.socket?.closeSocket();
+    this.saveTutorial();
   }
+
+  private saveTutorial(): void {
+    if (this.scene.state.tutorial === 0) {
+      this.scene.state.tutorial = 10;
+      if (process.env.DEV) {
+        bridgeMock.send('VKWebAppStorageSet', { key: 'tutorial', value: '10' });
+      } else {
+        bridge.send('VKWebAppStorageSet', { key: 'tutorial', value: '10' });
+      }
+    }
+  }
+
 }

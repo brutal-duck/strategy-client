@@ -21,7 +21,7 @@ export default class Game extends Phaser.Scene {
   public player: Iplayer;
   public enemyColor: string;
   public hud: Hud;
-  public world: World | WorldTest;
+  public world: World;
   public gameIsOn: boolean = false;
   public debuging: boolean;
   public AI: AI;
@@ -102,6 +102,10 @@ export default class Game extends Phaser.Scene {
     this.setInput()
     this.setEvents()
     this.graphManager = new GraphManager(this);
+    if (this.state.tutorial === 0) {
+      this.scene.stop('MainMenu');
+      this.startTutorial(this.state);
+    }
   }
 
 
@@ -138,6 +142,37 @@ export default class Game extends Phaser.Scene {
   }
 
 
+  private startTutorial(state: Istate): void {
+    this.scene.launch('Hud', this.state);
+    this.state.game.isStarted = true;
+    this.state = state
+    this.state.game.AI = 'easy';
+    state.player.color = 'green';
+    this.player = state.player
+    this.enemyColor = 'red'
+    this.green = Object.assign({}, config)
+    this.red = Object.assign({}, config)
+    this[this.player.color].name = '';
+    this[this.enemyColor].name = '';
+    this.stars = 0
+    this.baseWasFound = false
+    this.claming = [] // массив захватываемых в данный момент клеток
+
+    this.distanceX = 0
+    this.distanceY = 0
+    this.holdCounter = 0
+    this.twoPointerZoom = false
+    this.draged = false
+    this.zoomed = false
+    
+    this.gameIsOn = true // запущен ли матч
+    this.world.createTutorialWorld(true);
+    
+    this.graphManager.initGraphs();
+    this.graphManager.initNeutralGraphs();
+    this.scene.launch('Tutorial', this.state);
+  }
+
   private setInput(): void {
     const holdedPoint = { x: 0, y: 0 }
     const vectorStep = this.game.device.os.desktop ? 0.5 : 2 // Сила "натяжения" точки для быстрого драга
@@ -154,6 +189,7 @@ export default class Game extends Phaser.Scene {
     this.input.dragDistanceThreshold = 10
 
     this.worldBG.on('dragstart', (pointer): void => {
+      if (this.state.tutorial <= 5) return;
       ani?.remove()
       this.camera.panEffect.reset()
       this.camera.zoomEffect.reset()
@@ -179,6 +215,8 @@ export default class Game extends Phaser.Scene {
 
 
     this.worldBG.on('drag', (pointer): void => {
+      if (this.state.tutorial <= 5) return;
+
       if (!this.input.pointer2.isDown && this.draged) {
         this.holdCounter = 0
 
@@ -204,6 +242,8 @@ export default class Game extends Phaser.Scene {
 
 
     this.worldBG.on('dragend', (): void => {
+      if (this.state.tutorial <= 5) return;
+
       if (this.holdCounter < 3) {
         ani = this.tweens.add({
           targets: this.midPoint,
@@ -245,6 +285,7 @@ export default class Game extends Phaser.Scene {
     this.hexes.forEach(hex => {
       hex.on('pointerover', (): void => { this.pointerHex = hex })
       hex.on('pointerup', (): void => {
+        if (this.state.tutorial <= 5) return;
         if (this.state.game.AI) this.pointerUp(hex);
         else this.socketPointerUp(hex);
       });
@@ -261,8 +302,7 @@ export default class Game extends Phaser.Scene {
     } else {
       // console.log('hex.on ~', hex)
       this.chosenHex = hex
-      const x = hex.getCenter().x
-      const y = hex.getCenter().y
+      const { x, y } = hex.getCenter();
       const player: Iconfig = this[this.player.color]
 
       if (

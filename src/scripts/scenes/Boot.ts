@@ -59,13 +59,19 @@ class Boot extends Phaser.Scene {
     bridge.send('VKWebAppGetUserInfo').then(data => {
       this.state.player.name = data.first_name + ' ' + data.last_name;
       this.state.player.id = data.id;
-      this.userIsReady = true;
-      this.state.socket = new Socket(this.state);
+      bridge.send('VKWebAppStorageGet', { keys: ['points', 'tutorial']}).then(data => {
+        const points = data.keys.find(el => el.key === 'points');
+        const tutorial = data.keys.find(el => el.key === 'tutorial');
+        if (points) {
+          this.state.player.points = Number(points.value);
+        }
+        if (tutorial) {
+          this.state.tutorial = Number(tutorial.value);
+        }
+        this.userIsReady = true;
+        this.state.socket = new Socket(this.state);
+      });
     });
-    bridge.send('VKWebAppStorageGet', { keys: ['points']}).then(data => {
-      this.state.player.points = Number(data.keys[0].value) || 0;
-    });
-
   }
 
 
@@ -74,16 +80,20 @@ class Boot extends Phaser.Scene {
     bridgeMock.send('VKWebAppGetUserInfo').then(data => {
       this.state.player.name = data.first_name + ' ' + data.last_name;
       this.state.player.id = data.id;
-      this.userIsReady = true;
-      this.state.socket = new Socket(this.state);
+      bridgeMock.send('VKWebAppStorageGet', { keys: ['points', 'tutorial']}).then(data => {
+        const points = data.keys.find(el => el.key === 'points');
+        const tutorial = data.keys.find(el => el.key === 'tutorial');
+        if (points) {
+          this.state.player.points = Number(points.value) || 0;
+        }
+        if (tutorial) {
+          this.state.tutorial = Number(tutorial.value) || 0;
+        }
+        this.userIsReady = true;
+        this.state.socket = new Socket(this.state);
+      });
     });
-    bridgeMock.send('VKWebAppStorageGet', { keys: ['points']}).then(data => {
-      if (data.keys[0]) {
-        this.state.player.points = Number(data.keys[0].value) || 0;
-      } else {
-        this.state.player.points = 0;
-      }
-    });
+
   }
 
   public update(): void {

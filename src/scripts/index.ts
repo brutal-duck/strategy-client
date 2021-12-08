@@ -8,6 +8,7 @@ import Game from './scenes/Game';
 import Hud from './scenes/Hud';
 import Modal from './scenes/Modal';
 import MainMenu from './scenes/MainMenu';
+import Tutorial from './scenes/Tutorial';
 
 
 const getSizes: Function = (): Isize => {
@@ -31,7 +32,7 @@ window.onload = (): void => {
       },
     },
     render: { transparent: true },
-    scene: [ Boot, Preload, Game, MainMenu, Hud, Modal ],
+    scene: [ Boot, Preload, Game, MainMenu, Hud, Modal, Tutorial ],
   }
   
   const game: Phaser.Game = new Phaser.Game(config);

@@ -5,6 +5,7 @@ interface Istate {
   platform: string
   startGame: boolean
   socket: Isocket
+  tutorial: number;
 }
 interface Isocket {
   win: boolean;
@@ -27,7 +28,7 @@ interface Iplayer {
   color: string
   vk_id?: string
   ok_id?: string
-  points?: number
+  points: number
   wins?: number
   id: number
 }

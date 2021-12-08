@@ -145,10 +145,17 @@ export default class Timer {
     return this.minutes.scale;
   }
 
-  public setScale(scale: number): this  {
+  public setScale(scale: number): this {
     this.minutes.setScale(scale);
     this.seconds.setScale(scale);
     this.colon.setScale(scale);
     return this;
   };
+
+  public setVisible(visible: boolean): this {
+    this.minutes.setVisible(visible);
+    this.seconds.setVisible(visible);
+    this.colon.setVisible(visible);
+    return this;
+  }
 }
