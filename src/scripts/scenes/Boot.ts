@@ -60,6 +60,7 @@ class Boot extends Phaser.Scene {
       this.state.player.name = data.first_name + ' ' + data.last_name;
       this.state.player.id = data.id;
       bridge.send('VKWebAppStorageGet', { keys: ['points', 'tutorial']}).then(data => {
+        console.log(data);
         const points = data.keys.find(el => el.key === 'points');
         const tutorial = data.keys.find(el => el.key === 'tutorial');
         if (points) {
@@ -79,9 +80,10 @@ class Boot extends Phaser.Scene {
     bridgeMock.send('VKWebAppInit');
     bridgeMock.send('VKWebAppGetUserInfo').then(data => {
       this.state.player.name = data.first_name + ' ' + data.last_name;
-      this.state.player.id = data.id;
+      this.state.player.id = data.id;      
       bridgeMock.send('VKWebAppStorageGet', { keys: ['points', 'tutorial']}).then(data => {
         console.log(data);
+
         const points = data.keys.find(el => el.key === 'points');
         const tutorial = data.keys.find(el => el.key === 'tutorial');
         if (points) {
