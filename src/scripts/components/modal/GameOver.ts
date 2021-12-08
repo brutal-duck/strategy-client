@@ -255,9 +255,15 @@ export default class GameOver {
     if (this.scene.state.tutorial === 0) {
       this.scene.state.tutorial = 10;
       if (process.env.DEV) {
-        bridgeMock.send('VKWebAppStorageSet', { key: 'tutorial', value: '10' });
+        bridgeMock.send('VKWebAppStorageSet', { key: 'tutorial', value: '10' }).then(data => {
+          console.log(data);
+          console.log({ key: 'tutorial', value: '10' });
+        });
       } else {
-        bridge.send('VKWebAppStorageSet', { key: 'tutorial', value: '10' });
+        bridge.send('VKWebAppStorageSet', { key: 'tutorial', value: '10' }).then(data => {
+          console.log(data);
+          console.log({ key: 'tutorial', value: '10' });
+        });
       }
     }
   }
