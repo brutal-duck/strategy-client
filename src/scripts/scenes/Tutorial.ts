@@ -51,6 +51,8 @@ export default class Tutorial extends Phaser.Scene {
       new FlyAwayMsg(this.gameScene, x, y, `-${hex.defence}`, 'red', 'green');
       hex.setClaming('green');
       this.gameScene.green.hexes -= 1;
+      const hudScene = this.game.scene.getScene('Hud') as Hud;
+      hudScene.updateHexCounter();
       this.gameScene.centerCamera(hex.getCenter().x, hex.getCenter().y);
       const topHex = this.gameScene.getHexById(hex.nearby.top);
       const botHex = this.gameScene.getHexById(hex.nearby.bot);
@@ -99,6 +101,8 @@ export default class Tutorial extends Phaser.Scene {
       const { x, y } = hex.getCenter();
       new FlyAwayMsg(this.gameScene, x, y, `-${hex.defence}`, 'red', 'green');
       this.gameScene.green.hexes -= 1;
+      const hudScene = this.game.scene.getScene('Hud') as Hud;
+      hudScene.updateHexCounter();
       hex.setClaming('green');
       this.gameScene.centerCamera(hex.getCenter().x, hex.getCenter().y);
       const topHex = this.gameScene.getHexById(hex.nearby.top);
@@ -136,6 +140,8 @@ export default class Tutorial extends Phaser.Scene {
       const { x, y } = hex.getCenter();
       new FlyAwayMsg(this.gameScene, x, y, `-${hex.defence}`, 'red', 'green');
       this.gameScene.green.hexes -= 1;
+      const hudScene = this.game.scene.getScene('Hud') as Hud;
+      hudScene.updateHexCounter();
       hex.setClaming('green');
       this.gameScene.centerCamera(hex.getCenter().x, hex.getCenter().y);
       this.gameScene.time.addEvent({
@@ -190,7 +196,10 @@ export default class Tutorial extends Phaser.Scene {
       .setInteractive()
       .on('pointerup', () => {
         this.state.tutorial += 1;
-        this.scene.restart(this.state);
+        this.scene.stop();
+        this.gameScene.green.hexes = 100;
+        const hudScene = this.game.scene.getScene('Hud') as Hud;
+        hudScene.updateHexCounter();
       });
   }
   

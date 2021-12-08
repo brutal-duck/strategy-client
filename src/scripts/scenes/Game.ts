@@ -350,6 +350,9 @@ export default class Game extends Phaser.Scene {
       }  else if (hex.own === this.player.color && hex.class === 'grass' && player.hexes < hex.defence + 1 && !hex.clamingAni?.isPlaying()) {
         new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', this.player.color)
       }
+      if (this.state.tutorial === 6) {
+        if (this.green.hexes <= 20) this.green.hexes += 30;
+      }
       this.hud.updateHexCounter();
     }
   }
