@@ -33,7 +33,7 @@ export default class Hud extends Phaser.Scene {
   private star2: Phaser.GameObjects.Sprite
   private star3: Phaser.GameObjects.Sprite
 
-  private worldStatusBar: Phaser.GameObjects.TileSprite
+  public worldStatusBar: Phaser.GameObjects.TileSprite
   private playerName: Phaser.GameObjects.Text
   private enemyName: Phaser.GameObjects.Text
   private playerStatusBar: Phaser.GameObjects.TileSprite
@@ -44,10 +44,8 @@ export default class Hud extends Phaser.Scene {
 
   public hexBar: Phaser.GameObjects.Sprite
   private hexBarText: Phaser.GameObjects.Text
-  private tilesBarText: Phaser.GameObjects.Text
   public superHexBar: Phaser.GameObjects.Sprite
   private superHexBarText: Phaser.GameObjects.Text
-  private superTilesBarText: Phaser.GameObjects.Text
 
   private hexBarP2: Phaser.GameObjects.Sprite
   private hexBarTextP2: Phaser.GameObjects.Text
@@ -541,7 +539,6 @@ export default class Hud extends Phaser.Scene {
       this.hexBarText.setVisible(false);
       this.superHexBarText.setVisible(false);
       this.superHexBar.setVisible(false);
-      this.worldStatusBar.setVisible(false);
       this.playerName.setVisible(false);
       this.enemyName.setVisible(false);
       this.playerStatusBar.setVisible(false);
@@ -554,8 +551,18 @@ export default class Hud extends Phaser.Scene {
     } else if (this.state.tutorial === 1) {
       this.hexBar.setVisible(true);
       this.hexBarText.setVisible(true);
-      this.playerStatusBar.setVisible(false);
-      this.enemyStatusBar.setVisible(false);
+    } else if (this.state.tutorial === 3) {
+      this.superHexBar.setVisible(true);
+      this.superHexBarText.setVisible(true);
+    } else if (this.state.tutorial === 4) {
+      this.playerName.setVisible(true);
+      this.enemyName.setVisible(true);
+      this.playerStatusBar.setVisible(true);
+      this.enemyStatusBar.setVisible(true);
+      this.timer.setVisible(true);
+      this.star1.setVisible(true);
+      this.star2.setVisible(true);
+      this.star3.setVisible(true);
     }
   }
 }

@@ -153,6 +153,7 @@ export default class Game extends Phaser.Scene {
     this.green = Object.assign({}, config)
     this.red = Object.assign({}, config)
     this[this.player.color].name = '';
+    this[this.player.color].clameTime = 500;
     this[this.enemyColor].name = '';
     this.stars = 0
     this.baseWasFound = false

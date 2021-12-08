@@ -3,6 +3,7 @@ import Hex from './../components/Hex';
 import Game from './Game';
 import FlyAwayMsg from './../components/FlyAwayMsg';
 import { config } from "../gameConfig";
+import Hud from './Hud';
 
 export default class Tutorial extends Phaser.Scene {
   public state: Istate;
@@ -49,6 +50,7 @@ export default class Tutorial extends Phaser.Scene {
       const { x, y } = hex.getCenter();
       new FlyAwayMsg(this.gameScene, x, y, `-${hex.defence}`, 'red', 'green');
       hex.setClaming('green');
+      this.gameScene.green.hexes -= 1;
       this.gameScene.centerCamera(hex.getCenter().x, hex.getCenter().y);
       const topHex = this.gameScene.getHexById(hex.nearby.top);
       const botHex = this.gameScene.getHexById(hex.nearby.bot);
@@ -59,10 +61,10 @@ export default class Tutorial extends Phaser.Scene {
         botHex.setClass('x1');
         this.gameScene.chosenHex = botHex;
       }
-      this.state.tutorial += 1;
       this.gameScene.time.addEvent({
-        delay: config.clameTime,
+        delay: this.gameScene.green.clameTime,
         callback: (): void => {
+          this.state.tutorial += 1;
           this.gameScene.scene.launch('Tutorial', this.state);
         }
       });
@@ -73,6 +75,125 @@ export default class Tutorial extends Phaser.Scene {
     });
   }
 
+  private createStep1(): void {
+    this.createBubble({ x: 200, y: 200 }, this.lang.tutorialStep1);
+    const hudScene = this.game.scene.getScene('Hud') as Hud;
+    const { bottom, right } = hudScene.hexBar.getBounds();
+    this.createArrow(right, bottom, true);
+    const { width, height } = this.cameras.main;
+    this.add.tileSprite(0, 0, width, height, 'pixel')
+      .setOrigin(0)
+      .setAlpha(0.001)
+      .setTint(0)
+      .setInteractive()
+      .on('pointerup', () => {
+        this.state.tutorial += 1;
+        this.scene.restart(this.state);
+        this.gameScene.centerCamera(this.gameScene.chosenHex.getCenter().x, this.gameScene.chosenHex.getCenter().y);
+      });
+  }
+
+  private createStep2(): void {
+    this.createBubble({ x: 200, y: 200 }, this.lang.tutorialStep2);
+    const action = (hex: Hex) => {
+      const { x, y } = hex.getCenter();
+      new FlyAwayMsg(this.gameScene, x, y, `-${hex.defence}`, 'red', 'green');
+      this.gameScene.green.hexes -= 1;
+      hex.setClaming('green');
+      this.gameScene.centerCamera(hex.getCenter().x, hex.getCenter().y);
+      const topHex = this.gameScene.getHexById(hex.nearby.top);
+      const botHex = this.gameScene.getHexById(hex.nearby.bot);
+      if (topHex && topHex.dark) {
+        topHex.setClass('super');
+        this.gameScene.chosenHex = topHex;
+      } else if (botHex && botHex.dark) {
+        botHex.setClass('super');
+        this.gameScene.chosenHex = botHex;
+      }
+      this.gameScene.time.addEvent({
+        delay: this.gameScene.green.clameTime,
+        callback: (): void => {
+          this.state.tutorial += 1;
+          this.gameScene.scene.launch('Tutorial', this.state);
+          this.gameScene.centerCamera(this.gameScene.chosenHex.getCenter().x, this.gameScene.chosenHex.getCenter().y);
+        }
+      });
+      this.scene.stop();
+    }
+    const hexZone = this.createHexZone(this.gameScene.chosenHex, this.gameScene.chosenHex, action);
+    this.time.addEvent({
+      delay: 1500,
+      callback: () => {
+        const { left, centerY } = hexZone.getBounds();
+        this.createArrow(left, centerY);
+      }
+    });
+  }
+
+  private createStep3(): void {
+    this.createBubble({ x: 200, y: 200 }, this.lang.tutorialStep3);
+    const action = (hex: Hex) => {
+      const { x, y } = hex.getCenter();
+      new FlyAwayMsg(this.gameScene, x, y, `-${hex.defence}`, 'red', 'green');
+      this.gameScene.green.hexes -= 1;
+      hex.setClaming('green');
+      this.gameScene.centerCamera(hex.getCenter().x, hex.getCenter().y);
+      this.gameScene.time.addEvent({
+        delay: this.gameScene.green.clameTime,
+        callback: (): void => {
+          this.state.tutorial += 1;
+          this.gameScene.scene.launch('Tutorial', this.state);
+        }
+      });
+      this.scene.stop();
+    }
+    const hexZone = this.createHexZone(this.gameScene.chosenHex, this.gameScene.chosenHex, action);
+    this.time.addEvent({
+      delay: 1500,
+      callback: () => {
+        const { left, centerY } = hexZone.getBounds();
+        this.createArrow(left, centerY);
+        const hudScene = this.game.scene.getScene('Hud') as Hud;
+        const { bottom, right } = hudScene.superHexBar.getBounds();
+        this.createArrow(right, bottom, true);
+      }
+    });
+  }
+
+  private createStep4(): void {
+    this.createBubble({ x: 200, y: 200 }, this.lang.tutorialStep4);
+    const hudScene = this.game.scene.getScene('Hud') as Hud;
+    const { centerX, bottom } = hudScene.timer.getBounds();
+    this.createArrow(centerX, bottom, true);
+
+    const { width, height } = this.cameras.main;
+    this.add.tileSprite(0, 0, width, height, 'pixel')
+      .setOrigin(0)
+      .setAlpha(0.001)
+      .setTint(0)
+      .setInteractive()
+      .on('pointerup', () => {
+        const hex = this.gameScene.hexes.find(el => el.own === 'red');
+        hex.removeFog();
+        this.state.tutorial += 1;
+        this.scene.restart(this.state);
+      });
+  }
+
+  private createStep5(): void {
+    this.createBubble({ x: 200, y: 200 }, this.lang.tutorialStep5);
+    const { width, height } = this.cameras.main;
+    this.add.tileSprite(0, 0, width, height, 'pixel')
+      .setOrigin(0)
+      .setAlpha(0.001)
+      .setTint(0)
+      .setInteractive()
+      .on('pointerup', () => {
+        this.state.tutorial += 1;
+        this.scene.restart(this.state);
+      });
+  }
+  
   private createBubble(pos: Iposition, str: string): void {
     const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
       fontFamily: 'Molot',
@@ -87,7 +208,7 @@ export default class Tutorial extends Phaser.Scene {
       .fillRoundedRect(centerX - width / 2 - 20, centerY - height / 2 - 20, width + 40, height + 40);
   }
 
-  private createHexZone(hex: Hex, baseHex: Hex, action: (hex: Hex) => void, zoom: number = 1.6): void {
+  private createHexZone(hex: Hex, baseHex: Hex, action: (hex: Hex) => void, zoom: number = 1.6): Phaser.GameObjects.Sprite {
     if (!hex) return;
     const w = 100 * zoom;
     const h = 70 * zoom;
@@ -114,103 +235,18 @@ export default class Tutorial extends Phaser.Scene {
       .on('pointerup', () => {
         action(hex);
       });
+    return hexZone;
   }
 
-  private createStep1(): void {
-    this.createBubble({ x: 200, y: 200 }, this.lang.tutorialStep1);
-    const { width, height } = this.cameras.main;
-    this.add.tileSprite(0, 0, width, height, 'pixel')
-      .setOrigin(0)
-      .setAlpha(0.001)
-      .setTint(0)
-      .setInteractive()
-      .on('pointerup', () => {
-        this.state.tutorial += 1;
-        this.scene.restart(this.state);
-        this.gameScene.centerCamera(this.gameScene.chosenHex.getCenter().x, this.gameScene.chosenHex.getCenter().y);
-      });
-  }
-
-  private createStep2(): void {
-    this.createBubble({ x: 200, y: 200 }, this.lang.tutorialStep2);
-    const action = (hex: Hex) => {
-      const { x, y } = hex.getCenter();
-      new FlyAwayMsg(this.gameScene, x, y, `-${hex.defence}`, 'red', 'green');
-      hex.setClaming('green');
-      this.gameScene.centerCamera(hex.getCenter().x, hex.getCenter().y);
-      const topHex = this.gameScene.getHexById(hex.nearby.top);
-      const botHex = this.gameScene.getHexById(hex.nearby.bot);
-      if (topHex && topHex.dark) {
-        topHex.setClass('super');
-        this.gameScene.chosenHex = topHex;
-      } else if (botHex && botHex.dark) {
-        botHex.setClass('super');
-        this.gameScene.chosenHex = botHex;
-      }
-      this.state.tutorial += 1;
-      this.gameScene.time.addEvent({
-        delay: config.clameTime,
-        callback: (): void => {
-          this.gameScene.scene.launch('Tutorial', this.state);
-          this.gameScene.centerCamera(this.gameScene.chosenHex.getCenter().x, this.gameScene.chosenHex.getCenter().y);
-        }
-      });
-      this.scene.stop();
-    }
-    this.createHexZone(this.gameScene.chosenHex, this.gameScene.chosenHex, action);
-  }
-
-  private createStep3(): void {
-    this.createBubble({ x: 200, y: 200 }, this.lang.tutorialStep3);
-    const action = (hex: Hex) => {
-      const { x, y } = hex.getCenter();
-      new FlyAwayMsg(this.gameScene, x, y, `-${hex.defence}`, 'red', 'green');
-      hex.setClaming('green');
-      this.gameScene.centerCamera(hex.getCenter().x, hex.getCenter().y);
-      this.state.tutorial += 1;
-      this.gameScene.time.addEvent({
-        delay: config.clameTime,
-        callback: (): void => {
-          this.gameScene.scene.launch('Tutorial', this.state);
-        }
-      });
-      this.scene.stop();
-    }
-    this.createHexZone(this.gameScene.chosenHex, this.gameScene.chosenHex, action);
-  }
-
-  private createStep4(): void {
-    this.createBubble({ x: 200, y: 200 }, this.lang.tutorialStep4);
-    const { width, height } = this.cameras.main;
-    this.add.tileSprite(0, 0, width, height, 'pixel')
-      .setOrigin(0)
-      .setAlpha(0.001)
-      .setTint(0)
-      .setInteractive()
-      .on('pointerup', () => {
-        const hex = this.gameScene.hexes.find(el => el.own === 'red');
-        hex.removeFog()
-        // this.gameScene.centerCamera(hex.getCenter().x, hex.getCenter().y);
-        this.state.tutorial += 1;
-        this.scene.restart(this.state);
-      });
-  }
-
-  private createStep5(): void {
-    this.createBubble({ x: 200, y: 200 }, this.lang.tutorialStep5);
-    const { width, height } = this.cameras.main;
-    this.add.tileSprite(0, 0, width, height, 'pixel')
-      .setOrigin(0)
-      .setAlpha(0.001)
-      .setTint(0)
-      .setInteractive()
-      .on('pointerup', () => {
-        this.state.tutorial += 1;
-        this.scene.restart(this.state);
-      });
-  }
-
-  private arrow(): void {
-    
+  private createArrow(x: number, y: number, vertical: boolean = false): void {
+    const arrow = this.add.sprite(x, y, 'arrow').setAngle(vertical ? -90 : 0).setOrigin(1, 0.5).setScale(0.5);
+    this.tweens.add({
+      targets: arrow,
+      x: vertical ? '+=0' : '+= 20',
+      y: vertical ? '+=20' : '+= 0',
+      duration: 350,
+      yoyo: true,
+      repeat: -1,
+    });
   }
 };

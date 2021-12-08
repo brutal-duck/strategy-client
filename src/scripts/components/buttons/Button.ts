@@ -168,4 +168,9 @@ export default class Button extends Phaser.GameObjects.Group {
     if (this.mainSprite) return this.mainSprite.getBounds();
     return null;
   }
+
+  public setVisible(visible: boolean): this {
+    this.mainSprite.setVisible(visible);
+    return this;
+  }
 }

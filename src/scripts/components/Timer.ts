@@ -68,7 +68,11 @@ export default class Timer {
         if (this.sec === 0 && this.min === 0) {
           this.timeEvent.remove()
           this.colonAni.remove()
-          this.scene.gameScene.gameOver('timeIsUp')
+          if (this.scene.state.tutorial === 10) {
+            this.scene.gameScene.gameOver('timeIsUp')
+          } else {
+            this.stop();
+          }
 
         } else if (this.sec === 0 && this.min > 0) {
           this.sec = 59
@@ -97,6 +101,9 @@ export default class Timer {
   }
 
 
+  public getBounds(): Phaser.Geom.Rectangle {
+    return this.colon.getBounds();
+  }
   private playColonAni(): void {
     if (!this.firstPlay) this.colon.setAlpha(0)
 
