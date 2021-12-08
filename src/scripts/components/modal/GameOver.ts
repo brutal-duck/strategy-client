@@ -252,7 +252,7 @@ export default class GameOver {
   }
 
   private saveTutorial(): void {
-    if (this.scene.state.tutorial === 0) {
+    if (this.scene.state.tutorial !== 10) {
       this.scene.state.tutorial = 10;
       if (process.env.DEV) {
         bridgeMock.send('VKWebAppStorageSet', { key: 'tutorial', value: '10' }).then(data => {
