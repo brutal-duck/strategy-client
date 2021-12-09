@@ -582,7 +582,6 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       onComplete: (): void => {
         this.upgradeAniRemove();
         if (this.worldSprite.texture.key !== `${this.own}-tower`) this.setTowerSprite();
-        this.defenceLvl?.setText(`${this.defence}`).setVisible(!this.fog);
       }
     });
   }
