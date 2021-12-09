@@ -657,8 +657,10 @@ export default class Game extends Phaser.Scene {
           if (hex.defence !== socketHex.defence) {
             hex.defence = socketHex.defence;
             if (hex.defence > 1) {
+              console.log(hex.defence, 'hex.defence')
               hex.defenceLvl?.setText(String(hex.defence));
             } else {
+              console.log('hex.defenceLvl')
               hex.defenceLvl?.setVisible(false);
             }
             hex.setWorldTexture();
