@@ -282,6 +282,12 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.super = superHex
     this.setWorldTexture()
     this.setNearbyMark()
+    if (!this.defenceLvl) {
+      this.defenceLvl = this.scene.add.text(this.getCenter().x, this.getCenter().y - 10, '', { font: '40px Molot', color: '#EFEAE8' })
+        .setOrigin(0.5)
+        .setDepth(this.worldSprite.depth * 1.5);
+    }
+
     if (color === this.scene.player.color && !this.super) {   
       Object.values(this.nearby).forEach(id => {
         const hex = this.scene.getHexById(id)
@@ -317,6 +323,11 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       })
     }
 
+    if (!this.defenceLvl) {
+      this.defenceLvl = this.scene.add.text(this.getCenter().x, this.getCenter().y - 10, '', { font: '40px Molot', color: '#EFEAE8' })
+        .setOrigin(0.5)
+        .setDepth(this.worldSprite.depth * 1.5);
+    }
     if (this.class === 'x3') this.scene.hud.cityClamedOrLostInfo(this.own === this.scene.player.color)
     if (this?.own !== 'neutral' && (this?.class === 'x1' || this?.class === 'x3')) this.produceHexes()
     Phaser.Utils.Array.Remove(this.scene.claming, this.id)
@@ -390,7 +401,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       }
     }
 
-    this.setWorldTexture()
+    this.setWorldTexture();
     return this
   }
 
