@@ -113,7 +113,7 @@ export default class Hud extends Phaser.Scene {
       fontFamily: 'Molot',
       color: '#ffffff',
       stroke: '#707070',
-      strokeThickness: 5,
+      strokeThickness: 2,
     };
     const scale = currentIconsHeight / 50;
     const player: Iconfig = this.gameScene[this.playerColor];
@@ -123,7 +123,7 @@ export default class Hud extends Phaser.Scene {
 
     this.superHexBar = this.add.sprite(hexBarGeom.centerX, hexBarGeom.bottom + 30, 'super-hex').setScale(scale * 0.6);
     const superGeom = this.superHexBar.getBounds();
-    this.superHexBarText = this.add.text(superGeom.right, superGeom.centerY, String(player.superHex), textStyle).setOrigin(0, 0.5).setStroke('#97759E', 5);
+    this.superHexBarText = this.add.text(superGeom.right, superGeom.centerY, String(player.superHex), textStyle).setOrigin(0, 0.5).setStroke('#97759E', 2);
 
     this.allElements.push(this.hexBar, this.hexBarText, this.superHexBar, this.superHexBarText)
   }
@@ -167,7 +167,7 @@ export default class Hud extends Phaser.Scene {
       fontFamily: 'Molot',
       color: '#ffffff',
       stroke: '#707070',
-      strokeThickness: 3,
+      strokeThickness: 2,
       wordWrap: { width: this.lineWidth / 2, useAdvancedWrap: true },
     };
 
