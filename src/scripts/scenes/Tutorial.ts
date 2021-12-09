@@ -181,6 +181,10 @@ export default class Tutorial extends Phaser.Scene {
       .on('pointerup', () => {
         const hex = this.gameScene.hexes.find(el => el.own === 'red');
         hex.removeFog();
+        Object.values(hex.nearby).forEach(id => {
+          const nearbyHex = this.gameScene.getHexById(id);
+          if (nearbyHex) nearbyHex.clame('red');
+        });
         this.state.tutorial += 1;
         this.scene.restart(this.state);
       });
