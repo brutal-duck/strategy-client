@@ -28,7 +28,6 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   public dark: boolean
   public fog: boolean
   public fogSprite: Phaser.GameObjects.Sprite
-  public classText: Phaser.GameObjects.Text
   public defenceLvl: Phaser.GameObjects.Text
   private nearbyMark: Phaser.GameObjects.Sprite
   private baseMark: Phaser.GameObjects.Sprite
@@ -102,28 +101,28 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     ];
 
     //@ts-ignore
-    const hitArea: Phaser.Geom.Polygon = new Phaser.Geom.Polygon(vectors)
-    this.setDepth(this.y).setOrigin(0).setAlpha(0.001).setInteractive(hitArea, Phaser.Geom.Polygon.Contains)
-    this.worldSprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y, 'hex').setDepth(this.depth + 9).setScale(1.02).setVisible(false)
-    this.classText = this.scene.add.text(this.getCenter().x, this.getCenter().y + 10, '', { font: '17px Molot', color: 'black' }).setOrigin(0.5, 0).setDepth(this.depth + 10).setStroke('#ffffff', 2)
-    this.fogSprite = this.scene.add.sprite(this.getCenter().x, this.getCenter().y, 'fog').setAlpha(1).setScale(1.01).setDepth(this.depth + 20)
-    this.nearbyMark = this.scene.add.sprite(this.getCenter().x, this.getCenter().y - 1, 'hex-border-2').setDepth(this.depth + 10).setScale(0.95).setVisible(false).setAlpha(0.4)
-    this.defenceLvl = this.scene.add.text(this.getCenter().x, this.getCenter().y - 10, '', { font: '40px Molot', color: '#EFEAE8' }).setOrigin(0.5).setDepth(this.worldSprite.depth * 1.5);
-    if (this.scene.debuging) this.debug()
+    const hitArea: Phaser.Geom.Polygon = new Phaser.Geom.Polygon(vectors);
+    this.setDepth(this.y).setOrigin(0).setAlpha(0.001).setInteractive(hitArea, Phaser.Geom.Polygon.Contains);
+    const { x, y } = this.getCenter();
+    this.worldSprite = this.scene.add.sprite(x, y, 'water-1').setDepth(this.depth + 9).setScale(1.02).setVisible(false);
+    this.fogSprite = this.scene.add.sprite(x, y, 'fog').setAlpha(1).setScale(1.01).setDepth(this.depth + 20);
+    this.nearbyMark = this.scene.add.sprite(x, y - 1, 'hex-border-2').setDepth(this.depth + 10).setScale(0.95).setVisible(false).setAlpha(0.4);
+    if (this.scene.debuging) this.debug();
   }
 
 
   public setClearClame(color: string, superHex: boolean = false) {
-    const lineColor = colors[color].light
-    this.clamingAniRemove()
-    if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
-    this.line = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x - 25, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setOrigin(0).setTint(lineColor).setDepth(10000).setVisible(color === this.scene.player.color || !this.fog)
+    const lineColor = colors[color].light;
+    this.clamingAniRemove();
+    if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false);
+    const { x, y } = this.getCenter();
+    this.line = this.scene.add.tileSprite(x - 25, y, 50, 5, 'pixel').setOrigin(0).setTint(lineColor).setDepth(10000).setVisible(color === this.scene.player.color || !this.fog)
     this.scene.claming.push(this.id)
     this.super = superHex;
 
     if (color !== this.scene.player.color) {
-      new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y + 20, '', 'yellow', 'warning', 7000)
-      this.scene.hud.setWarning(this.getCenter().x, this.getCenter().y, this.id)
+      new FlyAwayMsg(this.scene, x, y + 20, '', 'yellow', 'warning', 7000)
+      this.scene.hud.setWarning(x, y, this.id)
     }
 
     this.clamingAni = this.scene.tweens.add({
@@ -135,7 +134,6 @@ export default class Hex extends Phaser.GameObjects.Sprite {
         if (this.defence > 1) this.breakDefence()
         else {
           this.productionTimer?.remove()
-          // this.setColor('neutral')
           this.own = 'neutral'
           this.setClaming(color, superHex)
         }
@@ -145,25 +143,33 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
 
   public setClaming(color: string, superHex: boolean = false) {
-    const bgColor = colors[color].light
-    const lineColor = colors[color].main
-    this.clamingAniRemove()
-    if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
+    const bgColor = colors[color].light;
+    const lineColor = colors[color].main;
+    this.clamingAniRemove();
+    if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false);
     this.super = superHex;
-    this.lineBg = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setTint(bgColor).setOrigin(0.5, 0).setDepth(10000).setVisible(color === this.scene.player.color || !this.fog)
-    this.line = this.scene.add.tileSprite(this.lineBg.getLeftCenter().x, this.lineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(10000).setVisible(color === this.scene.player.color || !this.fog)
-    if (!this.scene.claming.find(id => id === this.id)) this.scene.claming.push(this.id)
+    const { x, y } = this.getCenter();
+    this.lineBg = this.scene.add.tileSprite(x, y, 50, 5, 'pixel')
+      .setTint(bgColor)
+      .setDepth(10000)
+      .setVisible(color === this.scene.player.color || !this.fog);
+    this.line = this.scene.add.tileSprite(this.lineBg.getLeftCenter().x, this.lineBg.getLeftCenter().y, 1, 5, 'pixel')
+      .setTint(lineColor)
+      .setOrigin(0, 0.5)
+      .setDepth(10000)
+      .setVisible(color === this.scene.player.color || !this.fog);
+    if (!this.scene.claming.find(id => id === this.id)) this.scene.claming.push(this.id);
 
     this.clamingAni = this.scene.tweens.add({
       targets: this.line,
       width: this.lineBg.width,
       duration: this.scene.green.clameTime,
       onComplete: (): void => {
-        this.clamingAniRemove()
-        this.clame(color, superHex)
+        this.clamingAniRemove();
+        this.clame(color, superHex);
         this.scene.graphManager.checkClosure(this);
-        this.scene.hud.updateWorldStatusBar()
-        this.scene.gameOverCheck(color)
+        this.scene.hud.updateWorldStatusBar();
+        this.scene.gameOverCheck(color);
       }
     });
   }
@@ -178,13 +184,22 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   }
 
   public setSocketClaming(color: string, superHex: boolean = false) {
-    const bgColor = colors[color].light
-    const lineColor = colors[color].main
-    this.clamingAniRemove()
-    if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
+    const bgColor = colors[color].light;
+    const lineColor = colors[color].main;
+    this.clamingAniRemove();
+    if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false);
 
-    this.lineBg = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setTint(bgColor).setOrigin(0.5, 0).setDepth(10000).setVisible(!this.fog || color === this.scene.player.color);
-    this.line = this.scene.add.tileSprite(this.lineBg.getLeftCenter().x, this.lineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(10000).setVisible(!this.fog || color === this.scene.player.color);
+    const { x, y } = this.getCenter();
+    this.lineBg = this.scene.add.tileSprite(x, y, 50, 5, 'pixel')
+      .setTint(bgColor)
+      .setDepth(10000)
+      .setVisible(!this.fog || color === this.scene.player.color);
+    this.line = this.scene.add.tileSprite(this.lineBg.getLeftCenter().x, this.lineBg.getLeftCenter().y, 1, 5, 'pixel')
+      .setTint(lineColor)
+      .setOrigin(0, 0.5)
+      .setDepth(10000)
+      .setVisible(!this.fog || color === this.scene.player.color);
+
     if (!this.scene.claming.find(id => id === this.id)) this.scene.claming.push(this.id)
 
     this.clamingAni = this.scene.tweens.add({
@@ -192,24 +207,28 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       width: this.lineBg.width,
       duration: this.scene.green.clameTime,
       onComplete: (): void => {
-        this.clamingAniRemove()
-        this.socketClame(color, superHex)
-        this.scene.hud.updateWorldStatusBar()
-        this.giveResourceAnimFromSocket()
+        this.clamingAniRemove();
+        this.socketClame(color, superHex);
+        this.scene.hud.updateWorldStatusBar();
+        this.giveResourceAnimFromSocket();
       }
     })
   }
 
   public setSocketClearClame(color: string, superHex: boolean = false) {
-    const lineColor = colors[color].light
-    this.clamingAniRemove()
-    if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false)
-    this.line = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x - 25, this.defenceLvl.getBottomCenter().y, 50, 5, 'pixel').setOrigin(0).setTint(lineColor).setDepth(10000).setVisible(!this.fog)
-    this.scene.claming.push(this.id)
-
+    const lineColor = colors[color].light;
+    this.clamingAniRemove();
+    if (this.upgradeAni?.isPlaying()) this.upgradeAniRemove(false);
+    const { x, y } = this.getCenter();
+    this.line = this.scene.add.tileSprite(x - 25, y, 50, 5, 'pixel')
+      .setOrigin(0)
+      .setTint(lineColor)
+      .setDepth(10000)
+      .setVisible(!this.fog || color === this.scene.player.color);
+    this.scene.claming.push(this.id);
     if (color !== this.scene.player.color) {
-      new FlyAwayMsg(this.scene, this.getCenter().x, this.getCenter().y + 20, '', 'yellow', 'warning', 7000)
-      this.scene.hud.setWarning(this.getCenter().x, this.getCenter().y, this.id)
+      new FlyAwayMsg(this.scene, x, y + 20, '', 'yellow', 'warning', 7000);
+      this.scene.hud.setWarning(x, y, this.id);
     }
 
     this.clamingAni = this.scene.tweens.add({
@@ -265,7 +284,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.setWorldTexture()
     this.setNearbyMark()
 
-    if (color === this.scene.player.color && !this.super) {
+    if (color === this.scene.player.color) {
       Object.values(this.nearby).forEach(id => {
         const hex = this.scene.getHexById(id)
         if (hex) {
@@ -355,8 +374,8 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   public removeClass(): void {
     this.own = 'neutral'
     this.defence = 1
-    this.defenceLvl.setText('');
-    this.defenceLvl.setVisible(false)
+    this.defenceLvl?.setText('');
+    this.defenceLvl?.setVisible(false)
     this.landscape = false
     this.super = false
     this.dark = true
@@ -366,7 +385,6 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.showNearbyMark(false)
     this.worldSprite.setVisible(false)
     this.class = ''
-    this.classText.setText(this.class)
     this.removeBaseMark()
   }
 
@@ -430,7 +448,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     });
     
     this.fog = false;
-    this.defenceLvl.setVisible(true);
+    this.defenceLvl?.setVisible(true);
     this.worldSprite.setVisible(true);
 
     if (this.dark) this.dark = false;
@@ -480,57 +498,83 @@ export default class Hex extends Phaser.GameObjects.Sprite {
   }
 
   public upgradeDefence(color: string): void {
-    this.upgradeAniRemove()
-    const bgColor = colors[color].light
-    const lineColor = colors[color].main
-    this.defLineBg = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x, this.defenceLvl.getBottomCenter().y + 7, 50, 5, 'pixel').setTint(bgColor).setOrigin(0.5, 0).setDepth(10000).setVisible(!this.fog)
-    this.defLine = this.scene.add.tileSprite(this.defLineBg.getLeftCenter().x, this.defLineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(10000).setVisible(!this.fog)
+    this.upgradeAniRemove();
+    const bgColor = colors[color].light;
+    const lineColor = colors[color].main;
+    const { x, y } = this.getCenter();
+    this.defLineBg = this.scene.add.tileSprite(x, y + 7, 50, 5, 'pixel')
+      .setTint(bgColor)
+      .setOrigin(0.5, 0)
+      .setDepth(10000)
+      .setVisible(!this.fog);
+    this.defLine = this.scene.add.tileSprite(this.defLineBg.getLeftCenter().x, this.defLineBg.getLeftCenter().y, 1, 5, 'pixel')
+      .setTint(lineColor)
+      .setOrigin(0, 0.5)
+      .setDepth(10000)
+      .setVisible(!this.fog);
 
     this.upgradeAni = this.scene.tweens.add({
       targets: this.defLine,
       width: this.defLineBg.width,
       duration: this.scene.green.clameTime,
       onComplete: (): void => {
-        this.upgradeAniRemove()
-        this.defence++
+        this.upgradeAniRemove();
+        this.defence += 1;
+        if (!this.defenceLvl) {
+          this.defenceLvl = this.scene.add.text(x, y - 10, '', { font: '40px Molot', color: '#EFEAE8' })
+            .setOrigin(0.5)
+            .setDepth(this.worldSprite.depth * 1.5);
+        }
         this.defenceLvl.setText(`${this.defence}`).setVisible(!this.fog);
-        if (this.worldSprite.texture.key !== `${this.own}-tower`) this.setTowerSprite()
+        if (this.worldSprite.texture.key !== `${this.own}-tower`) this.setTowerSprite();
       }
-    })
+    });
   }
 
   public upgradeSocketDefence(): void {
     this.upgradeAniRemove();
     const bgColor = colors[this.own].light;
     const lineColor = colors[this.own].main;
-    this.defLineBg = this.scene.add.tileSprite(this.defenceLvl.getBottomCenter().x, this.defenceLvl.getBottomCenter().y + 7, 50, 5, 'pixel').setTint(bgColor).setOrigin(0.5, 0).setDepth(10000);
-    this.defLine = this.scene.add.tileSprite(this.defLineBg.getLeftCenter().x, this.defLineBg.getLeftCenter().y, 1, 5, 'pixel').setTint(lineColor).setOrigin(0, 0.5).setDepth(10000);
+    const { x, y } = this.getCenter();
+    this.defLineBg = this.scene.add.tileSprite(x, y + 7, 50, 5, 'pixel')
+      .setTint(bgColor)
+      .setOrigin(0.5, 0)
+      .setDepth(10000);
+    this.defLine = this.scene.add.tileSprite(this.defLineBg.getLeftCenter().x, this.defLineBg.getLeftCenter().y, 1, 5, 'pixel')
+      .setTint(lineColor)
+      .setOrigin(0, 0.5)
+      .setDepth(10000);
 
     this.upgradeAni = this.scene.tweens.add({
       targets: this.defLine,
       width: this.defLineBg.width,
       duration: this.scene.green.clameTime,
       onComplete: (): void => {
-        this.upgradeAniRemove()
-        this.defenceLvl.setText(`${this.defence}`).setVisible(!this.fog);
-        if (this.worldSprite.texture.key !== `${this.own}-tower`) this.setTowerSprite()
+        this.upgradeAniRemove();
+        if (!this.defenceLvl) {
+          this.defenceLvl = this.scene.add.text(x, y - 10, '', { font: '40px Molot', color: '#EFEAE8' })
+            .setOrigin(0.5)
+            .setDepth(this.worldSprite.depth * 1.5);
+        }
+        this.defenceLvl?.setText(`${this.defence}`).setVisible(!this.fog);
+        if (this.worldSprite.texture.key !== `${this.own}-tower`) this.setTowerSprite();
       }
-    })
+    });
   }
   
   private breakDefence(): void {
-    this.defence--;
+    this.defence -= 1;
     if (this.defence === 1) {
-      this.defenceLvl.setVisible(false);
+      this.defenceLvl?.setVisible(false);
       this.setWorldTexture();
-    } else if (this.defence > 1) this.defenceLvl.setText(String(this.defence));
+    } else if (this.defence > 1) this.defenceLvl?.setText(String(this.defence));
   }
   
   public breakSocketDefence(): void {
     if (this.defence === 1) {
-      this.defenceLvl.setVisible(false);
+      this.defenceLvl?.setVisible(false);
       this.setWorldTexture();
-    } else if (this.defence > 1) this.defenceLvl.setText(String(this.defence));
+    } else if (this.defence > 1) this.defenceLvl?.setText(String(this.defence));
   }
 
   public preUpdate(time: number, delta: number): void {

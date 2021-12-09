@@ -122,10 +122,10 @@ export default class World {
       }
     }
 
-    this.angleSegments1.push(this.tlSeg, this.brSeg)
-    this.angleSegments2.push(this.blSeg, this.trSeg)
-    this.sideSegments1.push(this.tSeg, this.bSeg)
-    this.sideSegments2.push(this.clSeg, this.crSeg)
+    this.angleSegments1.push(this.tlSeg, this.brSeg);
+    this.angleSegments2.push(this.blSeg, this.trSeg);
+    this.sideSegments1.push(this.tSeg, this.bSeg);
+    this.sideSegments2.push(this.clSeg, this.crSeg);
     this.scene.setHexInteractive();
     this.createWorld()
   }
@@ -212,13 +212,13 @@ export default class World {
           if (this.greenBaseID === '') this.greenBaseID = hex.id
           else if (this.redBaseID === '') this.redBaseID = hex.id
           
-        } else if (hexClass !== 'spawn') hex.setClass(hexClass)
+        } else if (hexClass !== 'spawn') hex?.setClass(hexClass)
 
         if (!this.game) {
           if (hexClass === 'base') hex.class = 'base'
-          if (hex.col < (this.cols - 3) / 2) hex.setWorldTexture('green')
-          else if (hex.col > (this.cols - 3) / 2) hex.setWorldTexture('red')
-          else hex.setWorldTexture(Phaser.Math.Between(0, 1) === 0 ? 'red' : 'green')
+          if (hex?.col < (this.cols - 3) / 2) hex?.setWorldTexture('green')
+          else if (hex?.col > (this.cols - 3) / 2) hex?.setWorldTexture('red')
+          else hex?.setWorldTexture(Phaser.Math.Between(0, 1) === 0 ? 'red' : 'green')
         }
       }
     }

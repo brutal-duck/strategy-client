@@ -410,15 +410,7 @@ export default class Game extends Phaser.Scene {
     new FlyAwayMsg(this, this.chosenHex.getCenter().x, this.chosenHex.getCenter().y, '-1', 'red', 'purple')
     this.chosenHex.removeFog()
     this[`${this.player.color}`].superHex--
-    this.hud.updateHexCounter()
-
-    Object.values(this.chosenHex.nearby).forEach(el => {
-      const hex = this.getHexById(el);
-      if (hex.fog) {
-        hex.removeFog();
-      }
-    });
-    
+    this.hud.updateHexCounter()    
     if (this.chosenHex.own === 'neutral') this.chosenHex.setClaming(this.player.color, true)
     else {
       this.graphManager.updateHexInGraphs(this.chosenHex);
