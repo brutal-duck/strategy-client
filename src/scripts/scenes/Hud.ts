@@ -58,10 +58,11 @@ export default class Hud extends Phaser.Scene {
   private warnCreateAni: Phaser.Tweens.Tween
   private warnFadeInAni: Phaser.Tweens.Tween
 
-  private warnBaseWasFoundBg: Phaser.GameObjects.Sprite // !
   private warnBaseWasFoundText: Phaser.GameObjects.Text
-  private warnBaseWasFoundIcon: Phaser.GameObjects.Sprite // !
   private warnBaseWasFoundAni: Phaser.Tweens.Tween
+
+  private warnYourBaseOnAttackText: Phaser.GameObjects.Text;
+  private warnYourBaseOnAttackAni: Phaser.Tweens.Tween;
 
   private warnCity: Phaser.GameObjects.Text
   private warnCityAni: Phaser.Tweens.Tween
@@ -236,37 +237,6 @@ export default class Hud extends Phaser.Scene {
     this.allElements = this.allElements.concat(this.warnElements)
   }
 
-  // Старое
-  public createWarningBaseWasFoundBar(x: number, y: number): void {
-    this.warnBaseWasFoundBg = this.add.sprite(this.camera.width - 6, this.worldStatusBar.getBottomRight().y + 46, 'block').setOrigin(1, 0).setTint(0x000000).setAlpha(0.4).setDisplaySize(160, 40).setInteractive()
-    this.warnBaseWasFoundIcon = this.add.sprite(this.warnBaseWasFoundBg.getLeftCenter().x + 6, this.warnBaseWasFoundBg.getLeftCenter().y, 'warning').setOrigin(0, 0.5).setScale(0.3)
-    this.warnBaseWasFoundText = this.add.text(this.warnBaseWasFoundIcon.getRightCenter().x + 6, this.warnBaseWasFoundIcon.getRightCenter().y, this.lang.enemyBaseSited, {
-      font: '12px Molot', align: 'center', color: '#d8ae1c'
-    }).setOrigin(0, 0.5).setStroke('#a65600', 3)
-
-    const targets = [ this.warnBaseWasFoundBg, this.warnBaseWasFoundIcon, this.warnBaseWasFoundText ]
-    targets.forEach(el => el.setX(el.x + 200))
-
-    const fadeOut: Phaser.Tweens.Tween = this.tweens.add({
-      targets,
-      x: '-=200',
-      duration: 300
-    })
-    const fadeIn: Phaser.Tweens.Tween = this.tweens.add({
-      targets,
-      alpha: 0,
-      duration: 500,
-      delay: 10000
-    })
-
-    this.warnBaseWasFoundBg.on('pointerup', (): void => {
-      this.gameScene.centerCamera(x, y, false, 1000)
-      targets.forEach(el => el.destroy())
-      fadeOut?.remove()
-      fadeIn?.remove()
-    })
-  }
-
   public enemyBaseSitedInfo(): void {
     this.warnBaseWasFoundText = this.add.text(this.worldStatusBar.getCenter().x, this.worldStatusBar.getCenter().y, this.lang.enemyBaseSited, {
       font: '20px Molot', align: 'center', color: colors[this.enemyColor].mainStr
@@ -280,6 +250,36 @@ export default class Hud extends Phaser.Scene {
       onComplete: (): void => {
         this.warnBaseWasFoundAni = this.tweens.add({
           targets: this.warnBaseWasFoundText,
+          alpha: 0,
+          duration: 600,
+          delay: 4000,
+          onComplete: (): void => {
+            if (this.warnCityAni?.isPlaying()) {
+              this.tweens.add({
+                targets: this.warnCity,
+                y: '-=20',
+                duration: 200
+              })
+            }
+          }
+        })
+      }
+    })
+  }
+
+  public yourBaseOnAttack(): void {
+    if (this.warnYourBaseOnAttackAni?.isPlaying()) return;
+    this.warnYourBaseOnAttackText = this.add.text(this.worldStatusBar.getCenter().x, this.worldStatusBar.getCenter().y, this.lang.baseOnAttack, {
+      font: '20px Molot', align: 'center', color: colors[this.enemyColor].mainStr
+    }).setOrigin(0.5).setStroke('#000000', 2).setAlpha(0)
+    const value = this.warnCityAni?.isPlaying() ? '+=66' : '+=46'
+    this.warnYourBaseOnAttackAni = this.tweens.add({
+      targets: this.warnYourBaseOnAttackText,
+      alpha: { value: 1, duration: 600 },
+      y: { value, duration: 600, ease: 'Quart.easeIn' },
+      onComplete: (): void => {
+        this.warnBaseWasFoundAni = this.tweens.add({
+          targets: this.warnYourBaseOnAttackText,
           alpha: 0,
           duration: 600,
           delay: 4000,

@@ -123,6 +123,10 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     if (color !== this.scene.player.color) {
       new FlyAwayMsg(this.scene, x, y + 20, '', 'yellow', 'warning', 7000)
       this.scene.hud.setWarning(x, y, this.id)
+      if (this.scene.nearbyHexes(this).some(el => el.class === 'base' && el.own === this.scene.player.color)) {
+        this.scene.centerCamera(this.getCenter().x, this.getCenter().y);
+        this.scene.hud.yourBaseOnAttack();
+      }
     }
 
     this.clamingAni = this.scene.tweens.add({
@@ -159,6 +163,14 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       .setDepth(10000)
       .setVisible(color === this.scene.player.color || !this.fog);
     if (!this.scene.claming.find(id => id === this.id)) this.scene.claming.push(this.id);
+
+    if (
+      color !== this.scene.player.color 
+      && this.scene.nearbyHexes(this).some(el => el.class === 'base' && el.own === this.scene.player.color)
+    ) {
+      this.scene.centerCamera(this.getCenter().x, this.getCenter().y);
+      this.scene.hud.yourBaseOnAttack();
+    }
 
     this.clamingAni = this.scene.tweens.add({
       targets: this.line,
@@ -202,6 +214,14 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
     if (!this.scene.claming.find(id => id === this.id)) this.scene.claming.push(this.id)
 
+    if (
+      color !== this.scene.player.color 
+      && this.scene.nearbyHexes(this).some(el => el.class === 'base' && el.own === this.scene.player.color)
+    ) {
+      this.scene.hud.yourBaseOnAttack();
+      this.scene.centerCamera(this.getCenter().x, this.getCenter().y);
+    }
+
     this.clamingAni = this.scene.tweens.add({
       targets: this.line,
       width: this.lineBg.width,
@@ -229,6 +249,10 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     if (color !== this.scene.player.color) {
       new FlyAwayMsg(this.scene, x, y + 20, '', 'yellow', 'warning', 7000);
       this.scene.hud.setWarning(x, y, this.id);
+      if (this.scene.nearbyHexes(this).some(el => el.class === 'base' && el.own === this.scene.player.color)) {
+        this.scene.centerCamera(this.getCenter().x, this.getCenter().y);
+        this.scene.hud.yourBaseOnAttack();
+      }
     }
 
     this.clamingAni = this.scene.tweens.add({
@@ -288,7 +312,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       Object.values(this.nearby).forEach(id => {
         const hex = this.scene.getHexById(id)
         if (hex) {
-          if (hex.fog) hex.removeFog()
+          if (hex.fog) hex.removeFog();
         }
       })
     }
