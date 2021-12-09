@@ -569,18 +569,19 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       .setOrigin(0, 0.5)
       .setDepth(10000);
 
-    if (!this.defenceLvl) {
-      this.defenceLvl = this.scene.add.text(x, y - 10, '', { font: '40px Molot', color: '#EFEAE8' })
-        .setOrigin(0.5)
-        .setDepth(this.worldSprite.depth * 1.5);
-    }
-
     this.upgradeAni = this.scene.tweens.add({
       targets: this.defLine,
       width: this.defLineBg.width,
       duration: this.scene.green.clameTime,
       onComplete: (): void => {
         this.upgradeAniRemove();
+        if (!this.defenceLvl) {
+          this.defenceLvl = this.scene.add.text(x, y - 10, '', { font: '40px Molot', color: '#EFEAE8' })
+            .setOrigin(0.5)
+            .setDepth(this.worldSprite.depth * 1.5);
+        }
+        this.defenceLvl?.setText(`${this.defence}`).setVisible(!this.fog);
+        console.log(this.defenceLvl.text)
         if (this.worldSprite.texture.key !== `${this.own}-tower`) this.setTowerSprite();
       }
     });
