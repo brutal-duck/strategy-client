@@ -135,7 +135,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       duration: this.super ? this.scene.green.superReclameTime : this.scene.green.clameTime,
       onComplete: (): void => {
         this.clamingAniRemove()
-        if (this.defence > 1) this.breakDefence()
+        if (this.defence > 1 && !superHex) this.breakDefence()
         else {
           this.productionTimer?.remove()
           this.own = 'neutral'
