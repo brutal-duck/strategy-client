@@ -27,6 +27,7 @@ export default class Zoom {
     this.scene.events.on(Phaser.Scenes.Events.UPDATE, this.update, this);
     this.scene.cameras.main.setZoom(this.zoom);
     this.scene.input.on('wheel', (pointer: Phaser.Input.Pointer, gameObjects: Phaser.GameObjects.GameObject, deltaX: number, deltaY: number): void => {
+      if (this.scene.state.tutorial < 6) return;
       if (deltaY < 0) this.zooming('+');
       else if (deltaY > 0) this.zooming('-');
     });

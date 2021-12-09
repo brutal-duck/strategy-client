@@ -70,8 +70,8 @@ export default class Game extends Phaser.Scene {
     this.hud = this.game.scene.getScene('Hud') as Hud;
     this.gameIsOn = false
 
-    this.worldWidth = 2548
-    this.worldHeight = 2548
+    this.worldWidth = 2548 * 1.3
+    this.worldHeight = 2548 * 1.3
     this.segmentRows = 7
     this.segmentCols = 9
     this.cols = this.segmentCols * 3 // общее количество колонок
@@ -86,11 +86,6 @@ export default class Game extends Phaser.Scene {
 
     new Zoom(this);
     this.debuging = Boolean(process.env.DEBUG_HEX);
-
-    this.input.keyboard.addKey('W').on('up', (): void => { this.gameOver('enemyBaseHasCaptured', this.player.color) })
-    this.input.keyboard.addKey('S').on('up', (): void => { this.hexes.forEach(hex => hex.removeFog()) })
-    this.input.keyboard.addKey('Z').on('up', (): void => { console.log(this.pointerHex) })
-    this.input.keyboard.addKey('C').on('up', (): void => { this.hud.setWarning(600, 600, '4-4') })
   }
 
 
