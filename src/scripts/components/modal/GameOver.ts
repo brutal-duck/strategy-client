@@ -3,6 +3,7 @@ import { colors } from '../../gameConfig';
 import ColorsBtn from '../buttons/ColorsBtn';
 import bridgeMock from '@vkontakte/vk-bridge-mock';
 import bridge from '@vkontakte/vk-bridge';
+import { center } from '../../presets';
 
 export default class GameOver {
   private scene: Modal;
@@ -101,6 +102,8 @@ export default class GameOver {
       color: '#ffffff',
       stroke: '#707070',
       strokeThickness: 3,
+      align: 'center',
+      wordWrap: { width: 200, useAdvancedWrap: true},
     };
     
     this.top = this.scene.add.sprite(x, y - windowWidth / 2, 'header').setOrigin(0.5, 1);
