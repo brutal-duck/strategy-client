@@ -317,7 +317,7 @@ export default class Game extends Phaser.Scene {
         if (hex.class === 'grass') {
           if (!hex.clamingAni?.isPlaying()) {
             if (!hex.upgradeAni?.isPlaying()) {
-              if (player.hexes > hex.defence + 1) {
+              if (player.hexes >= hex.defence + 1) {
                 player.hexes -= hex.defence + 1;
                 new FlyAwayMsg(this, x, y, `-${hex.defence + 1}`, 'red', color);
                 hex.upgradeDefence(color);
