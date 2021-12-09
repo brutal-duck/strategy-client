@@ -1,6 +1,8 @@
 import StartGameBtn from "../components/buttons/StartGameBtn"
 import langs from "../langs"
 import Game from "./Game"
+const TEXT_DISPLAY_PERCENT = 5;
+const BTN_DISPLAY_PERCENT = 30;
 
 export default class MainMenu extends Phaser.Scene {
   constructor() {
@@ -24,26 +26,36 @@ export default class MainMenu extends Phaser.Scene {
   }
   
   public create(): void {
+    const curFontSize = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
+    const currentBtnHeight = Math.round(document.body.clientHeight / 100 * BTN_DISPLAY_PERCENT);
+    const titleStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+      fontFamily: 'Molot',
+      fontSize: `${curFontSize}px`,
+      align: 'center',
+      color: 'white',
+      stroke: 'black',
+      strokeThickness: 4,
+    };
     this.add.tileSprite(0, 0, this.camera.width, this.camera.height, 'pixel').setOrigin(0).setTint(0x000000).setAlpha(0.001).setInteractive();
-    this.title = this.add.text(this.camera.centerX, this.camera.centerY - 200, this.lang.gameName, {
-      font: '40px Molot', align: 'center', color: 'white'
-    }).setOrigin(0.5, 0).setStroke('black', 4)
+    this.title = this.add.text(this.camera.centerX, this.camera.centerY - 100, this.lang.gameName, titleStyle).setOrigin(0.5, 1);
 
     const position: Iposition = {
       x: this.cameras.main.centerX,
-      y: this.title.y + 200,
+      y: this.title.y + 150,
     };
     const action = (): void => {
       this.scene.launch('Modal', { state: this.state, type: 'mainMenu' });
     }
 
     this.startGame = new StartGameBtn(this, position, action, this.lang.play);
+    this.startGame.setScale(currentBtnHeight / 245)
     this.createUserInfo();
   }
 
   private createUserInfo(): void {
+    const curFontSize = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
     const style: Phaser.Types.GameObjects.Text.TextStyle = {
-      fontSize: '30px',
+      fontSize: `${curFontSize}px`,
       fontFamily: 'Molot',
       color: 'white',
       stroke: 'black',
@@ -56,9 +68,12 @@ export default class MainMenu extends Phaser.Scene {
   }
 
   public resize(): void {
-    this.title.setPosition(this.camera.centerX, this.camera.centerY - 200)
+    const curFontSize = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
+    const currentBtnHeight = Math.round(document.body.clientHeight / 100 * BTN_DISPLAY_PERCENT);
+    this.title.setPosition(this.camera.centerX, this.camera.centerY - 100).setFontSize(curFontSize);
     this.startGame.x = this.camera.centerX;
-    this.startGame.y = this.title.y + 200;
+    this.startGame.y = this.title.y + 150;
+    this.startGame.setScale(currentBtnHeight / 245);
   }
 
 

@@ -3,7 +3,7 @@ export default {
     index: 'ru',
     loadTextures: 'загрузка текстур',
     loadWorld: 'загрузка мира',
-    gameName: 'просто\nстратегия',
+    gameName: 'быстрый\nзахват',
     map1: 'карта 1',
     play: 'играть',
     launch: 'запуск...',
