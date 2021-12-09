@@ -549,7 +549,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
             .setOrigin(0.5)
             .setDepth(this.worldSprite.depth * 1.5);
         }
-        this.defenceLvl.setText(`${this.defence}`).setVisible(!this.fog);
+        this.defenceLvl?.setText(`${this.defence}`).setVisible(!this.fog);
         if (this.worldSprite.texture.key !== `${this.own}-tower`) this.setTowerSprite();
       }
     });
