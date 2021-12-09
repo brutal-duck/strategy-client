@@ -569,6 +569,12 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       .setOrigin(0, 0.5)
       .setDepth(10000);
 
+    if (!this.defenceLvl) {
+      this.defenceLvl = this.scene.add.text(x, y - 10, '', { font: '40px Molot', color: '#EFEAE8' })
+        .setOrigin(0.5)
+        .setDepth(this.worldSprite.depth * 1.5);
+    }
+
     this.upgradeAni = this.scene.tweens.add({
       targets: this.defLine,
       width: this.defLineBg.width,
@@ -576,15 +582,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
       onComplete: (): void => {
         this.upgradeAniRemove();
         if (this.worldSprite.texture.key !== `${this.own}-tower`) this.setTowerSprite();
-        if (!this.defenceLvl) {
-          this.defenceLvl = this.scene.add.text(x, y - 10, '1', { font: '40px Molot', color: '#EFEAE8' })
-            .setOrigin(0.5)
-            .setDepth(this.worldSprite.depth * 1.5);
-            console.log(this.worldSprite.depth, 'this.worldSprite')
-            console.log(this.defenceLvl.depth, 'this.defenceLvl')
-        } else {
-          this.defenceLvl?.setText(`${this.defence}`).setVisible(!this.fog);
-        }
+        this.defenceLvl?.setText(`${this.defence}`).setVisible(!this.fog);
       }
     });
   }
@@ -606,7 +604,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
   public preUpdate(time: number, delta: number): void {
     super.preUpdate(time, delta);
-    if (this.defence === 1 && this.defenceLvl?.visible) this.defenceLvl.setVisible(false);
+    if (this.defence === 1 && this.defenceLvl?.visible) this.defenceLvl?.setVisible(false);
   }
 
   private setTowerSprite(): void {
