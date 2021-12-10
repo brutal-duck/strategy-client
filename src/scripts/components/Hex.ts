@@ -519,7 +519,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     else texture = `${color}-${this.class}-${this.landscapeNum}`;
     if (texture.includes('gray-fort')) texture = 'gray-grass-' + this.landscapeNum;
     if (lastTexture.includes(`${color}-fort-`) && texture.includes(`${color}-fort-`)) return; 
-
+    if (!this.scene.textures.exists(texture)) return;
     this.worldSprite.setTexture(texture);
     this.fogSprite.setTexture(texture).setTint(0x000000).setScale(scale - 0.01);
 
