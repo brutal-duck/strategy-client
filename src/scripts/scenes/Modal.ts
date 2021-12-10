@@ -111,4 +111,15 @@ export default class Modal extends Phaser.Scene {
     }
     this.createn = true;
   }
+
+  public update(): void {
+    if (this.type === 'superHex' && this.scene.isActive()) {
+      Object.values(this.gameScene.chosenHex.nearby).forEach(id => {
+        const hex = this.gameScene.getHexById(id);
+        if (hex && hex.own === this.gameScene.player.color) {
+          this.scene.stop();
+        }
+      })
+    }
+  }
 };

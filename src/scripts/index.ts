@@ -54,10 +54,11 @@ window.onload = (): void => {
     const hud = game.scene.getScene('Hud') as Hud;
     const mainMenu = game.scene.getScene('MainMenu') as MainMenu;
     const modal = game.scene.getScene('Modal') as Modal;
+    const tutorial = game.scene.getScene('Tutorial') as Tutorial;
     if (hud.scene.isActive()) hud.resize();
     if (mainMenu.scene.isActive()) mainMenu.resize();
     if (modal.scene.isActive()) modal.resize();
-
+    if (tutorial.scene.isActive()) tutorial.resize();
     // game.input.mousePointer.camera = game.scene.getScene('Game').cameras.main // фикс краша вывода курсора за предел веб окна для старшей версии Phasera
   }, false);
 }

@@ -5,6 +5,7 @@ import FlyAwayMsg from './../components/FlyAwayMsg';
 import { config } from "../gameConfig";
 import Hud from './Hud';
 
+let resized = false;
 export default class Tutorial extends Phaser.Scene {
   public state: Istate;
   private lang: { [key: string]: string };
@@ -44,8 +45,10 @@ export default class Tutorial extends Phaser.Scene {
   }
 
   private createStep0(): void {
-    this.createBubble({ x: 200, y: 200 }, this.lang.tutorialStep0);
+    this.createBubble({ x: this.cameras.main.width - this.cameras.main.width / 20, y: this.cameras.main.height / 2 }, this.lang.tutorialStep0);
     const baseHex = this.gameScene.getHexById('11-10');
+    if (resized) this.gameScene.centerCamera(baseHex.getCenter().x, baseHex.getCenter().y);
+
     const action = (hex: Hex) => {
       const { x, y } = hex.getCenter();
       new FlyAwayMsg(this.gameScene, x, y, `-${hex.defence}`, 'red', 'green');
@@ -78,7 +81,7 @@ export default class Tutorial extends Phaser.Scene {
   }
 
   private createStep1(): void {
-    this.createBubble({ x: 200, y: 200 }, this.lang.tutorialStep1);
+    this.createBubble({ x: this.cameras.main.width - this.cameras.main.width / 20, y: this.cameras.main.height / 2 }, this.lang.tutorialStep1);
     const hudScene = this.game.scene.getScene('Hud') as Hud;
     const { bottom, right } = hudScene.hexBar.getBounds();
     this.createArrow(right, bottom, true);
@@ -96,7 +99,7 @@ export default class Tutorial extends Phaser.Scene {
   }
 
   private createStep2(): void {
-    this.createBubble({ x: 200, y: 200 }, this.lang.tutorialStep2);
+    this.createBubble({ x: this.cameras.main.width - this.cameras.main.width / 20, y: this.cameras.main.height / 2 }, this.lang.tutorialStep2);
     const action = (hex: Hex) => {
       const { x, y } = hex.getCenter();
       new FlyAwayMsg(this.gameScene, x, y, `-${hex.defence}`, 'red', 'green');
@@ -125,6 +128,7 @@ export default class Tutorial extends Phaser.Scene {
       this.scene.stop();
     }
     const hexZone = this.createHexZone(this.gameScene.chosenHex, this.gameScene.chosenHex, action);
+    this.gameScene.centerCamera(this.gameScene.chosenHex.getCenter().x, this.gameScene.chosenHex.getCenter().y);
     this.time.addEvent({
       delay: 1500,
       callback: () => {
@@ -135,7 +139,7 @@ export default class Tutorial extends Phaser.Scene {
   }
 
   private createStep3(): void {
-    this.createBubble({ x: 200, y: 200 }, this.lang.tutorialStep3);
+    this.createBubble({ x: this.cameras.main.width - this.cameras.main.width / 20, y: this.cameras.main.height / 2 }, this.lang.tutorialStep3);
     const action = (hex: Hex) => {
       const { x, y } = hex.getCenter();
       new FlyAwayMsg(this.gameScene, x, y, `-${hex.defence}`, 'red', 'green');
@@ -154,6 +158,8 @@ export default class Tutorial extends Phaser.Scene {
       this.scene.stop();
     }
     const hexZone = this.createHexZone(this.gameScene.chosenHex, this.gameScene.chosenHex, action);
+    this.gameScene.centerCamera(this.gameScene.chosenHex.getCenter().x, this.gameScene.chosenHex.getCenter().y);
+
     this.time.addEvent({
       delay: 1500,
       callback: () => {
@@ -167,7 +173,7 @@ export default class Tutorial extends Phaser.Scene {
   }
 
   private createStep4(): void {
-    this.createBubble({ x: 200, y: 200 }, this.lang.tutorialStep4);
+    this.createBubble({ x: this.cameras.main.width - this.cameras.main.width / 20, y: this.cameras.main.height / 2 }, this.lang.tutorialStep4);
     const hudScene = this.game.scene.getScene('Hud') as Hud;
     const { centerX, bottom } = hudScene.timer.getBounds();
     this.createArrow(centerX, bottom, true);
@@ -191,7 +197,7 @@ export default class Tutorial extends Phaser.Scene {
   }
 
   private createStep5(): void {
-    this.createBubble({ x: 200, y: 200 }, this.lang.tutorialStep5);
+    this.createBubble({ x: this.cameras.main.width - this.cameras.main.width / 20, y: this.cameras.main.height / 2 }, this.lang.tutorialStep5);
     const { width, height } = this.cameras.main;
     this.add.tileSprite(0, 0, width, height, 'pixel')
       .setOrigin(0)
@@ -213,9 +219,9 @@ export default class Tutorial extends Phaser.Scene {
       fontSize: '20px',
       color: '#000000',
       align: 'center',
-      wordWrap: { width: 350 },
+      wordWrap: { width: this.cameras.main.width / 4 },
     };
-    const text = this.add.text(pos.x, pos.y, str, textStyle).setOrigin(0.5).setDepth(1);
+    const text = this.add.text(pos.x, pos.y, str, textStyle).setOrigin(1, 0.5).setDepth(1);
     const { width, height, centerX, centerY } = text.getBounds();
     const bubble = this.add.graphics().fillStyle(0xffffff)
       .fillRoundedRect(centerX - width / 2 - 20, centerY - height / 2 - 20, width + 40, height + 40);
@@ -261,5 +267,10 @@ export default class Tutorial extends Phaser.Scene {
       yoyo: true,
       repeat: -1,
     });
+  }
+
+  public resize(): void {
+    resized = true;
+    this.scene.restart(this.state);
   }
 };
