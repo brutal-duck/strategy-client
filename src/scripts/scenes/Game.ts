@@ -110,7 +110,7 @@ export default class Game extends Phaser.Scene {
     this.green = Object.assign({}, config)
     this.red = Object.assign({}, config)
     this[this.player.color].name = this.state.player.name;
-    this[this.enemyColor].name = this.state.enemy?.name || this.state.game.AI.toUpperCase() + '_BOT';
+    this[this.enemyColor].name = this.state.enemy?.name || this.lang.enemy;
     this.stars = 0
     this.baseWasFound = false
     this.claming = [] // массив захватываемых в данный момент клеток
