@@ -37,9 +37,9 @@ export default class StartGameBtn extends Button {
     this.mainSprite.removeInteractive();
   }
 
-  public setScale(scale: number): this {
+  public setScale(scale: number, fontSize?: number): this {
     super.setScale(scale);
-    this.text.setFontSize(parseInt(this.text.style.fontSize) * scale);
+    this.text.setFontSize(fontSize);
     this.text.setX(this.x);
     return this;
   }

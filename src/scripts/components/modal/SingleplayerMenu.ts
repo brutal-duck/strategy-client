@@ -80,7 +80,7 @@ export default class SingleplayerMenu {
 
     this.btn = new StartGameBtn(this.scene, { x: x, y: hardPlateGeom.bottom + 90 }, () => {
       this.startSinglePlayerGame();
-    }, this.scene.lang.play).setScale(0.5);
+    }, this.scene.lang.play).setScale(0.5, 30);
     this.exit = new ExitBtn(
       this.scene,
       { x: topGeom.right - 45, y: topGeom.bottom + 30},

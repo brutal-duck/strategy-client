@@ -15,6 +15,8 @@ export default class MainMenu extends Phaser.Scene {
   public gameScene: Game;
   private title: Phaser.GameObjects.Text;
   private startGame: StartGameBtn;
+  private name: Phaser.GameObjects.Text;
+  private points: Phaser.GameObjects.Text;
 
   public init(state: Istate): void {
     this.state = state;
@@ -41,14 +43,15 @@ export default class MainMenu extends Phaser.Scene {
 
     const position: Iposition = {
       x: this.cameras.main.centerX,
-      y: this.title.y + 150,
+      y: this.title.getBottomCenter().y + currentBtnHeight / 2,
     };
     const action = (): void => {
       this.scene.launch('Modal', { state: this.state, type: 'mainMenu' });
     }
 
     this.startGame = new StartGameBtn(this, position, action, this.lang.play);
-    this.startGame.setScale(currentBtnHeight / 245)
+    this.startGame.setScale(currentBtnHeight / 245, curFontSize + curFontSize * 0.20);
+
     this.createUserInfo();
   }
 
@@ -62,8 +65,8 @@ export default class MainMenu extends Phaser.Scene {
       strokeThickness: 4,
     };
     const { name, points } = this.state.player;
-    this.add.text(20, 20, name, style).setOrigin(0, 0.5);
-    this.add.text(20, 60, `${this.lang.points} ${points}`, style).setOrigin(0, 0.5);
+    this.name = this.add.text(20, 20, name, style).setOrigin(0);
+    this.points = this.add.text(20, 60, `${this.lang.points} ${points}`, style).setOrigin(0);
 
   }
 
@@ -71,9 +74,11 @@ export default class MainMenu extends Phaser.Scene {
     const curFontSize = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
     const currentBtnHeight = Math.round(document.body.clientHeight / 100 * BTN_DISPLAY_PERCENT);
     this.title.setPosition(this.camera.centerX, this.camera.centerY - 100).setFontSize(curFontSize);
+    this.name.setPosition(20, 20).setFontSize(curFontSize);
+    this.points.setPosition(20, 60).setFontSize(curFontSize);
     this.startGame.x = this.camera.centerX;
-    this.startGame.y = this.title.y + 150;
-    this.startGame.setScale(currentBtnHeight / 245);
+    this.startGame.y = this.title.getBottomCenter().y + currentBtnHeight / 2;
+    this.startGame.setScale(currentBtnHeight / 245, curFontSize + curFontSize * 0.20);
   }
 
 
