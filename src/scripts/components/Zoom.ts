@@ -19,7 +19,7 @@ export default class Zoom {
     this.zoom = 1.2;
     this.zoomStap = 0.05;
     this.maxZoom = 1.6;
-    this.minZoom = 0.7;
+    this.minZoom = 0.4;
     this.setZoom();
   }
 
