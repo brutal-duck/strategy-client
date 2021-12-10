@@ -46,7 +46,7 @@ export default class Timer {
       fontFamily: 'Molot',
       color: '#ffffff',
       stroke: '#707070',
-      strokeThickness: 3,
+      strokeThickness: 1,
     };
     const m: string = this.min > 9 ? `${this.min}` : `0${this.min}`
     const s: string = this.sec > 9 ? `${this.sec}` : `0${this.sec}`
@@ -55,6 +55,12 @@ export default class Timer {
     this.minutes = this.scene.add.text(this.colon.getLeftCenter().x, this.colon.getLeftCenter().y, m, textStyle).setOrigin(1, 0.5);
     this.seconds = this.scene.add.text(this.colon.getRightCenter().x, this.colon.getRightCenter().y, s, textStyle).setOrigin(0, 0.5);
     this.startCountdown()
+  }
+
+  public setFontSize(size: number): void {
+    this.colon?.setFontSize(size);
+    this.minutes?.setFontSize(size);
+    this.seconds?.setFontSize(size);
   }
 
   private startCountdown(): void {

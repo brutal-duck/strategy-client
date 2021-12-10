@@ -5,9 +5,10 @@ import langs from "../langs"
 import Game from "./Game"
 
 const BAR_DISPLAY_PERCENT = 5;
-const TEXT_DISPLAY_PERCENT = 2;
-const HEX_COUNT_DISPLAY_PECENT = 4;
-const ICONS_DISPLAY_PERCENT = 4;
+const TEXT_DISPLAY_PERCENT = 4;
+const HEX_COUNT_DISPLAY_PECENT = 5;
+const ICONS_DISPLAY_PERCENT = 5;
+const MAX_TEXT_SIZE = 24;
 export default class Hud extends Phaser.Scene {
   constructor() {
     super('Hud')
@@ -92,6 +93,8 @@ export default class Hud extends Phaser.Scene {
   
   public create(): void {
     const currentIconsHeight: number = document.body.clientHeight / 100 * ICONS_DISPLAY_PERCENT;
+    let curFontSize = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
+    if (curFontSize > MAX_TEXT_SIZE) curFontSize = MAX_TEXT_SIZE;
     const scale = currentIconsHeight / 35;
     this.menuBtn = new SandwichBtn(this, { x: this.camera.width - currentIconsHeight / 2 - 15, y: currentIconsHeight / 2 + 15 }, (): void => { this.scene.launch('Modal', { state: this.state, type: 'gameMenu' }) });
     this.menuBtn.setScale(scale);
@@ -99,6 +102,7 @@ export default class Hud extends Phaser.Scene {
     this.createWorldStatusBar()
     this.createWarningBar()
     this.timer = new Timer(this, this.worldStatusBar.getCenter().x, this.worldStatusBar.getBottomCenter().y + 2, this.gameScene.green.matchTime)
+    this.timer.setFontSize(curFontSize);
     this.allElements.push(this.bg, this.timer.minutes, this.timer.seconds, this.timer.colon, this.menuBtn)
 
     this.debugText = this.add.text(-26, this.camera.height, '', { font: '20px Molot', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-9).setOrigin(0, 1).setVisible(false);
@@ -106,24 +110,25 @@ export default class Hud extends Phaser.Scene {
 
 
   private createMainBar(): void {
-    const currentTextHeight = Math.round(document.body.clientHeight / 100 * HEX_COUNT_DISPLAY_PECENT);
+    const curCountFontSize = Math.round(document.body.clientHeight / 100 * HEX_COUNT_DISPLAY_PECENT);
+
     const currentIconsHeight: number = document.body.clientHeight / 100 * ICONS_DISPLAY_PERCENT;
     const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-      fontSize: currentTextHeight + 'px',
+      fontSize: curCountFontSize + 'px',
       fontFamily: 'Molot',
       color: '#ffffff',
       stroke: '#707070',
-      strokeThickness: 2,
+      strokeThickness: 1,
     };
     const scale = currentIconsHeight / 50;
     const player: Iconfig = this.gameScene[this.playerColor];
-    this.hexBar = this.add.sprite(40, 40, 'hex').setScale(scale * 0.6);
+    this.hexBar = this.add.sprite(currentIconsHeight, currentIconsHeight, 'hex').setScale(scale * 0.6);
     const hexBarGeom = this.hexBar.getBounds();
     this.hexBarText = this.add.text(hexBarGeom.right, hexBarGeom.centerY, String(player.hexes), textStyle).setOrigin(0, 0.5);
 
-    this.superHexBar = this.add.sprite(hexBarGeom.centerX, hexBarGeom.bottom + 30, 'super-hex').setScale(scale * 0.6);
+    this.superHexBar = this.add.sprite(hexBarGeom.centerX, hexBarGeom.bottom + currentIconsHeight, 'super-hex').setScale(scale * 0.6);
     const superGeom = this.superHexBar.getBounds();
-    this.superHexBarText = this.add.text(superGeom.right, superGeom.centerY, String(player.superHex), textStyle).setOrigin(0, 0.5).setStroke('#97759E', 2);
+    this.superHexBarText = this.add.text(superGeom.right, superGeom.centerY, String(player.superHex), textStyle).setOrigin(0, 0.5).setStroke('#97759E', 1);
 
     this.allElements.push(this.hexBar, this.hexBarText, this.superHexBar, this.superHexBarText)
   }
@@ -158,24 +163,26 @@ export default class Hud extends Phaser.Scene {
 
 
   private createWorldStatusBar(): void {
-    const currentTextHeight = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
+    let curFontSize = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
+    if (curFontSize > MAX_TEXT_SIZE) curFontSize = MAX_TEXT_SIZE;
+
     const currentBarHeight: number = document.body.clientHeight / 100 * BAR_DISPLAY_PERCENT;
     this.lineWidth = this.camera.width / 2.5;
 
     const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-      fontSize: currentTextHeight + 'px',
+      fontSize: curFontSize + 'px',
       fontFamily: 'Molot',
       color: '#ffffff',
       stroke: '#707070',
-      strokeThickness: 2,
+      strokeThickness: 1,
       wordWrap: { width: this.lineWidth / 2, useAdvancedWrap: true },
     };
 
-    this.playerName = this.add.text(this.camera.width / 2 - this.lineWidth / 2, currentTextHeight * 1.5, this.gameScene[this.playerColor].name, textStyle).setOrigin(0, 0.5);
-    this.enemyName = this.add.text(this.camera.width / 2 + this.lineWidth / 2, currentTextHeight * 1.5, this.gameScene[this.enemyColor].name, textStyle).setOrigin(1, 0.5);
+    this.playerName = this.add.text(this.camera.width / 2 - this.lineWidth / 2, curFontSize, this.gameScene[this.playerColor].name, textStyle).setOrigin(0, 0.5);
+    this.enemyName = this.add.text(this.camera.width / 2 + this.lineWidth / 2, curFontSize, this.gameScene[this.enemyColor].name, textStyle).setOrigin(1, 0.5);
 
-    const barY = currentTextHeight * 4.2;
-    this.worldStatusBar = this.add.tileSprite(this.camera.width / 2, barY, this.lineWidth, currentBarHeight, 'pixel').setOrigin(0.5).setVisible(false);
+    const barY = this.playerName.getBounds().bottom;
+    this.worldStatusBar = this.add.tileSprite(this.camera.width / 2, barY, this.lineWidth, currentBarHeight, 'pixel').setOrigin(0.5, 0).setVisible(false);
 
     const barGeom = this.worldStatusBar.getBounds();
 
@@ -214,7 +221,7 @@ export default class Hud extends Phaser.Scene {
     this.warnIcon = this.add.sprite(this.warnBg.getLeftCenter().x + 6, this.warnBg.getLeftCenter().y, 'warning').setOrigin(0, 0.5).setScale(0.3).setAlpha(0)
     this.warnText = this.add.text(this.warnIcon.getRightCenter().x + 6, this.warnIcon.getRightCenter().y, '', {
       font: '14px Molot', color: '#d8ae1c'
-    }).setOrigin(0, 0.5).setStroke('#a65600', 3).setAlpha(0)
+    }).setOrigin(0, 0.5).setStroke('#a65600', 1).setAlpha(0)
 
     this.warnElements = [ this.warnBg, this.warnIcon, this.warnText ]
 
@@ -240,7 +247,7 @@ export default class Hud extends Phaser.Scene {
   public enemyBaseSitedInfo(): void {
     this.warnBaseWasFoundText = this.add.text(this.worldStatusBar.getCenter().x, this.worldStatusBar.getCenter().y, this.lang.enemyBaseSited, {
       font: '20px Molot', align: 'center', color: colors[this.enemyColor].mainStr
-    }).setOrigin(0.5).setStroke('#000000', 2).setAlpha(0)
+    }).setOrigin(0.5).setStroke('#000000', 1).setAlpha(0)
 
     const value = this.warnCityAni?.isPlaying() ? '+=66' : '+=46'
     this.warnBaseWasFoundAni = this.tweens.add({
@@ -271,7 +278,7 @@ export default class Hud extends Phaser.Scene {
     if (this.warnYourBaseOnAttackAni?.isPlaying()) return;
     this.warnYourBaseOnAttackText = this.add.text(this.worldStatusBar.getCenter().x, this.worldStatusBar.getCenter().y, this.lang.baseOnAttack, {
       font: '20px Molot', align: 'center', color: colors[this.enemyColor].mainStr
-    }).setOrigin(0.5).setStroke('#000000', 2).setAlpha(0)
+    }).setOrigin(0.5).setStroke('#000000', 1).setAlpha(0)
     const value = this.warnCityAni?.isPlaying() ? '+=66' : '+=46'
     this.warnYourBaseOnAttackAni = this.tweens.add({
       targets: this.warnYourBaseOnAttackText,
@@ -302,7 +309,7 @@ export default class Hud extends Phaser.Scene {
     const text = clamed ? this.lang.cityClamed : this.lang.cityLost
     this.warnCity = this.add.text(this.worldStatusBar.getCenter().x, this.worldStatusBar.getCenter().y, text, {
       font: '20px Molot', align: 'center', color
-    }).setOrigin(0.5).setStroke('#000000', 2).setAlpha(0)
+    }).setOrigin(0.5).setStroke('#000000', 1).setAlpha(0)
     
 
     const value = this.warnBaseWasFoundAni?.isPlaying() ? '+=80' : '+=80'
@@ -448,7 +455,8 @@ export default class Hud extends Phaser.Scene {
     const greenHexes: number = this.gameScene?.hexes.filter(hex => hex.own === 'green').length
     const redHexes: number = this.gameScene?.hexes.filter(hex => hex.own === 'red').length
     const currentHeight = document.body.clientHeight / 100 * BAR_DISPLAY_PERCENT;
-    const curFontSize = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
+    let curFontSize = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
+    if (curFontSize > MAX_TEXT_SIZE) curFontSize = MAX_TEXT_SIZE;
     const curCountFontSize = Math.round(document.body.clientHeight / 100 * HEX_COUNT_DISPLAY_PECENT);
     const currentIconsHeight: number = document.body.clientHeight / 100 * ICONS_DISPLAY_PERCENT;
     const iconsScale = currentIconsHeight / 40;
@@ -456,9 +464,9 @@ export default class Hud extends Phaser.Scene {
     this.bg?.setPosition(0, 0).setSize(this.camera.width, this.bg.height)
     this.menuBtn?.setScale(menuBtnScale).setPosition(this.camera.width - currentIconsHeight / 2 - 15, currentIconsHeight / 2 + 15);
     this.switcher?.setPosition(this.camera.width / 2, this.camera.height)
-    this.playerName?.setPosition(this.camera.width / 2 - this.camera.width / 5, curFontSize * 1.5).setWordWrapWidth(this.camera.width / 5).setFontSize(curFontSize);
-    this.enemyName?.setPosition(this.camera.width / 2 + this.camera.width / 5, curFontSize * 1.5).setWordWrapWidth(this.camera.width / 5).setFontSize(curFontSize);
-    const barY = curFontSize * 4.2;
+    this.playerName?.setPosition(this.camera.width / 2 - this.camera.width / 5, curFontSize).setWordWrapWidth(this.camera.width / 5).setFontSize(curFontSize);
+    this.enemyName?.setPosition(this.camera.width / 2 + this.camera.width / 5, curFontSize).setWordWrapWidth(this.camera.width / 5).setFontSize(curFontSize);
+    const barY = this.playerName.getBounds().bottom;
 
     this.worldStatusBar?.setPosition(this.camera.width / 2, barY).setSize(this.camera.width / 2.5, currentHeight)
     const barGeom = this.worldStatusBar.getBounds();
@@ -471,7 +479,7 @@ export default class Hud extends Phaser.Scene {
 
     this.playerStatusBar?.setPosition(barGeom.left, barGeom.centerY).setSize(this.getLineWidth(greenHexes), barGeom.height);
     this.enemyStatusBar?.setPosition(barGeom.right, barGeom.centerY).setSize(this.getLineWidth(redHexes), barGeom.height);
-    this.timer?.setPosition(barGeom.centerX, barGeom.bottom + 2);
+    this.timer?.setPosition(barGeom.centerX, barGeom.bottom + 2).setFontSize(curFontSize);
 
     this.star1?.setPosition(barGeom.left + this.getStarPoint(1), barGeom.centerY + 3).setScale(scale);
     this.star2?.setPosition(barGeom.left + this.getStarPoint(2), barGeom.centerY + 3).setScale(scale);
@@ -480,16 +488,12 @@ export default class Hud extends Phaser.Scene {
     this.warnBg?.setPosition(this.camera.width - 6, this.worldStatusBar.getBottomRight().y + 10)
     this.warnIcon?.setPosition(this.warnBg.getLeftCenter().x + 6, this.warnBg.getLeftCenter().y)
     this.warnText?.setPosition(this.warnIcon.getRightCenter().x + 6, this.warnIcon.getRightCenter().y)
-
-    // this.warnBaseWasFoundBg?.setPosition(this.camera.width - 6, this.worldStatusBar.getBottomRight().y + 46)
-    // this.warnBaseWasFoundBg?.setPosition(this.worldStatusBar.getCenter().x + 6, this.worldStatusBar.getCenter().y)
-    // this.warnBaseWasFoundIcon?.setPosition(this.warnBaseWasFoundBg.getLeftCenter().x + 6, this.warnBaseWasFoundBg.getLeftCenter().y)
     this.warnBaseWasFoundText?.setX(this.worldStatusBar.getCenter().x)
     this.warnCity?.setX(this.worldStatusBar.getCenter().x)
     
-    this.hexBar?.setPosition(40, 40).setScale(0.6 * iconsScale)
+    this.hexBar?.setPosition(currentIconsHeight, currentIconsHeight).setScale(0.6 * iconsScale)
     this.hexBarText?.setPosition(this.hexBar.getBounds().right, this.hexBar.getBounds().centerY).setFontSize(curCountFontSize);
-    this.superHexBar?.setPosition(this.hexBar.getBounds().centerX, this.hexBar.getBounds().bottom + 30).setScale(0.6 * iconsScale);
+    this.superHexBar?.setPosition(this.hexBar.getBounds().centerX, this.hexBar.getBounds().bottom + currentIconsHeight).setScale(0.6 * iconsScale);
     this.superHexBarText?.setPosition(this.superHexBar.getBounds().right, this.superHexBar.getBounds().centerY).setFontSize(curCountFontSize);
 
 
