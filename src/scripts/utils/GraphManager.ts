@@ -51,26 +51,24 @@ export default class GraphManager {
       this.addHexInGraph(graph, hex);
       this.clearOldGraph(hex);
       this.clearNeutralGraph(hex);
-      const neighbors = Object.values(hex.nearby);
-      const filteredNeighbors = neighbors.filter(el => graph[el]);
-      filteredNeighbors.forEach((el, index) => {
-        const current = el;
-        const next = filteredNeighbors[index + 1];
-        if (current && next) {
-          const distance = this.findPathInGraph(graph, current, next);
-          if (distance > 0) {
-            const hexes = this.scene.hexes.filter(el => el.own === hex.own);
-            const innerHexes = this.getNotOwnInnerHexes(hexes, hex.own);
-            innerHexes.forEach(innerHex => {
-              this.checkAndUpdateInnerHex(innerHex, color);
-            });
-          }
-        }
-      });
     }
+    const neighbors = Object.values(hex.nearby);
+    const filteredNeighbors = neighbors.filter(el => graph[el]);
+    filteredNeighbors.forEach((el, index) => {
+      const current = el;
+      const next = filteredNeighbors[index + 1];
+      if (current && next) {
+        const distance = this.findPathInGraph(graph, current, next);
+        if (distance > 0) {
+          const hexes = this.scene.hexes.filter(el => el.own === hex.own);
+          const innerHexes = this.getNotOwnInnerHexes(hexes, hex.own);
+          innerHexes.forEach(innerHex => {
+            this.checkAndUpdateInnerHex(innerHex, color);
+          });
+        }
+      }
+    });
   }
-
-  public updateGraphs
 
   private checkAndUpdateInnerHex(innerHex: Hex, color: string): void {
     const outerHexId = '0-0';

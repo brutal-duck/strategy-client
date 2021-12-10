@@ -605,8 +605,8 @@ export default class Hex extends Phaser.GameObjects.Sprite {
 
   public preUpdate(time: number, delta: number): void {
     super.preUpdate(time, delta);
-    if (this.defence === 1 && this.defenceLvl?.visible) this.defenceLvl?.setVisible(false);
-    else if (this.defence > 1 && this.defenceLvl && !this.defenceLvl.visible && !this.dark) this.defenceLvl?.setVisible(true);
+    if ((this.defence === 1 || this.fog) && this.defenceLvl?.visible) this.defenceLvl?.setVisible(false);
+    else if (this.defence > 1 && this.defenceLvl && !this.defenceLvl.visible && !this.dark && !this.fog) this.defenceLvl?.setVisible(true);
   }
 
   private setTowerSprite(): void {
