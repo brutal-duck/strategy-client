@@ -59,7 +59,7 @@ export default class MainMenu extends Phaser.Scene {
       fontFamily: 'Molot',
       color: 'white',
       stroke: 'black',
-      strokeThickness: 4,
+      strokeThickness: 1,
     };
     const { name, points } = this.state.player;
     this.name = this.add.text(20, curFontSize / 2, name, style).setOrigin(0);
