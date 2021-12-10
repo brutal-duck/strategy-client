@@ -138,6 +138,9 @@ export default class Game extends Phaser.Scene {
     this.graphManager.initNeutralGraphs();
   }
 
+  public resize(): void {
+    this.centerCamera(this.midPoint.x, this.midPoint.y);
+  }
 
   private startTutorial(state: Istate): void {
     this.scene.launch('Hud', this.state);
