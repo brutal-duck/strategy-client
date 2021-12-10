@@ -517,7 +517,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     else if (this.class === 'base') texture = `${this.class}-${color}`;
     else if (this.super && this.class === 'grass') texture = `${color}-fort-${Phaser.Math.Between(1, 2)}`;
     else texture = `${color}-${this.class}-${this.landscapeNum}`;
-    
+    if (texture.includes('gray-fort')) texture = 'gray-grass-' + this.landscapeNum;
     if (lastTexture.includes(`${color}-fort-`) && texture.includes(`${color}-fort-`)) return; 
 
     this.worldSprite.setTexture(texture);

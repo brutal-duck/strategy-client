@@ -96,7 +96,7 @@ export default class Hud extends Phaser.Scene {
     let curFontSize = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
     if (curFontSize > MAX_TEXT_SIZE) curFontSize = MAX_TEXT_SIZE;
     const scale = currentIconsHeight / 35;
-    this.menuBtn = new SandwichBtn(this, { x: this.camera.width - currentIconsHeight / 2 - 15, y: currentIconsHeight / 2 + 15 }, (): void => { this.scene.launch('Modal', { state: this.state, type: 'gameMenu' }) });
+    this.menuBtn = new SandwichBtn(this, { x: this.camera.width - currentIconsHeight * 1.2, y: currentIconsHeight * 1.2 }, (): void => { this.scene.launch('Modal', { state: this.state, type: 'gameMenu' }) });
     this.menuBtn.setScale(scale);
     this.createMainBar()
     this.createWorldStatusBar()
@@ -462,7 +462,7 @@ export default class Hud extends Phaser.Scene {
     const iconsScale = currentIconsHeight / 40;
     const menuBtnScale = currentIconsHeight / 35;
     this.bg?.setPosition(0, 0).setSize(this.camera.width, this.bg.height)
-    this.menuBtn?.setScale(menuBtnScale).setPosition(this.camera.width - currentIconsHeight / 2 - 15, currentIconsHeight / 2 + 15);
+    this.menuBtn?.setScale(menuBtnScale).setPosition(this.camera.width - currentIconsHeight * 1.2, currentIconsHeight * 1.2);
     this.switcher?.setPosition(this.camera.width / 2, this.camera.height)
     this.playerName?.setPosition(this.camera.width / 2 - this.camera.width / 5, curFontSize).setWordWrapWidth(this.camera.width / 5).setFontSize(curFontSize);
     this.enemyName?.setPosition(this.camera.width / 2 + this.camera.width / 5, curFontSize).setWordWrapWidth(this.camera.width / 5).setFontSize(curFontSize);
