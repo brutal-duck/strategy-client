@@ -78,7 +78,7 @@ export default class Game extends Phaser.Scene {
 
     this.camera = this.cameras.main
     this.camera.setBounds(0, 0, this.worldWidth, this.worldHeight)
-    this.camera.centerOn(700, 800)
+    this.camera.centerOn(this.worldWidth / 2, this.worldHeight / 4)
     this.scale.lockOrientation('landscape-primary')
 
     this.hexes = []
@@ -92,7 +92,6 @@ export default class Game extends Phaser.Scene {
     this.add.sprite(0, 0, 'bg').setOrigin(0)
     this.worldBG = this.add.tileSprite(0, 0, this.camera.getBounds().width, this.camera.getBounds().height, 'pixel').setOrigin(0).setAlpha(0.001).setInteractive({ draggable: true })
     this.world = new World(this, this.gameIsOn)
-    // this.world = new WorldTest(this, this.gameIsOn)
     this.setInput()
     this.setEvents()
     this.graphManager = new GraphManager(this);
@@ -481,8 +480,8 @@ export default class Game extends Phaser.Scene {
     this.camera.zoomEffect.reset()
 
     if (fly) {
-      const duration = 30000
-      if (updateStartFlyX) this.startFlyX = this.camera.worldView.width / 2 > 0 ? this.camera.worldView.width / 2 : 600
+      const duration = 25000
+      if (updateStartFlyX) this.startFlyX = this.camera.worldView.width / 2 > 0 ? this.camera.worldView.width / 2 : 1000
       this.centerCamera(this.startFlyX + 220, 900, true, 2500, 'Quad.easeOut')
       this.flyAni1 = this.tweens.add({
         onStart: (): void => {
@@ -490,14 +489,14 @@ export default class Game extends Phaser.Scene {
           this.camera.startFollow(this.midPoint)
         },
         targets: this.midPoint,
-        x: this.worldWidth - this.startFlyX - 1200, y: 1200,
+        x: this.worldWidth - this.startFlyX - 600, y: 1200,
         duration,
         delay: 3500,
         ease: 'Quad.easeInOut',
         onComplete: (): void => {
           this.flyAni2 = this.tweens.add({
             targets: this.midPoint,
-            x: 1200, y: 1600,
+            x: 1600, y: 1600,
             duration,
             ease: 'Quad.easeInOut',
             onComplete: (): void => {
