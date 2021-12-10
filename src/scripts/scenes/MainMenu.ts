@@ -2,7 +2,8 @@ import StartGameBtn from "../components/buttons/StartGameBtn"
 import langs from "../langs"
 import Game from "./Game"
 const TEXT_DISPLAY_PERCENT = 5;
-const BTN_DISPLAY_PERCENT = 30;
+const BTN_DISPLAY_PERCENT = 23;
+const LOGO_DISPLAY_PERCENT = 37;
 
 export default class MainMenu extends Phaser.Scene {
   constructor() {
@@ -13,10 +14,12 @@ export default class MainMenu extends Phaser.Scene {
   public lang: any;
   private camera: Phaser.Cameras.Scene2D.BaseCamera;
   public gameScene: Game;
-  private title: Phaser.GameObjects.Text;
+  // private title: Phaser.GameObjects.Text;
+  private logo: Phaser.GameObjects.Sprite;
   private startGame: StartGameBtn;
   private name: Phaser.GameObjects.Text;
   private points: Phaser.GameObjects.Text;
+  private bg: Phaser.GameObjects.TileSprite;
 
   public init(state: Istate): void {
     this.state = state;
@@ -30,21 +33,15 @@ export default class MainMenu extends Phaser.Scene {
   public create(): void {
     const curFontSize = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
     const currentBtnHeight = Math.round(document.body.clientHeight / 100 * BTN_DISPLAY_PERCENT);
-    const titleStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-      fontFamily: 'Molot',
-      fontSize: `${curFontSize}px`,
-      align: 'center',
-      color: 'white',
-      stroke: 'black',
-      strokeThickness: 4,
-    };
-    this.add.tileSprite(0, 0, this.camera.width, this.camera.height, 'pixel').setOrigin(0).setTint(0x000000).setAlpha(0.001).setInteractive();
-    this.title = this.add.text(this.camera.centerX, this.camera.centerY - currentBtnHeight / 2, this.lang.gameName, titleStyle).setOrigin(0.5, 1);
+    const currentLogoHeight = Math.round(document.body.clientHeight / 100 * LOGO_DISPLAY_PERCENT);
+    this.bg = this.add.tileSprite(0, 0, this.camera.width, this.camera.height, 'pixel').setOrigin(0).setTint(0x20006b).setAlpha(0.55).setInteractive();
+    this.logo = this.add.sprite(this.camera.centerX, this.camera.centerY - currentBtnHeight / 4, 'logo').setOrigin(0.5, 1).setScale(currentLogoHeight / 245);
 
     const position: Iposition = {
       x: this.cameras.main.centerX,
-      y: this.title.getBottomCenter().y + currentBtnHeight / 2,
+      y: this.logo.getBottomCenter().y + currentBtnHeight,
     };
+
     const action = (): void => {
       this.scene.launch('Modal', { state: this.state, type: 'mainMenu' });
     }
@@ -73,12 +70,15 @@ export default class MainMenu extends Phaser.Scene {
   public resize(): void {
     const curFontSize = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
     const currentBtnHeight = Math.round(document.body.clientHeight / 100 * BTN_DISPLAY_PERCENT);
-    this.title.setPosition(this.camera.centerX, this.camera.centerY - 100).setFontSize(curFontSize);
+    const currentLogoHeight = Math.round(document.body.clientHeight / 100 * LOGO_DISPLAY_PERCENT);
+
+    this.logo.setPosition(this.camera.centerX, this.camera.centerY - currentBtnHeight / 4).setScale(currentLogoHeight / 245);
     this.name.setPosition(20, curFontSize / 2).setFontSize(curFontSize);
     this.points.setPosition(20, this.name.getBounds().bottom).setFontSize(curFontSize);
     this.startGame.x = this.camera.centerX;
-    this.startGame.y = this.title.getBottomCenter().y + currentBtnHeight / 2;
+    this.startGame.y = this.logo.getBottomCenter().y + currentBtnHeight;
     this.startGame.setScale(currentBtnHeight / 245, curFontSize + curFontSize * 0.20);
+    this.bg.setSize(this.camera.width, this.camera.height);
   }
 
 
@@ -92,6 +92,13 @@ export default class MainMenu extends Phaser.Scene {
       this.scene.stop('Modal');
       this.scene.start('Hud', this.state)
       this.gameScene.launch(this.state)
+    }
+    if (this.scene.isActive('Modal')) {
+      this.startGame.setVisible(false);
+      this.logo.setVisible(false);
+    } else if (!this.scene.isActive('Modal') && !this.logo.visible) {
+      this.startGame.setVisible(true);
+      this.logo.setVisible(true);
     }
   }
 }

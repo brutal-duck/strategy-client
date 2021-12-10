@@ -93,6 +93,7 @@ const wreath: string = require('../../assets/images/modal/wreath.png');
 const modalPlate: string = require('../../assets/images/modal/plate.png');
 const timerPlate: string = require('../../assets/images/timer-plate.png');
 const arrow: string = require('../../assets/images/arrow.png');
+const logo: string = require('../../assets/images/logo.png');
 
 class Preload extends Phaser.Scene {
   constructor() {
@@ -228,6 +229,7 @@ class Preload extends Phaser.Scene {
     this.load.image('modal-plate', modalPlate);
     this.load.image('timer-plate', timerPlate);
     this.load.image('arrow', arrow);
+    this.load.image('logo', logo);
   }
   
   public create(): void {

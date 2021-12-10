@@ -43,4 +43,10 @@ export default class StartGameBtn extends Button {
     this.text.setX(this.x);
     return this;
   }
+
+  public setVisible(visible: boolean): this {
+    super.setVisible(visible);
+    this.text.setVisible(visible);
+    return this;
+  }
 };
