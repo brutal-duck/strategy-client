@@ -39,7 +39,7 @@ export default class MainMenu extends Phaser.Scene {
       strokeThickness: 4,
     };
     this.add.tileSprite(0, 0, this.camera.width, this.camera.height, 'pixel').setOrigin(0).setTint(0x000000).setAlpha(0.001).setInteractive();
-    this.title = this.add.text(this.camera.centerX, this.camera.centerY - 100, this.lang.gameName, titleStyle).setOrigin(0.5, 1);
+    this.title = this.add.text(this.camera.centerX, this.camera.centerY - currentBtnHeight / 2, this.lang.gameName, titleStyle).setOrigin(0.5, 1);
 
     const position: Iposition = {
       x: this.cameras.main.centerX,
@@ -65,8 +65,8 @@ export default class MainMenu extends Phaser.Scene {
       strokeThickness: 4,
     };
     const { name, points } = this.state.player;
-    this.name = this.add.text(20, 20, name, style).setOrigin(0);
-    this.points = this.add.text(20, 60, `${this.lang.points} ${points}`, style).setOrigin(0);
+    this.name = this.add.text(20, curFontSize / 2, name, style).setOrigin(0);
+    this.points = this.add.text(20, this.name.getBounds().bottom, `${this.lang.points} ${points}`, style).setOrigin(0);
 
   }
 
@@ -74,8 +74,8 @@ export default class MainMenu extends Phaser.Scene {
     const curFontSize = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
     const currentBtnHeight = Math.round(document.body.clientHeight / 100 * BTN_DISPLAY_PERCENT);
     this.title.setPosition(this.camera.centerX, this.camera.centerY - 100).setFontSize(curFontSize);
-    this.name.setPosition(20, 20).setFontSize(curFontSize);
-    this.points.setPosition(20, 60).setFontSize(curFontSize);
+    this.name.setPosition(20, curFontSize / 2).setFontSize(curFontSize);
+    this.points.setPosition(20, this.name.getBounds().bottom).setFontSize(curFontSize);
     this.startGame.x = this.camera.centerX;
     this.startGame.y = this.title.getBottomCenter().y + currentBtnHeight / 2;
     this.startGame.setScale(currentBtnHeight / 245, curFontSize + curFontSize * 0.20);
