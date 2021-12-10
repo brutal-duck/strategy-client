@@ -1,12 +1,19 @@
 interface Istate {
-  player: Iplayer
-  enemy?: Ienemy
-  game: IGame
-  platform: string
-  startGame: boolean
-  socket: Isocket
+  player: Iplayer;
+  enemy?: Ienemy;
+  game: IGame;
+  platform: string;
+  startGame: boolean;
+  socket: Isocket;
   tutorial: number;
+  amplitude?: Iamplitude;
 }
+interface Iamplitude {
+  setUserProperty: (property: string, data: string | number) => void;
+  track: (event: string, data: { [key: string]: string | number }) => void;
+  revenue: (pack: string, price: number, data: { [key: string]: string | number }, type?: string) => void;
+}
+
 interface Isocket {
   win: boolean;
   loose: boolean;

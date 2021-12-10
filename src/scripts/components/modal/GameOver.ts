@@ -244,6 +244,18 @@ export default class GameOver {
   }
 
   public stopGame(): void {
+    if (this.scene.state.tutorial === 10) {
+      let gameStatus = 'draw';
+      if (this.scene.info.winner) {
+        if (this.scene.info.win) gameStatus = 'win';
+        else gameStatus = 'loose';
+      }
+      this.scene.state.amplitude.track('done', {
+        status: gameStatus,
+        mode: this.scene.state.game.AI ? 'bot' : 'online', 
+      });
+    }
+
     this.scene.scene.stop(); 
     this.scene.gameScene.gameIsOn = false
     this.scene.gameScene.hud.scene.stop()
@@ -262,6 +274,7 @@ export default class GameOver {
       } else {
         bridge.send('VKWebAppStorageSet', { key: 'tutorial', value: '10' });
       }
+      this.scene.state.amplitude.track('tutorial', { step: 60 });
     }
   }
 

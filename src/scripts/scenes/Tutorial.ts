@@ -67,6 +67,7 @@ export default class Tutorial extends Phaser.Scene {
       this.gameScene.time.addEvent({
         delay: this.gameScene.green.clameTime,
         callback: (): void => {
+          this.state.amplitude.track('tutorial', { step: 0 });
           this.state.tutorial += 1;
           this.gameScene.scene.launch('Tutorial', this.state);
         }
@@ -90,6 +91,7 @@ export default class Tutorial extends Phaser.Scene {
       .setTint(0)
       .setInteractive()
       .on('pointerup', () => {
+        this.state.amplitude.track('tutorial', { step: 10 });
         this.state.tutorial += 1;
         this.scene.restart(this.state);
         this.gameScene.centerCamera(this.gameScene.chosenHex.getCenter().x, this.gameScene.chosenHex.getCenter().y);
@@ -118,6 +120,7 @@ export default class Tutorial extends Phaser.Scene {
       this.gameScene.time.addEvent({
         delay: this.gameScene.green.clameTime,
         callback: (): void => {
+          this.state.amplitude.track('tutorial', { step: 20 });
           this.state.tutorial += 1;
           this.gameScene.scene.launch('Tutorial', this.state);
           this.gameScene.centerCamera(this.gameScene.chosenHex.getCenter().x, this.gameScene.chosenHex.getCenter().y);
@@ -148,6 +151,7 @@ export default class Tutorial extends Phaser.Scene {
       this.gameScene.time.addEvent({
         delay: this.gameScene.green.clameTime,
         callback: (): void => {
+          this.state.amplitude.track('tutorial', { step: 30 });
           this.state.tutorial += 1;
           this.gameScene.scene.launch('Tutorial', this.state);
         }
@@ -187,6 +191,7 @@ export default class Tutorial extends Phaser.Scene {
           const nearbyHex = this.gameScene.getHexById(id);
           if (nearbyHex) nearbyHex.clame('red');
         });
+        this.state.amplitude.track('tutorial', { step: 40 });
         this.state.tutorial += 1;
         this.scene.restart(this.state);
       });
@@ -201,6 +206,7 @@ export default class Tutorial extends Phaser.Scene {
       .setTint(0)
       .setInteractive()
       .on('pointerup', () => {
+        this.state.amplitude.track('tutorial', { step: 50 });
         this.state.tutorial += 1;
         this.scene.stop();
         this.gameScene.green.hexes = 100;
@@ -258,7 +264,7 @@ export default class Tutorial extends Phaser.Scene {
   }
 
   private createArrow(x: number, y: number, vertical: boolean = false): void {
-    const arrow = this.add.sprite(x, y, 'arrow').setAngle(vertical ? -90 : 0).setOrigin(1, 0.5).setScale(0.5);
+    const arrow = this.add.sprite(x, y, 'arrow').setAngle(vertical ? -90 : 0).setOrigin(1, 0.5);
     this.tweens.add({
       targets: arrow,
       x: vertical ? '+=0' : '+= 20',

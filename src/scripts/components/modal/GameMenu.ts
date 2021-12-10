@@ -25,7 +25,7 @@ export default class GameMenu {
     };
     const x = this.scene.bg.getCenter().x;
     const y = this.scene.bg.getCenter().y;
-    const windowHeight = 390;
+    const windowHeight = 250;
 
     this.top = this.scene.add.sprite(x, y - windowHeight / 2 - 100, 'header-mid').setOrigin(0.5, 0);
     const topGeom = this.top.getBounds();
@@ -36,8 +36,8 @@ export default class GameMenu {
     this.title = this.scene.add.text(x, topGeom.bottom + 30, this.scene.lang.menu, textStyle).setOrigin(0.5).setDepth(2);
     this.exit = new ExitBtn(this.scene, { x: topGeom.right - 45, y: topGeom.bottom + 30}, (): void => { this.scene.scene.stop(); });
 
-    this.btn1 = new MenuBtn(this.scene, { x: x, y: midGeom.centerY }, (): void => { console.log('settings'); });
-    this.btn2 = new MenuBtn(this.scene, { x: x, y: midGeom.centerY + 120 }, (): void => { this.stopGame(); }, 'escape');
+    // this.btn1 = new MenuBtn(this.scene, { x: x, y: midGeom.centerY }, (): void => { console.log('settings'); });
+    this.btn2 = new MenuBtn(this.scene, { x: x, y: midGeom.centerY + 20 }, (): void => { this.stopGame(); }, 'escape');
   }
 
   private stopGame(): void {

@@ -1,6 +1,7 @@
 import StartGameBtn from "../components/buttons/StartGameBtn"
 import langs from "../langs"
 import Game from "./Game"
+import bridge from '@vkontakte/vk-bridge';
 const TEXT_DISPLAY_PERCENT = 5;
 const BTN_DISPLAY_PERCENT = 23;
 const LOGO_DISPLAY_PERCENT = 37;
@@ -14,7 +15,6 @@ export default class MainMenu extends Phaser.Scene {
   public lang: any;
   private camera: Phaser.Cameras.Scene2D.BaseCamera;
   public gameScene: Game;
-  // private title: Phaser.GameObjects.Text;
   private logo: Phaser.GameObjects.Sprite;
   private startGame: StartGameBtn;
   private name: Phaser.GameObjects.Text;
@@ -44,6 +44,13 @@ export default class MainMenu extends Phaser.Scene {
 
     const action = (): void => {
       this.scene.launch('Modal', { state: this.state, type: 'mainMenu' });
+      bridge.send('VKWebAppStorageGet', { keys: ['play'] }).then(data => {
+        const check = data.keys.find(key => key.key === 'play');
+        if (!check) {
+          this.state.amplitude.track('play', {});
+          bridge.send('VKWebAppStorageSet', { key: 'play', value: 'true' });
+        }
+      });
     }
 
     this.startGame = new StartGameBtn(this, position, action, this.lang.play);
@@ -87,6 +94,9 @@ export default class MainMenu extends Phaser.Scene {
       this.state.socket.clearState();
       this.state.startGame = false;
       if (this.state.game.AI) this.state.player.color = Phaser.Math.Between(0, 1) === 0 ? 'green' : 'red'
+      else {
+        this.state.amplitude.track('start', { mode: 'online' });
+      }
       this.gameScene.cameraFly(true, false)
       this.scene.stop()
       this.scene.stop('Modal');

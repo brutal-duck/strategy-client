@@ -105,6 +105,7 @@ export default class SingleplayerMenu {
     this.scene.scene.stop('MainMenu');
     this.scene.scene.start('Hud', this.scene.state);
     this.scene.gameScene.launch(this.scene.state);
+    this.scene.state.amplitude.track('start', { mode: 'bot', level: this.level });
   }
 
   public resize(): void {

@@ -3,6 +3,7 @@ import bridgeMock from '@vkontakte/vk-bridge-mock'
 import bridge from '@vkontakte/vk-bridge'
 import state from '../state';
 import Socket from './../utils/Socket';
+import Amplitude from './../libs/Amplitude';
 const pixel: any = require("./../../assets/images/pixel.png");
 
 class Boot extends Phaser.Scene {
@@ -14,7 +15,7 @@ class Boot extends Phaser.Scene {
   public lang: string;
   public fontsReady: boolean;
   public userIsReady: boolean;
-  public build: string;
+  public build: number;
 
 
   public preload(): void {
@@ -22,7 +23,7 @@ class Boot extends Phaser.Scene {
   }
 
   public init(): void {
-    this.build = '0.1';
+    this.build = 1.0;
     console.log('Build ' + this.build);
 
     this.state = state;
@@ -70,6 +71,8 @@ class Boot extends Phaser.Scene {
         }
         this.userIsReady = true;
         this.state.socket = new Socket(this.state);
+        this.state.platform = 'vk';
+        this.initAmplitude();
       });
     });
   }
@@ -91,9 +94,16 @@ class Boot extends Phaser.Scene {
         }
         this.userIsReady = true;
         this.state.socket = new Socket(this.state);
+        this.initAmplitude();
       });
     });
 
+  }
+
+  private initAmplitude(): void {
+    this.state.amplitude = new Amplitude(this);
+    this.state.amplitude.setUserProperty('build', this.build);
+    this.state.amplitude.setUserProperty('platform', this.state.platform);
   }
 
   public update(): void {
@@ -104,7 +114,7 @@ class Boot extends Phaser.Scene {
     }
   }
 
-  public start(): void {
+  private start(): void {
     this.scene.stop();
     this.scene.start('Preload', this.state)
   }

@@ -1,5 +1,5 @@
 let state: Istate = {
-  tutorial: 0,
+  tutorial: 10,
   player: {
     name: 'player1',
     color: '',

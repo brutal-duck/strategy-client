@@ -94,7 +94,10 @@ export default class MultiplayerMenu {
     this.exit = new ExitBtn(
       this.scene,
       { x: topGeom.right - 45, y: topGeom.bottom + 30},
-      (): void => { this.scene.scene.restart({ state: this.scene.state, type: 'mainMenu' });},
+      (): void => { 
+        this.scene.scene.restart({ state: this.scene.state, type: 'mainMenu' });
+        this.scene.state.socket.closeSocket();
+      },
     );
   }
 
