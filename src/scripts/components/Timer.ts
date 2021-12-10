@@ -57,10 +57,11 @@ export default class Timer {
     this.startCountdown()
   }
 
-  public setFontSize(size: number): void {
+  public setFontSize(size: number): this {
     this.colon?.setFontSize(size);
     this.minutes?.setFontSize(size);
     this.seconds?.setFontSize(size);
+    return this;
   }
 
   private startCountdown(): void {
