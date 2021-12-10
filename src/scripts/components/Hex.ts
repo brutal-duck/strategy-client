@@ -137,9 +137,13 @@ export default class Hex extends Phaser.GameObjects.Sprite {
         this.clamingAniRemove()
         if (this.defence > 1 && !superHex) this.breakDefence()
         else {
-          this.productionTimer?.remove()
-          this.own = 'neutral'
-          this.setClaming(color, superHex)
+          this.productionTimer?.remove();
+          this.own = 'neutral';
+          this.setClaming(color, superHex);
+          if (superHex) {
+            this.defence = 1;
+            this.setWorldTexture();
+          }
         }
       }
     })
@@ -264,8 +268,6 @@ export default class Hex extends Phaser.GameObjects.Sprite {
         if (this.defence > 1) this.breakSocketDefence()
         else {
           this.productionTimer?.remove()
-          // this.setColor('neutral')
-          // this.own = 'neutral'
           if (!this.super) this.setWorldTexture();
           this.setSocketClaming(color, superHex)
         }
@@ -309,7 +311,7 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     if (superHex) {
       this.super = true
     }
-
+    if (this.defence > 1) this.defence = 1;
     if (this.resources > 0) this.giveResources()
     this.setWorldTexture()
     this.setNearbyMark()
