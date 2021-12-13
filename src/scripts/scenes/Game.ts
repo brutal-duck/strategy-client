@@ -112,6 +112,7 @@ export default class Game extends Phaser.Scene {
     this.red = Object.assign({}, config)
     this[this.player.color].name = this.state.player.name;
     this[this.enemyColor].name = this.state.enemy?.name || this.lang.enemy;
+    if (this[this.enemyColor].name === this.lang.you) this[this.enemyColor].name = this.lang.enemy;
     this.stars = 0
     this.baseWasFound = false
     this.claming = [] // массив захватываемых в данный момент клеток
@@ -142,6 +143,7 @@ export default class Game extends Phaser.Scene {
           points: 0,
           gameCount: 0,
         };
+        if (!this.state.yaPlayer) return;
         this.state.yaPlayer.setData(result, true);
       }
     });
@@ -493,7 +495,7 @@ export default class Game extends Phaser.Scene {
 
     if (fly) {
       const duration = 25000
-      if (updateStartFlyX) this.startFlyX = 1000;
+      if (updateStartFlyX) this.startFlyX = 1200;
       this.centerCamera(this.startFlyX + 220, 900, true, 2500, 'Quad.easeOut')
       this.flyAni1 = this.tweens.add({
         onStart: (): void => {
@@ -587,6 +589,7 @@ export default class Game extends Phaser.Scene {
     if (this.state.platform === platforms.VK) {
       bridge.send('VKWebAppStorageSet', { key: 'points', value: String(this.player.points) });
     } else {
+      if (!this.state.yaPlayer) return;
       this.state.yaPlayer.getData().then(data => {
         const result: IstorageData = {
           tutorial: data.tutorial || 60,

@@ -304,6 +304,7 @@ export default class GameOver {
       if (this.scene.state.platform === platforms.VK) {
         bridge.send('VKWebAppStorageSet', { key: 'tutorial', value: '10' });
       } else {
+        if (!this.scene.state.yaPlayer) return;
         this.scene.state.yaPlayer.getData().then(data => {
           const result: IstorageData = {
             tutorial: 60,

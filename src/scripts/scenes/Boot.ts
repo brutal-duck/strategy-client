@@ -39,7 +39,7 @@ class Boot extends Phaser.Scene {
       if (process.env.PLATFORM !== platforms.YANDEX) {
         this.initUserVK();
       } else {
-        this.state.platform = platforms.YANDEX;
+        this.initYandexPlatform()
       }
     }
     this.setFonts();
@@ -119,6 +119,7 @@ class Boot extends Phaser.Scene {
   }
 
   private initYandexPlatform(): void {
+    this.state.platform = platforms.YANDEX;
     const d: Document = document;
     const t: HTMLScriptElement = d.getElementsByTagName('script')[0];
     const s: HTMLScriptElement = d.createElement('script');

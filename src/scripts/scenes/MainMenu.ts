@@ -54,6 +54,7 @@ export default class MainMenu extends Phaser.Scene {
           }
         });
       } else {
+        if (!this.state.yaPlayer) return;
         this.state.yaPlayer.getData().then(data => {
           if (!data.play) {
             const result: IstorageData = {
