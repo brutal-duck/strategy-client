@@ -150,7 +150,6 @@ export default class Game extends Phaser.Scene {
 
     this.graphManager.initGraphs();
     this.graphManager.initNeutralGraphs();
-    this.scene.launch('Modal', { state: this.state, type: 'review' });
   }
 
   public resize(): void {
