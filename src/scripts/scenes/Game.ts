@@ -541,6 +541,7 @@ export default class Game extends Phaser.Scene {
         hex.clamingAni?.remove();
         hex.upgradeAni?.remove();
         hex.produceHexesRemove();
+        hex.removeFog();
       });
   
       if (!winner) {
