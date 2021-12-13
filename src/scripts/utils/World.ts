@@ -56,7 +56,7 @@ export default class World {
   }
   
   private init(): void {
-    this.startX = 700
+    this.startX = 850
     this.startY = 500
     this.segmentRows = this.scene.segmentRows
     this.segmentCols = this.scene.segmentCols
