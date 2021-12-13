@@ -45,6 +45,7 @@ export default class MainMenu extends Phaser.Scene {
     const action = (): void => {
       this.scene.launch('Modal', { state: this.state, type: 'mainMenu' });
       bridge.send('VKWebAppStorageGet', { keys: ['play'] }).then(data => {
+        console.log(data);
         const check = data.keys.find(key => key.key === 'play');
         if (!check) {
           this.state.amplitude.track('play', {});
