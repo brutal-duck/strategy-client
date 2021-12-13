@@ -611,7 +611,7 @@ export default class Game extends Phaser.Scene {
       else if (this.state.socket.reason === 'TIME_IS_UP') text = 'timeIsUp';
       if (this.hexes.every(el => !el.clamingAni?.isPaused())) { 
         this.time.addEvent({
-          delay: 500,
+          delay: 100,
           callback: (): void => {     
             this.gameOver(text, this.player.color);
             this.incPlayerPoints();
@@ -627,7 +627,7 @@ export default class Game extends Phaser.Scene {
         if (this.state.socket.reason === 'ENEMY_LEFT') text = 'youSurrendered';
         else if (this.state.socket.reason === 'TIME_IS_UP') text = 'timeIsUp';
         this.time.addEvent({
-          delay: 500,
+          delay: 100,
           callback: (): void => {
             this.gameOver(text, this.player.color === 'red' ? 'green' : 'red');
           },
