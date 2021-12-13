@@ -4,6 +4,8 @@ import bridge from '@vkontakte/vk-bridge'
 import state from '../state';
 import Socket from './../utils/Socket';
 import Amplitude from './../libs/Amplitude';
+import { platforms } from '../types';
+import langs from '../langs';
 const pixel: any = require("./../../assets/images/pixel.png");
 
 class Boot extends Phaser.Scene {
@@ -12,11 +14,10 @@ class Boot extends Phaser.Scene {
   }
 
   public state: Istate;
-  public lang: string;
   public fontsReady: boolean;
   public userIsReady: boolean;
   public build: number;
-
+  public lang: { [key: string]: string };
 
   public preload(): void {
     this.load.image('pixel', pixel);
@@ -25,29 +26,30 @@ class Boot extends Phaser.Scene {
   public init(): void {
     this.build = 1.0;
     console.log('Build ' + this.build);
-
+    this.lang = langs.ru;
     this.state = state;
     this.fontsReady = false;
     this.userIsReady = false;
+    this.state.platform = 'vk';
     
 
     if (process.env.DEV === 'true') {
       this.initMockUser();
     } else {
-      this.checkUser();
+      if (process.env.PLATFORM !== platforms.YANDEX) {
+        this.initUserVK();
+      } else {
+        this.state.platform = platforms.YANDEX;
+      }
     }
-
-    
-    this.setFonts()
+    this.setFonts();
   }
 
   
   private setFonts(): void {
     let scene: Boot = this;
     Webfont.load({
-      custom: {
-        families: ['Molot']
-      },
+      custom: { families: ['Molot'] },
       active() {
         scene.fontsReady = true;
       }
@@ -55,7 +57,7 @@ class Boot extends Phaser.Scene {
   }
 
   
-  private checkUser() {
+  private initUserVK() {
     bridge.send('VKWebAppInit');
     bridge.send('VKWebAppGetUserInfo').then(data => {
       this.state.player.name = data.first_name + ' ' + data.last_name;
@@ -71,12 +73,10 @@ class Boot extends Phaser.Scene {
         }
         this.userIsReady = true;
         this.state.socket = new Socket(this.state);
-        this.state.platform = 'vk';
         this.initAmplitude();
       });
     });
   }
-
 
   private initMockUser(): void {
     bridgeMock.send('VKWebAppInit');
@@ -97,7 +97,6 @@ class Boot extends Phaser.Scene {
         this.initAmplitude();
       });
     });
-
   }
 
   private initAmplitude(): void {
@@ -118,7 +117,67 @@ class Boot extends Phaser.Scene {
     this.scene.stop();
     this.scene.start('Preload', this.state)
   }
+
+  private initYandexPlatform(): void {
+    const d: Document = document;
+    const t: HTMLScriptElement = d.getElementsByTagName('script')[0];
+    const s: HTMLScriptElement = d.createElement('script');
+    s.src = 'https://yandex.ru/games/sdk/v2';
+    s.async = true;
+    t.parentNode.insertBefore(s, t);
+    s.onload = (): void => {
+      window['YaGames'].init().then((ysdk: any) => {
+        this.state.ysdk = ysdk;
+        this.initYandexUser().catch((err) => {
+          this.state.player.id = this.randomString(10);
+          this.state.player.name = this.lang.you;
+        }).finally(() => {
+          this.userIsReady = true;
+          this.state.socket = new Socket(this.state);
+          this.initAmplitude();
+        });
+      });
+    }
+  }
+
+  private randomString(length: number = 5): string {
+    let characters: string = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let rs: string = '';
   
+    while (rs.length < length) {
+      rs += characters[Math.floor(Math.random() * characters.length)];
+    }
+  
+    return rs;
+  }
+
+  private async initYandexUser(): Promise<void> {
+    return this.state.ysdk.getPlayer().then((player: IyandexPlayer) => {
+      this.state.player.id = player.getUniqueID();
+      this.state.player.name = player.getName();
+      if (!this.state.player.name) this.state.player.name = `yandex_${String(this.state.player.id).substr(0, 4)}`;
+      this.state.yaPlayer = player;
+      this.state.yaPlayer.getData().then(data => {
+        const result: IstorageData = {
+          tutorial: 0,
+          play: false,
+          points: 0,
+          gameCount: 0,
+        };
+        if (data) {
+          result.tutorial = data.tutorial || result.tutorial;
+          result.play = data.play || result.play;
+          result.points = data.points || result.points;
+          result.gameCount = data.gameCount || result.gameCount;
+        }
+        this.state.tutorial = Number(result.tutorial);
+        this.state.player.points = Number(result.points);
+        this.state.yaPlayer.setData(result, true);
+        this.state.ysdk.adv.showFullscreenAdv({callbacks:{}});
+      });
+    });
+  }
+
 }
 
 export default Boot;

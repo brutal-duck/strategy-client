@@ -7,13 +7,20 @@ interface Istate {
   socket: Isocket;
   tutorial: number;
   amplitude?: Iamplitude;
+  ysdk?: any;
+  yaPlayer?: IyandexPlayer;
 }
 interface Iamplitude {
   setUserProperty: (property: string, data: string | number) => void;
   track: (event: string, data: { [key: string]: string | number }) => void;
   revenue: (pack: string, price: number, data: { [key: string]: string | number }, type?: string) => void;
 }
-
+interface IstorageData {
+  tutorial: number;
+  play: boolean;
+  points: number;
+  gameCount: number;
+}
 interface Isocket {
   win: boolean;
   loose: boolean;
@@ -37,7 +44,14 @@ interface Iplayer {
   ok_id?: string
   points: number
   wins?: number
-  id: number
+  id: number | string;
+}
+interface IyandexPlayer {
+  getUniqueID: () => string;
+  getName: () => string;
+  getPhoto: (size: 'small' | 'medium' | 'large') => string;
+  setData: (data: IstorageData, flush: boolean) => Promise<void>;
+  getData: (keys?: string[]) => Promise<IstorageData>;
 }
 interface  IsocketPlayer {
   color: string

@@ -4,6 +4,7 @@ import ColorsBtn from '../buttons/ColorsBtn';
 import bridgeMock from '@vkontakte/vk-bridge-mock';
 import bridge from '@vkontakte/vk-bridge';
 import { center } from '../../presets';
+import { platforms } from '../../types';
 
 export default class GameOver {
   private scene: Modal;
@@ -244,17 +245,7 @@ export default class GameOver {
   }
 
   public stopGame(): void {
-    if (this.scene.state.tutorial === 10) {
-      let gameStatus = 'draw';
-      if (this.scene.info.winner) {
-        if (this.scene.info.win) gameStatus = 'win';
-        else gameStatus = 'loose';
-      }
-      this.scene.state.amplitude.track('done', {
-        status: gameStatus,
-        mode: this.scene.state.game.AI ? 'bot' : 'online', 
-      });
-    }
+    this.trackGameResult();
 
     this.scene.scene.stop(); 
     this.scene.gameScene.gameIsOn = false
@@ -266,15 +257,63 @@ export default class GameOver {
     this.saveTutorial();
   }
 
+  private trackGameResult(): void {
+    if (this.scene.state.tutorial === 10) {
+      let gameStatus = 'draw';
+      if (this.scene.info.winner) {
+        if (this.scene.info.win) gameStatus = 'win';
+        else gameStatus = 'loose';
+      }
+      
+      if (this.scene.state.platform === platforms.VK)
+      bridge.send('VKWebAppStorageGet', { keys: ['gameCount'] }).then(data => {
+        const check = data.keys.find(key => key.key === 'gameCount');
+        const count = Number(check?.value) || 0;
+        this.scene.state.amplitude.track('done', {
+          status: gameStatus,
+          mode: this.scene.state.game.AI ? 'bot' : 'online',
+          count: count + 1,
+        });
+
+        bridge.send('VKWebAppStorageSet', { key: 'gameCount', value: String(count + 1) });
+      });
+    } else if (this.scene.state.platform === platforms.YANDEX) {
+      if (!this.scene.state.yaPlayer) return;
+      this.scene.state.yaPlayer.getData().then(data => {
+        const result: IstorageData = {
+          tutorial: this.scene.state.tutorial,
+          play: true,
+          points: this.scene.state.player.points,
+          gameCount: 1,
+        };
+        if (data) {
+          if (!isNaN(data.gameCount)) {
+            result.gameCount = data.gameCount + 1 || result.gameCount;
+          }
+        }
+        this.scene.state.yaPlayer.setData(result, true);
+      });
+    }
+  }
+
+
   private saveTutorial(): void {
     if (this.scene.state.tutorial !== 10) {
       this.scene.state.tutorial = 10;
-      if (process.env.DEV) {
-        bridgeMock.send('VKWebAppStorageSet', { key: 'tutorial', value: '10' });
-      } else {
-        bridge.send('VKWebAppStorageSet', { key: 'tutorial', value: '10' });
-      }
       this.scene.state.amplitude.track('tutorial', { step: 60 });
+      if (this.scene.state.platform === platforms.VK) {
+        bridge.send('VKWebAppStorageSet', { key: 'tutorial', value: '10' });
+      } else {
+        this.scene.state.yaPlayer.getData().then(data => {
+          const result: IstorageData = {
+            tutorial: 60,
+            play: data.play || false,
+            points: data.points || 0,
+            gameCount: data.gameCount || 0,
+          };
+          this.scene.state.yaPlayer.setData(result, true);
+        });
+      }
     }
   }
 

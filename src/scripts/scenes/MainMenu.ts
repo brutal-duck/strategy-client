@@ -2,6 +2,7 @@ import StartGameBtn from "../components/buttons/StartGameBtn"
 import langs from "../langs"
 import Game from "./Game"
 import bridge from '@vkontakte/vk-bridge';
+import { platforms } from "../types";
 const TEXT_DISPLAY_PERCENT = 5;
 const BTN_DISPLAY_PERCENT = 23;
 const LOGO_DISPLAY_PERCENT = 37;
@@ -44,13 +45,28 @@ export default class MainMenu extends Phaser.Scene {
 
     const action = (): void => {
       this.scene.launch('Modal', { state: this.state, type: 'mainMenu' });
-      bridge.send('VKWebAppStorageGet', { keys: ['play'] }).then(data => {
-        const check = data.keys.find(key => key.key === 'play');
-        if (!check || check && check.value !== 'true') {
-          this.state.amplitude.track('play', {});
-          bridge.send('VKWebAppStorageSet', { key: 'play', value: 'true' });
-        }
-      });
+      if (this.state.platform === platforms.VK) {
+        bridge.send('VKWebAppStorageGet', { keys: ['play'] }).then(data => {
+          const check = data.keys.find(key => key.key === 'play');
+          if (!check || check && check.value !== 'true') {
+            this.state.amplitude.track('play', {});
+            bridge.send('VKWebAppStorageSet', { key: 'play', value: 'true' });
+          }
+        });
+      } else {
+        this.state.yaPlayer.getData().then(data => {
+          if (!data.play) {
+            const result: IstorageData = {
+              tutorial: data.tutorial || 60,
+              play: true,
+              points: data.points || 0,
+              gameCount: data.gameCount || 0,
+            };
+            this.state.yaPlayer.setData(result, true);
+            this.state.amplitude.track('play', {});
+          }
+        });
+      }
     }
 
     this.startGame = new StartGameBtn(this, position, action, this.lang.play);

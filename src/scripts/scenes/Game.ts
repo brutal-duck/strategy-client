@@ -9,6 +9,7 @@ import AI from "../utils/AI";
 import World from "../utils/World";
 import Hud from "./Hud";
 import GraphManager from './../utils/GraphManager';
+import { platforms } from "../types";
 
 export default class Game extends Phaser.Scene {
   constructor() {
@@ -131,8 +132,18 @@ export default class Game extends Phaser.Scene {
     }
 
     this.input.keyboard.createCursorKeys().space.on('down', (): void => {
-      bridge.send('VKWebAppStorageSet', { key: 'tutorial', value: '0' });
-      bridge.send('VKWebAppStorageSet', { key: 'play', value: '' });
+      if (this.state.platform === platforms.VK) {
+        bridge.send('VKWebAppStorageSet', { key: 'tutorial', value: '0' });
+        bridge.send('VKWebAppStorageSet', { key: 'play', value: '' });
+      } else {
+        const result: IstorageData = {
+          tutorial: 0,
+          play: false,
+          points: 0,
+          gameCount: 0,
+        };
+        this.state.yaPlayer.setData(result, true);
+      }
     });
 
     this.graphManager.initGraphs();
@@ -573,10 +584,18 @@ export default class Game extends Phaser.Scene {
 
   private incPlayerPoints(): void {
     this.player.points += this.state.socket.points;
-    if (process.env.DEV === 'true') {
-      bridgeMock.send('VKWebAppStorageSet', { key: 'points', value: String(this.player.points) });
-    } else {
+    if (this.state.platform === platforms.VK) {
       bridge.send('VKWebAppStorageSet', { key: 'points', value: String(this.player.points) });
+    } else {
+      this.state.yaPlayer.getData().then(data => {
+        const result: IstorageData = {
+          tutorial: data.tutorial || 60,
+          play: data.play || true,
+          points: this.player.points,
+          gameCount: data.gameCount || 0,
+        };
+        this.state.yaPlayer.setData(result, true);
+      });
     }
     this.state.socket.points = 0;
   }
