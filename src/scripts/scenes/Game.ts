@@ -495,7 +495,7 @@ export default class Game extends Phaser.Scene {
 
     if (fly) {
       const duration = 25000
-      if (updateStartFlyX) this.startFlyX = 1200;
+      if (updateStartFlyX) this.startFlyX = 1400;
       this.centerCamera(this.startFlyX + 220, 900, true, 2500, 'Quad.easeOut')
       this.flyAni1 = this.tweens.add({
         onStart: (): void => {
