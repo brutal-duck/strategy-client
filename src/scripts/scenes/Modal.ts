@@ -8,6 +8,7 @@ import Menu from '../components/modal/Menu';
 import GameMenu from './../components/modal/GameMenu';
 import SuperHexConfirm from './../components/modal/SuperHexConfirm';
 import GameOver from './../components/modal/GameOver';
+import ReviewWindow from './../components/modal/ReviewWindow';
 export default class Modal extends Phaser.Scene {
   constructor() {
     super('Modal')
@@ -24,6 +25,7 @@ export default class Modal extends Phaser.Scene {
   private gameMenu: GameMenu;
   private mainMenu: Menu;
   private superHexConfirm: SuperHexConfirm;
+  private reviewWindow: ReviewWindow;
   private singleplayerMenu: SingleplayerMenu;
   private multiplayerMenu: MultiplayerMenu;
   private gameOver: GameOver;
@@ -105,6 +107,9 @@ export default class Modal extends Phaser.Scene {
 
       case 'multiplayerMenu':
         this.multiplayerMenu = new MultiplayerMenu(this);
+        break;
+      case 'review':
+        this.reviewWindow = new ReviewWindow(this);
         break;
       default: 
         break;

@@ -24,7 +24,7 @@ class Boot extends Phaser.Scene {
   }
 
   public init(): void {
-    this.build = 1.0;
+    this.build = 1.00001;
     console.log('Build ' + this.build);
     this.lang = langs.ru;
     this.state = state;

@@ -265,34 +265,42 @@ export default class GameOver {
         else gameStatus = 'loose';
       }
       
-      if (this.scene.state.platform === platforms.VK)
-      bridge.send('VKWebAppStorageGet', { keys: ['gameCount'] }).then(data => {
-        const check = data.keys.find(key => key.key === 'gameCount');
-        const count = Number(check?.value) || 0;
-        this.scene.state.amplitude.track('done', {
-          status: gameStatus,
-          mode: this.scene.state.game.AI ? 'bot' : 'online',
-          count: count + 1,
-        });
-
-        bridge.send('VKWebAppStorageSet', { key: 'gameCount', value: String(count + 1) });
-      });
-    } else if (this.scene.state.platform === platforms.YANDEX) {
-      if (!this.scene.state.yaPlayer) return;
-      this.scene.state.yaPlayer.getData().then(data => {
-        const result: IstorageData = {
-          tutorial: this.scene.state.tutorial,
-          play: true,
-          points: this.scene.state.player.points,
-          gameCount: 1,
-        };
-        if (data) {
-          if (!isNaN(data.gameCount)) {
-            result.gameCount = data.gameCount + 1 || result.gameCount;
+      if (this.scene.state.platform === platforms.VK) {
+        bridge.send('VKWebAppStorageGet', { keys: ['gameCount'] }).then(data => {
+          const check = data.keys.find(key => key.key === 'gameCount');
+          const count = Number(check?.value) || 0;
+          this.scene.state.amplitude.track('done', {
+            status: gameStatus,
+            mode: this.scene.state.game.AI ? 'bot' : 'online',
+            count: count + 1,
+          });
+          bridge.send('VKWebAppStorageSet', { key: 'gameCount', value: String(count + 1) });
+          console.log(count)
+          if (count === 5) {
+            this.scene.scene.restart({ state: this.scene.state, type: 'review' });
           }
-        }
-        this.scene.state.yaPlayer.setData(result, true);
-      });
+        });
+      } else if (this.scene.state.platform === platforms.YANDEX) {
+        this.scene.state.yaPlayer?.getData().then(data => {
+          const result: IstorageData = {
+            tutorial: this.scene.state.tutorial,
+            play: true,
+            points: this.scene.state.player.points,
+            gameCount: 1,
+          };
+          if (data) {
+            if (!isNaN(data.gameCount)) {
+              result.gameCount = data.gameCount + 1 || result.gameCount;
+            }
+            if (data.gameCount === 5) {
+              this.scene.state.ysdk.feedback.canReview().then(({ value }) => {
+                if (value) this.scene.state.ysdk.feedback.requestReview();
+              });
+            }
+          }
+          this.scene.state.yaPlayer.setData(result, true);
+        });
+      }
     }
   }
 

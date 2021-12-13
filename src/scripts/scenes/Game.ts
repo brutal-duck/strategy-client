@@ -576,12 +576,12 @@ export default class Game extends Phaser.Scene {
         this.vector.body.stop()
       }
 
-      this.checkSocketGameOver();
       if (this.state.game.updateHex) {
         this.updateHexState();
         this.updatePlayerState();
         this.state.game.updateHex = false;
       }
+      this.checkSocketGameOver();
     }
   }
 
