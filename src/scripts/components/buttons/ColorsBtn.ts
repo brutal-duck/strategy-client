@@ -1,5 +1,6 @@
 import Button from "./Button";
 import Modal from './../../scenes/Modal';
+import Tutorial from './../../scenes/Tutorial';
 
 export default class ColorsBtn extends Button {
   private color: string;
@@ -8,8 +9,8 @@ export default class ColorsBtn extends Button {
   private text1: Phaser.GameObjects.Text
   private text2: Phaser.GameObjects.Text
   private iconSprite: Phaser.GameObjects.Sprite
-  public scene: Modal;
-  constructor(scene: Modal, position: Iposition, action: () => void, settings: IcolorsBtnSettings) {
+  public scene: Modal | Tutorial;
+  constructor(scene: Modal | Tutorial, position: Iposition, action: () => void, settings: IcolorsBtnSettings) {
     super(scene, position, action);
     this.color = settings.color;
     this.text = settings.text;

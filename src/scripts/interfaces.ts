@@ -98,7 +98,7 @@ interface Igraph {
   [key: string] : Set<string>;
 }
 interface IcolorsBtnSettings {
-  color: string;
+  color: 'red' | 'green';
   text: string;
   icon: boolean;
 }

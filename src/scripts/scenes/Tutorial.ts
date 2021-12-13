@@ -2,8 +2,8 @@ import langs from "../langs";
 import Hex from './../components/Hex';
 import Game from './Game';
 import FlyAwayMsg from './../components/FlyAwayMsg';
-import { config } from "../gameConfig";
 import Hud from './Hud';
+import ColorsBtn from './../components/buttons/ColorsBtn';
 
 export default class Tutorial extends Phaser.Scene {
   public state: Istate;
@@ -80,7 +80,14 @@ export default class Tutorial extends Phaser.Scene {
   }
 
   private createStep1(): void {
-    this.createBubble(this.lang.tutorialStep1);
+    const action = () => {
+      this.state.amplitude.track('tutorial', { step: 10 });
+      this.state.tutorial += 1;
+      this.scene.restart(this.state);
+      this.gameScene.centerCamera(this.gameScene.chosenHex.getCenter().x, this.gameScene.chosenHex.getCenter().y);
+    };
+
+    this.createBubble(this.lang.tutorialStep1, action);
     const hudScene = this.game.scene.getScene('Hud') as Hud;
     const { bottom, right } = hudScene.hexBar.getBounds();
     this.createArrow(right, bottom, true);
@@ -90,12 +97,7 @@ export default class Tutorial extends Phaser.Scene {
       .setAlpha(0.001)
       .setTint(0)
       .setInteractive()
-      .on('pointerup', () => {
-        this.state.amplitude.track('tutorial', { step: 10 });
-        this.state.tutorial += 1;
-        this.scene.restart(this.state);
-        this.gameScene.centerCamera(this.gameScene.chosenHex.getCenter().x, this.gameScene.chosenHex.getCenter().y);
-      });
+      .on('pointerup', action);
   }
 
   private createStep2(): void {
@@ -173,7 +175,18 @@ export default class Tutorial extends Phaser.Scene {
   }
 
   private createStep4(): void {
-    this.createBubble(this.lang.tutorialStep4);
+    const action = () => {
+      const hex = this.gameScene.hexes.find(el => el.own === 'red');
+      hex.removeFog();
+      Object.values(hex.nearby).forEach(id => {
+        const nearbyHex = this.gameScene.getHexById(id);
+        if (nearbyHex) nearbyHex.clame('red');
+      });
+      this.state.amplitude.track('tutorial', { step: 40 });
+      this.state.tutorial += 1;
+      this.scene.restart(this.state);
+    }
+    this.createBubble(this.lang.tutorialStep4, action);
     const hudScene = this.game.scene.getScene('Hud') as Hud;
     const { centerX, bottom } = hudScene.timer.getBounds();
     this.createArrow(centerX, bottom, true);
@@ -184,38 +197,30 @@ export default class Tutorial extends Phaser.Scene {
       .setAlpha(0.001)
       .setTint(0)
       .setInteractive()
-      .on('pointerup', () => {
-        const hex = this.gameScene.hexes.find(el => el.own === 'red');
-        hex.removeFog();
-        Object.values(hex.nearby).forEach(id => {
-          const nearbyHex = this.gameScene.getHexById(id);
-          if (nearbyHex) nearbyHex.clame('red');
-        });
-        this.state.amplitude.track('tutorial', { step: 40 });
-        this.state.tutorial += 1;
-        this.scene.restart(this.state);
-      });
+      .on('pointerup', action);
   }
 
   private createStep5(): void {
-    this.createBubble(this.lang.tutorialStep5);
+    const action = () => {
+      this.state.amplitude.track('tutorial', { step: 50 });
+      this.state.tutorial += 1;
+      this.scene.stop();
+      this.gameScene.green.hexes = 100;
+      const hudScene = this.game.scene.getScene('Hud') as Hud;
+      hudScene.updateHexCounter();
+    };
+
+    this.createBubble(this.lang.tutorialStep5, action);
     const { width, height } = this.cameras.main;
     this.add.tileSprite(0, 0, width, height, 'pixel')
       .setOrigin(0)
       .setAlpha(0.001)
       .setTint(0)
       .setInteractive()
-      .on('pointerup', () => {
-        this.state.amplitude.track('tutorial', { step: 50 });
-        this.state.tutorial += 1;
-        this.scene.stop();
-        this.gameScene.green.hexes = 100;
-        const hudScene = this.game.scene.getScene('Hud') as Hud;
-        hudScene.updateHexCounter();
-      });
+      .on('pointerup', action);
   }
   
-  private createBubble( str: string): void {
+  private createBubble(str: string, action?: () => void): void {
     const pos: Iposition  = {
       x: this.cameras.main.width - this.cameras.main.width / 20, 
       y: this.cameras.main.height / 2,
@@ -228,9 +233,18 @@ export default class Tutorial extends Phaser.Scene {
       wordWrap: { width: this.cameras.main.width / 4 },
     };
     const text = this.add.text(pos.x, pos.y, str, textStyle).setOrigin(1, 0.5).setDepth(1);
-    const { width, height, centerX, centerY } = text.getBounds();
+    const { width, height, centerX, centerY, bottom, left} = text.getBounds();
     const bubble = this.add.graphics().fillStyle(0xffffff)
       .fillRoundedRect(centerX - width / 2 - 20, centerY - height / 2 - 20, width + 40, height + 40);
+    
+    if (action) {
+      const settings: IcolorsBtnSettings = {
+        color: 'green',
+        text: this.lang.continue,
+        icon: false,
+      }
+      new ColorsBtn(this, { x: left + 40, y: bottom + 60 }, action, settings).setDepth(1);
+    }
   }
 
   private createHexZone(hex: Hex, baseHex: Hex, action: (hex: Hex) => void, zoom: number = 1.6): Phaser.GameObjects.Sprite {
