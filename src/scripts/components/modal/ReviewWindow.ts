@@ -18,12 +18,13 @@ export default class ReviewWindow {
   private createElements(): void {
     const x = this.scene.bg.getCenter().x
     const y = this.scene.bg.getCenter().y
-    const windowHeight = 170;
+    const windowHeight = 230;
     const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
       fontFamily: 'Molot',
       fontSize: '21px',
       color: '#A893F5',
       align: 'center',
+      wordWrap: { width: 250 }
     };
     this.top = this.scene.add.sprite(x, y - 180, 'header-lil').setOrigin(0.5, 0);
     const topGeom = this.top.getBounds();
@@ -35,7 +36,7 @@ export default class ReviewWindow {
 
     this.btn1 = new ColorsBtn(
       this.scene,
-      { x: x - 64, y: midGeom.centerY + 50 },
+      { x: x - 64, y: midGeom.centerY + 70 },
       (): void => { this.scene.scene.stop(); }, 
       {
         color: 'red',
@@ -46,7 +47,7 @@ export default class ReviewWindow {
 
     this.btn2 = new ColorsBtn(
       this.scene,
-      { x: x + 64, y: midGeom.centerY + 50 },
+      { x: x + 64, y: midGeom.centerY + 70 },
       (): void => { 
         window.open(process.env.VK_SUPPORT_LINK, '_blank');
         this.scene.scene.stop();

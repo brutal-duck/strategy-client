@@ -275,7 +275,6 @@ export default class GameOver {
             count: count + 1,
           });
           bridge.send('VKWebAppStorageSet', { key: 'gameCount', value: String(count + 1) });
-          console.log(count)
           if (count === 5) {
             this.scene.scene.restart({ state: this.scene.state, type: 'review' });
           }
