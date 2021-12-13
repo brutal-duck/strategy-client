@@ -184,7 +184,6 @@ export default class Game extends Phaser.Scene {
     this.midPoint = this.physics.add.sprite(0, 0, 'pixel').setVisible(false).setScale(5).setTint(0x000000).setDepth(10)
     this.vector = this.physics.add.sprite(0, 0, 'pixel').setVisible(false).setScale(5).setTint(0x880000).setDepth(10)
     const pointerPoint = this.physics.add.sprite(0, 0, 'pixel').setVisible(false).setScale(5).setTint(0x008800).setDepth(10)
-    // console.log('setInput ~ midPoint', this.midPoint)
 
     this.input.setPollAlways()
     this.input.setTopOnly(false)
@@ -225,7 +224,6 @@ export default class Game extends Phaser.Scene {
         const diffrenceX = holdedPoint.x - pointer.x
         let x = this.midPoint.x + (diffrenceX * (dragStep / 2))
         holdedPoint.x = pointer.x
-        // console.log('this.world.on ~ diffrenceX', diffrenceX)
 
         const diffrenceY = holdedPoint.y - pointer.y
         let y = this.midPoint.y + (diffrenceY * (dragStep / 2))
@@ -380,7 +378,6 @@ export default class Game extends Phaser.Scene {
       this.twoPointerZoom = false;
       this.draged = false;
     } else {
-      // console.log('hex.on ~', hex)
       this.chosenHex = hex
       const x = hex.getCenter().x
       const y = hex.getCenter().y
@@ -587,7 +584,6 @@ export default class Game extends Phaser.Scene {
   private checkSocketGameOver(): void {
     if (this.state.socket.win) {
       this.state.socket.win = false;
-      console.log(this.state, 'this.state');
       let text = 'enemyBaseHasCaptured';
       if (this.state.socket.reason === 'ENEMY_LEFT') text = 'enemySurrendered';
       else if (this.state.socket.reason === 'TIME_IS_UP') text = 'timeIsUp';
@@ -604,7 +600,6 @@ export default class Game extends Phaser.Scene {
     }
     if (this.state.socket.loose) {
       this.state.socket.loose = false;
-      console.log(this.state, 'this.state');
       if (this.hexes.every(el => !el.clamingAni?.isPaused())) {
         let text = 'yourBaseHasCaptured';
         if (this.state.socket.reason === 'ENEMY_LEFT') text = 'youSurrendered';
@@ -645,7 +640,6 @@ export default class Game extends Phaser.Scene {
           }
           if (socketHex.defence !== socketHex.newDefence && !hex.upgradeAni?.isPlaying() && socketHex.newDefence > socketHex.defence) {
             if (socketHex.newDefence > 1) {
-              console.log('upgrade')
               hex.upgradeSocketDefence();
               if (socketHex.newOwn === this.player.color) {
                 new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, `-${hex.defence + 1}`, 'red', this.player.color)
@@ -659,10 +653,8 @@ export default class Game extends Phaser.Scene {
           if (hex.defence !== socketHex.defence) {
             hex.defence = socketHex.defence;
             if (hex.defence > 1) {
-              console.log(hex.defence, 'hex.defence')
               hex.defenceLvl?.setText(String(hex.defence));
             } else {
-              console.log('hex.defenceLvl')
               hex.defenceLvl?.setVisible(false);
             }
             hex.setWorldTexture();

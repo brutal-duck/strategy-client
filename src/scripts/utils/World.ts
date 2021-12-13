@@ -242,7 +242,6 @@ export default class World {
         if (base === i) this.seed += 'b'
         if (i < 4) this.seed += '-'
       }
-      console.log('generateSeed ~ this.seed', this.seed)
     }
   }
 

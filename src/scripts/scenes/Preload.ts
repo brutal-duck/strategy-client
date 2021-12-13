@@ -233,16 +233,6 @@ class Preload extends Phaser.Scene {
   }
   
   public create(): void {
-    // new Promise((resolve, reject) => {
-    //   this.progressText.setText(this.lang.loadWorld)
-    //   if (this.progressText.text === this.lang.loadWorld) resolve('ok');
-    //   console.log('newPromise ~ this.progressText', this.progressText)
-    // }).then(() => {
-    //   this.scene.stop()
-    //   this.scene.start('Game', this.state)
-    //   this.scene.start('MainMenu', this.state)
-    // })
-
     this.progressText.setText(this.lang.loadWorld)
     this.time.addEvent({
       delay: 1,

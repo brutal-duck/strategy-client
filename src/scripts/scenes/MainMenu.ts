@@ -47,7 +47,6 @@ export default class MainMenu extends Phaser.Scene {
       bridge.send('VKWebAppStorageGet', { keys: ['play'] }).then(data => {
         const check = data.keys.find(key => key.key === 'play');
         if (!check || check && check.value !== 'true') {
-          console.log(data);
           this.state.amplitude.track('play', {});
           bridge.send('VKWebAppStorageSet', { key: 'play', value: 'true' });
         }
