@@ -132,6 +132,7 @@ export default class Game extends Phaser.Scene {
 
     this.input.keyboard.createCursorKeys().space.on('down', (): void => {
       bridge.send('VKWebAppStorageSet', { key: 'tutorial', value: '0' });
+      bridge.send('VKWebAppStorageSet', { key: 'play', value: '' });
     });
 
     this.graphManager.initGraphs();
