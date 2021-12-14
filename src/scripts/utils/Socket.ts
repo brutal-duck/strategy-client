@@ -61,6 +61,7 @@ export default class Socket implements Isocket {
 
   public closeSocket(): void {
     this.io.emit('closeGame');
+    this.state.enemy = null;
   }
 
   public findGame(): void {

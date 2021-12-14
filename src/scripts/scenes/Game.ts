@@ -110,30 +110,26 @@ export default class Game extends Phaser.Scene {
     this.enemyColor = this.player.color === 'red' ? 'green' : 'red'
     this.green = Object.assign({}, config)
     this.red = Object.assign({}, config)
-    if (this.state.game.AI !== '') {
-      this.AI = new AI(this, this.state.game.AI)
-      this.AI.init()
-      this.state.enemy.name = '';
-    }
-
     this[this.player.color].name = this.state.player.name;
     this[this.enemyColor].name = this.state.enemy?.name || this.lang.enemy;
     if (this[this.enemyColor].name === this.lang.you) this[this.enemyColor].name = this.lang.enemy;
+    
     this.stars = 0
     this.baseWasFound = false
     this.claming = [] // массив захватываемых в данный момент клеток
-
     this.distanceX = 0
     this.distanceY = 0
     this.holdCounter = 0
     this.twoPointerZoom = false
     this.draged = false
     this.zoomed = false
-    
     this.gameIsOn = true // запущен ли матч
     this.world.recreate(this.gameIsOn, this.state.game.seed);
     
-
+    if (this.state.game.AI !== '') {
+      this.AI = new AI(this, this.state.game.AI)
+      this.AI.init()
+    }
 
     this.input.keyboard.createCursorKeys().space.on('down', (): void => {
       if (this.state.platform === platforms.VK) {
