@@ -298,7 +298,7 @@ export default class Game extends Phaser.Scene {
     this.hexes.forEach(hex => {
       hex.on('pointerover', (): void => { this.pointerHex = hex })
       hex.on('pointerup', (): void => {
-        if (this.state.tutorial <= 5) return;
+        if (this.state.tutorial <= 5 || !this.gameIsOn) return;
         if (this.state.game.AI) this.pointerUp(hex);
         else this.socketPointerUp(hex);
       });
