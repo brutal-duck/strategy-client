@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --config webpack/build.js ",
-    "start": "webpack-dev-server --config webpack/config.js --open"
+    "start": "webpack-dev-server --config webpack/localhost/config.js --open",
+    "build-yandex": "webpack --config webpack/yandex/build.js",
+    "build-web": "webpack --config webpack/web/build.js"
   },
   "author": "",
   "license": "ISC",
