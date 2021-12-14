@@ -130,7 +130,7 @@ export default class GameOver {
     }
     this.bg = this.scene.add.tileSprite(x, this.reason.getBounds().bottom + 20, windowWidth + 10, 150, 'pixel').setTint(color).setOrigin(0.5, 0);
     const bgInfoGeom = this.bg.getBounds();
-
+    this.scene.bg.removeInteractive();
     this.playerSum = this.scene.add.text(bgInfoGeom.centerX - 170, bgInfoGeom.centerY + 25, `${playerHexes}`, hexCountStyle).setDepth(1).setOrigin(0.5);
     this.playerGlow = this.scene.add.sprite(this.playerSum.x, this.playerSum.y, this.scene.info.win && this.scene.info.winner ? 'glow-winner' : 'glow-looser').setAlpha(0.5);
     this.playerName = this.scene.add.text(this.playerSum.x, bgInfoGeom.top + 5, this.scene.gameScene[this.playerColor].name, nameStyle).setDepth(1).setOrigin(0.5, 0);
