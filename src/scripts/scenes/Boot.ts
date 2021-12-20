@@ -74,6 +74,7 @@ class Boot extends Phaser.Scene {
       this.state.player.id = id;
     } else {
       this.state.player.id = this.randomString(10);
+      localStorage.setItem('id', String(this.state.player.id));
     }
     this.userIsReady = true;
     this.state.socket = new Socket(this.state);
