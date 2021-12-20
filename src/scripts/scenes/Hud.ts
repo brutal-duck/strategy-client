@@ -175,11 +175,10 @@ export default class Hud extends Phaser.Scene {
       color: '#ffffff',
       stroke: '#707070',
       strokeThickness: 1,
-      wordWrap: { width: this.lineWidth / 2, useAdvancedWrap: true },
     };
 
-    this.playerName = this.add.text(this.camera.width / 2 - this.lineWidth / 2, curFontSize, this.gameScene[this.playerColor].name, textStyle).setOrigin(0, 0.5);
-    this.enemyName = this.add.text(this.camera.width / 2 + this.lineWidth / 2, curFontSize, this.gameScene[this.enemyColor].name, textStyle).setOrigin(1, 0.5);
+    this.playerName = this.add.text(this.camera.width / 2 - this.lineWidth / 2, curFontSize, this.lang.you, textStyle).setOrigin(0, 0.5).setCrop(0, 0, this.camera.width / 5, 200);
+    this.enemyName = this.add.text(this.camera.width / 2 + this.lineWidth / 2, curFontSize, this.gameScene[this.enemyColor].name, textStyle).setOrigin(1, 0.5).setCrop(0, 0, this.camera.width / 5, 200);
 
     const barY = this.playerName.getBounds().bottom;
     this.worldStatusBar = this.add.tileSprite(this.camera.width / 2, barY, this.lineWidth, currentBarHeight, 'pixel').setOrigin(0.5, 0).setVisible(false);
@@ -464,8 +463,8 @@ export default class Hud extends Phaser.Scene {
     this.bg?.setPosition(0, 0).setSize(this.camera.width, this.bg.height)
     this.menuBtn?.setScale(menuBtnScale).setPosition(this.camera.width - currentIconsHeight * 1.2, currentIconsHeight * 1.2);
     this.switcher?.setPosition(this.camera.width / 2, this.camera.height)
-    this.playerName?.setPosition(this.camera.width / 2 - this.camera.width / 5, curFontSize).setWordWrapWidth(this.camera.width / 5).setFontSize(curFontSize);
-    this.enemyName?.setPosition(this.camera.width / 2 + this.camera.width / 5, curFontSize).setWordWrapWidth(this.camera.width / 5).setFontSize(curFontSize);
+    this.playerName?.setPosition(this.camera.width / 2 - this.camera.width / 5, curFontSize).setCrop(0, 0, this.camera.width / 5, 200).setFontSize(curFontSize);
+    this.enemyName?.setPosition(this.camera.width / 2 + this.camera.width / 5, curFontSize).setCrop(0, 0, this.camera.width / 5, 200).setFontSize(curFontSize);
     const barY = this.playerName.getBounds().bottom;
 
     this.worldStatusBar?.setPosition(this.camera.width / 2, barY).setSize(this.camera.width / 2.5, currentHeight)
