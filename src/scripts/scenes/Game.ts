@@ -1,5 +1,5 @@
-import bridgeMock from "@vkontakte/vk-bridge-mock";
 import bridge from "@vkontakte/vk-bridge";
+import { FAPI } from '../libs/FAPI.js';
 import FlyAwayMsg from "../components/FlyAwayMsg";
 import Hex from "../components/Hex";
 import Zoom from "../components/Zoom";
@@ -588,7 +588,7 @@ export default class Game extends Phaser.Scene {
     this.player.points += this.state.socket.points;
     if (this.state.platform === platforms.VK) {
       bridge.send('VKWebAppStorageSet', { key: 'points', value: String(this.player.points) });
-    } else {
+    } else if (this.state.platform === platforms.YANDEX) {
       if (!this.state.yaPlayer) return;
       this.state.yaPlayer.getData().then(data => {
         const result: IstorageData = {
@@ -599,9 +599,14 @@ export default class Game extends Phaser.Scene {
         };
         this.state.yaPlayer.setData(result, true);
       });
+    } else if (this.state.platform === platforms.OK) {
+      FAPI.Client.call({ method: 'storage.set', key: 'points', value: String(this.player.points) });
+    } else {
+      localStorage.setItem('points', String(this.player.points));
     }
     this.state.socket.points = 0;
   }
+  
 
   private checkSocketGameOver(): void {
     if (this.state.socket.win) {

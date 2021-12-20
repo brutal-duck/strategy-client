@@ -1,6 +1,6 @@
 import * as Webfont from '../libs/Webfonts.js';
-import bridgeMock from '@vkontakte/vk-bridge-mock'
-import bridge from '@vkontakte/vk-bridge'
+import { FAPI } from '../libs/FAPI.js';
+import bridge from '@vkontakte/vk-bridge';
 import state from '../state';
 import Socket from './../utils/Socket';
 import Amplitude from './../libs/Amplitude';
@@ -24,23 +24,31 @@ class Boot extends Phaser.Scene {
   }
 
   public init(): void {
-    this.build = 1.00001;
+    this.build = 1.00002;
     console.log('Build ' + this.build);
     this.lang = langs.ru;
     this.state = state;
     this.fontsReady = false;
     this.userIsReady = false;
-    this.state.platform = 'vk';
+    this.state.platform = 'web';
     
+    if (process.env.PLATFORM !== platforms.YANDEX) {
+      const search: string = window.location.search;
+      const params = new URLSearchParams(search);
+      const vk: string = params.get('api_url');
+      const ok: string = params.get('api_server');
+      if (vk === 'https://api.vk.com/api.php') this.state.platform = 'vk';
+      else if (ok === 'https://api.ok.ru/') this.state.platform = 'ok';
 
-    if (process.env.DEV === 'true') {
-      this.initMockUser();
-    } else {
-      if (process.env.PLATFORM !== platforms.YANDEX) {
+      if (this.state.platform === platforms.VK) {
         this.initUserVK();
+      } else if (this.state.platform === platforms.OK) {
+        this.initUserOk();
       } else {
-        this.initYandexPlatform()
+        this.initUserWeb();
       }
+    } else {
+      this.initYandexPlatform();
     }
     this.setFonts();
   }
@@ -56,8 +64,53 @@ class Boot extends Phaser.Scene {
     });
   }
 
+
+  private initUserWeb(): void {
+    this.state.player.name = this.lang.you;
+    this.state.player.points = Number(localStorage.getItem('points'));
+    this.state.tutorial = Number(localStorage.getItem('tutorial'));
+    const id = localStorage.getItem('id');
+    if (id) {
+      this.state.player.id = id;
+    } else {
+      this.state.player.id = this.randomString(10);
+    }
+    this.userIsReady = true;
+    this.state.socket = new Socket(this.state);
+    this.initAmplitude();
+  }
+
+  private initUserOk(): void {
+    const FAPIData = FAPI.Util.getRequestParameters();
+    FAPI.init(FAPIData.api_server, FAPIData.apiconnection, (): void => {
+      this.okCallback(); 
+    });
+    this.state.player.id = FAPIData.logged_user_id;
+    this.state.player.name = FAPIData.user_name || this.lang.you;
+
+    FAPI.Client.call({ method: 'storage.get', keys: ['points', 'tutorial'] }, (res, data) => {
+      const points = data.data['points'];
+      const tutorial = data.data['tutorial'];
+      if (points) {
+        this.state.player.points = Number(points.value);
+      }
+      if (tutorial) {
+        this.state.tutorial = Number(tutorial.value);
+      }
+      this.userIsReady = true;
+      this.state.socket = new Socket(this.state);
+      this.initAmplitude();
+    });
+  }
+
+  private okCallback(): void {
+    let win: any = window;
+    win.API_callback = (method: any, result: any, data: any): void => {
+
+    }
+  }
   
-  private initUserVK() {
+  private initUserVK(): void {
     bridge.send('VKWebAppInit');
     bridge.send('VKWebAppGetUserInfo').then(data => {
       this.state.player.name = data.first_name + ' ' + data.last_name;
@@ -70,27 +123,6 @@ class Boot extends Phaser.Scene {
         }
         if (tutorial) {
           this.state.tutorial = Number(tutorial.value);
-        }
-        this.userIsReady = true;
-        this.state.socket = new Socket(this.state);
-        this.initAmplitude();
-      });
-    });
-  }
-
-  private initMockUser(): void {
-    bridgeMock.send('VKWebAppInit');
-    bridgeMock.send('VKWebAppGetUserInfo').then(data => {
-      this.state.player.name = data.first_name + ' ' + data.last_name;
-      this.state.player.id = data.id;      
-      bridgeMock.send('VKWebAppStorageGet', { keys: ['points', 'tutorial']}).then(data => {
-        const points = data.keys.find(el => el.key === 'points');
-        const tutorial = data.keys.find(el => el.key === 'tutorial');
-        if (points) {
-          this.state.player.points = Number(points.value) || 0;
-        }
-        if (tutorial) {
-          this.state.tutorial = Number(tutorial.value) || 0;
         }
         this.userIsReady = true;
         this.state.socket = new Socket(this.state);

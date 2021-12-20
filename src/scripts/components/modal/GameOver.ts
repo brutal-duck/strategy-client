@@ -1,4 +1,5 @@
 import Modal from './../../scenes/Modal';
+import { FAPI } from '../../libs/FAPI.js';
 import { colors } from '../../gameConfig';
 import ColorsBtn from '../buttons/ColorsBtn';
 import bridgeMock from '@vkontakte/vk-bridge-mock';
@@ -310,7 +311,7 @@ export default class GameOver {
       this.scene.state.amplitude.track('tutorial', { step: 60 });
       if (this.scene.state.platform === platforms.VK) {
         bridge.send('VKWebAppStorageSet', { key: 'tutorial', value: '10' });
-      } else {
+      } else if (this.scene.state.platform === platforms.YANDEX) {
         if (!this.scene.state.yaPlayer) return;
         this.scene.state.yaPlayer.getData().then(data => {
           const result: IstorageData = {
@@ -321,6 +322,10 @@ export default class GameOver {
           };
           this.scene.state.yaPlayer.setData(result, true);
         });
+      } else if (this.scene.state.platform === platforms.OK) {
+        FAPI.Client.call({ method: 'storage.set', key: 'tutorial', value: '10' });
+      } else {
+        localStorage.setItem('tutorial', '10');
       }
     }
   }
