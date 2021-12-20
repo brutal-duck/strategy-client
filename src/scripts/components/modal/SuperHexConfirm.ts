@@ -26,7 +26,7 @@ export default class SuperHexConfirm {
       color: '#A893F5',
       align: 'center',
     };
-    this.top = this.scene.add.sprite(x, y - 180, 'header-lil').setOrigin(0.5, 0);
+    this.top = this.scene.add.sprite(x, y - windowHeight / 2 - 50, 'header-lil').setOrigin(0.5, 0);
     const topGeom = this.top.getBounds();
     this.mid = this.scene.add.sprite(topGeom.centerX, topGeom.bottom,  'pixel-window-lil').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setInteractive();
     const midGeom = this.mid.getBounds();
@@ -57,7 +57,7 @@ export default class SuperHexConfirm {
     const x = this.scene.bg.getCenter().x;
     const y = this.scene.bg.getCenter().y;
     const windowHeight = 160;
-    this.top.setPosition(x, y - 180);
+    this.top.setPosition(x, y - windowHeight / 2 - 50);
     const topGeom = this.top.getBounds();
     this.mid.setPosition(topGeom.centerX, topGeom.bottom);
     const midGeom = this.mid.getBounds();

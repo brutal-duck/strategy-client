@@ -131,21 +131,9 @@ export default class Game extends Phaser.Scene {
       this.AI.init()
     }
 
-    this.input.keyboard.createCursorKeys().space.on('down', (): void => {
-      if (this.state.platform === platforms.VK) {
-        bridge.send('VKWebAppStorageSet', { key: 'tutorial', value: '0' });
-        bridge.send('VKWebAppStorageSet', { key: 'play', value: '' });
-      } else {
-        const result: IstorageData = {
-          tutorial: 0,
-          play: false,
-          points: 0,
-          gameCount: 0,
-        };
-        if (!this.state.yaPlayer) return;
-        this.state.yaPlayer.setData(result, true);
-      }
-    });
+    // this.input.keyboard.createCursorKeys().space.on('down', (): void => {
+    //   this.gameOver('timeIsUp');
+    // });
 
     this.graphManager.initGraphs();
     this.graphManager.initNeutralGraphs();
@@ -607,7 +595,6 @@ export default class Game extends Phaser.Scene {
     this.state.socket.points = 0;
   }
   
-
   private checkSocketGameOver(): void {
     if (this.state.socket.win) {
       this.state.socket.win = false;

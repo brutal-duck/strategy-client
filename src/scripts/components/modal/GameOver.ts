@@ -108,7 +108,7 @@ export default class GameOver {
       wordWrap: { width: 200, useAdvancedWrap: true},
     };
     
-    this.top = this.scene.add.sprite(x, y - windowWidth / 2, 'header').setOrigin(0.5, 1);
+    this.top = this.scene.add.sprite(x, y - windowWidth / 2 + 50, 'header').setOrigin(0.5, 1);
     const topGeom = this.top.getBounds();
     this.mid = this.scene.add.sprite(topGeom.centerX, topGeom.bottom, 'pixel-window').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0);
     const midGeom = this.mid.getBounds();
@@ -194,7 +194,7 @@ export default class GameOver {
       if (!this.scene.info.win) windowHeight = 520
     }
         
-    this.top.setPosition(x, y - windowWidth / 2);
+    this.top.setPosition(x, y - windowWidth / 2 + 50);
     const topGeom = this.top.getBounds();
     this.mid.setPosition(topGeom.centerX, topGeom.bottom);
     const midGeom = this.mid.getBounds();
@@ -225,7 +225,7 @@ export default class GameOver {
 
     this.timeSpend.setPosition(x, bgInfoGeom.bottom + 20);
     this.timer.setPosition(x, this.timeSpend.getBounds().bottom);
-    this.timerBg.setPosition(this.timeSpend.x, this.timeSpend.y);
+    this.timerBg.setPosition(this.timeSpend.x, this.timeSpend.y - 10);
 
     this.lineBg.setPosition(x, this.timer.getBounds().bottom + 20);
     const barGeom = this.lineBg.getBounds();

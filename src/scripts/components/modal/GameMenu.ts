@@ -27,7 +27,7 @@ export default class GameMenu {
     const y = this.scene.bg.getCenter().y;
     const windowHeight = 250;
 
-    this.top = this.scene.add.sprite(x, y - windowHeight / 2 - 100, 'header-mid').setOrigin(0.5, 0);
+    this.top = this.scene.add.sprite(x, y - windowHeight / 2 - 50, 'header-mid').setOrigin(0.5, 0);
     const topGeom = this.top.getBounds();
     this.mid = this.scene.add.sprite(topGeom.centerX, topGeom.bottom, 'pixel-window-mid').setDisplaySize(topGeom.width, windowHeight).setOrigin(0.5, 0).setInteractive();
     const midGeom = this.mid.getBounds();
@@ -52,9 +52,9 @@ export default class GameMenu {
   public resize(): void {
     const x = this.scene.bg.getCenter().x;
     const y = this.scene.bg.getCenter().y;
-    const windowHeight = 390;
+    const windowHeight = 250;
 
-    this.top.setPosition(x, y - windowHeight / 2 - 100);
+    this.top.setPosition(x, y - windowHeight / 2 - 50);
     const topGeom = this.top.getBounds();
     this.mid.setPosition(topGeom.centerX, topGeom.bottom);
     const midGeom = this.mid.getBounds();
@@ -62,7 +62,6 @@ export default class GameMenu {
     this.title.setPosition(x, topGeom.bottom + 30);
 
     this.exit.setPosition(topGeom.right - 45, topGeom.bottom + 30);
-    this.btn1.setPosition(x, midGeom.centerY);
-    this.btn2.setPosition(x, midGeom.centerY + 120);
+    this.btn2.setPosition(x, midGeom.centerY + 20);
   }
 }

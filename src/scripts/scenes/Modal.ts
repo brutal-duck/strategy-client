@@ -9,6 +9,7 @@ import GameMenu from './../components/modal/GameMenu';
 import SuperHexConfirm from './../components/modal/SuperHexConfirm';
 import GameOver from './../components/modal/GameOver';
 import ReviewWindow from './../components/modal/ReviewWindow';
+import platform = require("platform");
 export default class Modal extends Phaser.Scene {
   constructor() {
     super('Modal')
@@ -47,7 +48,18 @@ export default class Modal extends Phaser.Scene {
   }
 
   public resize(): void {
-    const maxHeight = 1080;
+    let maxHeight = 1080;
+    if (platform.os.family === 'Android' || platform.os.family === 'iOS') {
+      if (this.type === 'mainMenu' || this.type === 'singleplayerMenu' || this.type === 'multiplayerMenu') {
+        maxHeight = 550;
+      } else if (this.type === 'superHex') {
+        maxHeight = 300;
+      } else if (this.type === 'gameMenu') {
+        maxHeight = 400;
+      } else if (this.type === 'gameOver') {
+        maxHeight = 650;
+      }
+    } 
     const currentHeight = Number(document.body.clientHeight);
     const currentWidth = Number(document.body.clientWidth);
     this.cameras.main.setZoom(currentHeight / maxHeight);
