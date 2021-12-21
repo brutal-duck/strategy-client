@@ -2,9 +2,7 @@ import Modal from './../../scenes/Modal';
 import { FAPI } from '../../libs/FAPI.js';
 import { colors } from '../../gameConfig';
 import ColorsBtn from '../buttons/ColorsBtn';
-import bridgeMock from '@vkontakte/vk-bridge-mock';
 import bridge from '@vkontakte/vk-bridge';
-import { center } from '../../presets';
 import { platforms } from '../../types';
 
 export default class GameOver {
