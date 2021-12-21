@@ -48,8 +48,11 @@ export default class Modal extends Phaser.Scene {
   }
 
   public resize(): void {
+    const currentHeight = Number(document.body.clientHeight);
+    const currentWidth = Number(document.body.clientWidth);
+
     let maxHeight = 1080;
-    if (platform.os.family === 'Android' || platform.os.family === 'iOS') {
+    if ((platform.os.family === 'Android' || platform.os.family === 'iOS') && currentHeight < currentWidth) {
       if (this.type === 'mainMenu' || this.type === 'singleplayerMenu' || this.type === 'multiplayerMenu') {
         maxHeight = 550;
       } else if (this.type === 'superHex') {
@@ -59,9 +62,8 @@ export default class Modal extends Phaser.Scene {
       } else if (this.type === 'gameOver') {
         maxHeight = 650;
       }
-    } 
-    const currentHeight = Number(document.body.clientHeight);
-    const currentWidth = Number(document.body.clientWidth);
+    }
+
     this.cameras.main.setZoom(currentHeight / maxHeight);
     const percent = (maxHeight - currentHeight) / currentHeight;
     const bgWidth = currentWidth * percent + currentWidth;
