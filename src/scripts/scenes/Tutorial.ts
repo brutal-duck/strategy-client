@@ -90,7 +90,7 @@ export default class Tutorial extends Phaser.Scene {
 
     this.createBubble(this.lang.tutorialStep1, action);
     const hudScene = this.game.scene.getScene('Hud') as Hud;
-    const { bottom, right } = hudScene.hexBar.getBounds();
+    const { bottom, right } = hudScene.hexCounter.getHexIconPosition();
     this.createArrow(right, bottom, true);
     const { width, height } = this.cameras.main;
     this.add.tileSprite(0, 0, width, height, 'pixel')
@@ -169,7 +169,7 @@ export default class Tutorial extends Phaser.Scene {
         const { left, centerY } = hexZone.getBounds();
         this.createArrow(left, centerY);
         const hudScene = this.game.scene.getScene('Hud') as Hud;
-        const { bottom, right } = hudScene.superHexBar.getBounds();
+        const { bottom, right } = hudScene.hexCounter.getSuperHexIconPosition();
         this.createArrow(right, bottom, true);
       }
     });
@@ -189,7 +189,7 @@ export default class Tutorial extends Phaser.Scene {
     }
     this.createBubble(this.lang.tutorialStep4, action);
     const hudScene = this.game.scene.getScene('Hud') as Hud;
-    const { centerX, bottom } = hudScene.timer.getBounds();
+    const { centerX, bottom } = hudScene.statusBar.timer.getBounds();
     this.createArrow(centerX, bottom, true);
 
     const { width, height } = this.cameras.main;

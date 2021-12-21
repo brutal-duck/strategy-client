@@ -131,9 +131,10 @@ export default class Game extends Phaser.Scene {
       this.AI.init()
     }
 
-    // this.input.keyboard.createCursorKeys().space.on('down', (): void => {
-    //   this.gameOver('timeIsUp');
-    // });
+    this.input.keyboard.createCursorKeys().space.on('down', (): void => {
+      // this.gameOver('timeIsUp');
+      this.hud.setWarning(0, 0, '1')
+    });
 
     this.graphManager.initGraphs();
     this.graphManager.initNeutralGraphs();
@@ -683,7 +684,7 @@ export default class Game extends Phaser.Scene {
       const gameConfig: Iconfig = this[this.state.player.color];
       gameConfig.hexes = this.state.game.player.hexes;
       gameConfig.superHex = this.state.game.player.superHexes;
-      this.hud.timer.updateTime(this.state.game.serverGameTime);
+      this.hud.statusBar.timer.updateTime(this.state.game.serverGameTime);
       this.hud.updateHexCounter()
     }
   }

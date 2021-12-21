@@ -145,7 +145,7 @@ export default class GameOver {
     }
 
     this.timeSpend = this.scene.add.text(x, bgInfoGeom.bottom + 20, this.scene.lang.timeSpend, timerStyle).setOrigin(0.5, 0).setDepth(1);
-    this.timer = this.scene.add.text(x, this.timeSpend.getBounds().bottom, this.scene.gameScene.hud.timer.getTimeLeft(), timerStyle).setOrigin(0.5, 0).setDepth(1);
+    this.timer = this.scene.add.text(x, this.timeSpend.getBounds().bottom, this.scene.gameScene.hud.statusBar.timer.getTimeLeft(), timerStyle).setOrigin(0.5, 0).setDepth(1);
     this.timerBg = this.scene.add.sprite(x, this.timeSpend.y - 10, 'timer-plate').setOrigin(0.5, 0);
     this.lineBg = this.scene.add.tileSprite(x, this.timer.getBounds().bottom + 20, lineWidth, 40, 'pixel').setOrigin(0.5, 0).setVisible(false);
     const barGeom = this.lineBg.getBounds();

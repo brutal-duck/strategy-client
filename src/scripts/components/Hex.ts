@@ -706,8 +706,11 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     const startX = this.scene.camera.width / 2 + dx * this.scene.camera.zoom;
     const startY = this.scene.camera.height / 2 + dy * this.scene.camera.zoom;
     const texture = this.class === 'super' ? 'super-hex' : 'hex';
-    const target = this.class === 'super' ? hudScene.superHexBar : hudScene.hexBar;
-    const hex = hudScene.add.sprite(startX, startY, texture).setScale(hudScene.hexBar.scale * 0.8);
+    const target: Phaser.Geom.Rectangle = this.class === 'super' 
+    ? hudScene.hexCounter.getSuperHexIconPosition() 
+    : hudScene.hexCounter.getHexIconPosition();
+
+    const hex = hudScene.add.sprite(startX, startY, texture).setScale(hudScene.hexCounter.getScale() * 0.8);
     this.scene.tweens.add({
       duration: 300,
       targets: hex,
