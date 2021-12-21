@@ -10,6 +10,7 @@ import SuperHexConfirm from './../components/modal/SuperHexConfirm';
 import GameOver from './../components/modal/GameOver';
 import ReviewWindow from './../components/modal/ReviewWindow';
 import platform = require("platform");
+import Utils from './../utils/Utils';
 export default class Modal extends Phaser.Scene {
   constructor() {
     super('Modal')
@@ -52,7 +53,7 @@ export default class Modal extends Phaser.Scene {
     const currentWidth = Number(document.body.clientWidth);
 
     let maxHeight = 1080;
-    if ((platform.os.family === 'Android' || platform.os.family === 'iOS') && currentHeight < currentWidth) {
+    if (Utils.isMobilePlatform() && !Utils.isVerticalOrientation()) {
       if (this.type === 'mainMenu' || this.type === 'singleplayerMenu' || this.type === 'multiplayerMenu') {
         maxHeight = 550;
       } else if (this.type === 'superHex') {

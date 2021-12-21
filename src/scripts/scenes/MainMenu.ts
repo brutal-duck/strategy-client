@@ -1,11 +1,13 @@
-import StartGameBtn from "../components/buttons/StartGameBtn"
+import { FAPI } from '../libs/FAPI.js';
+import StartGameBtn from "../components/buttons/StartGameBtn";
 import langs from "../langs"
 import Game from "./Game"
 import bridge from '@vkontakte/vk-bridge';
 import { platforms } from "../types";
+import Utils from './../utils/Utils';
 const TEXT_DISPLAY_PERCENT = 5;
 const BTN_DISPLAY_PERCENT = 23;
-const LOGO_DISPLAY_PERCENT = 37;
+const LOGO_DISPLAY_PERCENT = 30;
 
 export default class MainMenu extends Phaser.Scene {
   constructor() {
@@ -43,37 +45,59 @@ export default class MainMenu extends Phaser.Scene {
       y: this.logo.getBottomCenter().y + currentBtnHeight,
     };
 
-    const action = (): void => {
-      this.scene.launch('Modal', { state: this.state, type: 'mainMenu' });
-      if (this.state.platform === platforms.VK) {
-        bridge.send('VKWebAppStorageGet', { keys: ['play'] }).then(data => {
-          const check = data.keys.find(key => key.key === 'play');
-          if (!check || check && check.value !== 'true') {
-            this.state.amplitude.track('play', {});
-            bridge.send('VKWebAppStorageSet', { key: 'play', value: 'true' });
-          }
-        });
-      } else {
-        if (!this.state.yaPlayer) return;
-        this.state.yaPlayer.getData().then(data => {
-          if (!data.play) {
-            const result: IstorageData = {
-              tutorial: data.tutorial || 60,
-              play: true,
-              points: data.points || 0,
-              gameCount: data.gameCount || 0,
-            };
-            this.state.yaPlayer.setData(result, true);
-            this.state.amplitude.track('play', {});
-          }
-        });
-      }
-    }
-
-    this.startGame = new StartGameBtn(this, position, action, this.lang.play);
+    this.startGame = new StartGameBtn(this, position, () => { this.onStartGame(); }, this.lang.play);
     this.startGame.setScale(currentBtnHeight / 245, curFontSize + curFontSize * 0.20);
 
     this.createUserInfo();
+  }
+
+  private onStartGame(): void {
+    this.scene.launch('Modal', { state: this.state, type: 'mainMenu' });
+    if (this.state.platform === platforms.VK) {
+      bridge.send('VKWebAppStorageGet', { keys: ['play'] }).then(data => {
+        const check = data.keys.find(key => key.key === 'play');
+        if (!check || check && check.value !== 'true') {
+          this.state.amplitude.track('play', {});
+          bridge.send('VKWebAppStorageSet', { key: 'play', value: 'true' });
+        }
+      });
+    } else if (this.state.platform === platforms.OK) {
+      bridge.send('VKWebAppStorageGet', { keys: ['play'] }).then(data => {
+        const check = data.keys.find(key => key.key === 'play');
+        if (!check || check && check.value !== 'true') {
+          this.state.amplitude.track('play', {});
+          bridge.send('VKWebAppStorageSet', { key: 'play', value: 'true' });
+        }
+      });
+      FAPI.Client.call({ method: 'storage.get', keys: ['play'] }, (res, data) => {
+        if (data.data) {
+          const check = data.data['play'];
+          if (!check || check && check.value !== 'true') {
+            this.state.amplitude.track('play', {});
+            FAPI.Client.call({ method: 'storage.set', key: 'play', value: 'true' });
+          }
+        }
+      });
+    } else if (this.state.platform === platforms.YANDEX) {
+      if (!this.state.yaPlayer) return;
+      this.state.yaPlayer.getData().then(data => {
+        if (!data.play) {
+          const result: IstorageData = {
+            tutorial: data.tutorial || 60,
+            play: true,
+            points: data.points || 0,
+            gameCount: data.gameCount || 0,
+          };
+          this.state.yaPlayer.setData(result, true);
+          this.state.amplitude.track('play', {});
+        }
+      });
+    } else {
+      const check = localStorage.getItem('play');
+      if (check !== 'true') {
+        localStorage.setItem('play', 'true');
+      }
+    }
   }
 
   private createUserInfo(): void {
@@ -86,19 +110,22 @@ export default class MainMenu extends Phaser.Scene {
       strokeThickness: 1,
     };
     const { name, points } = this.state.player;
-    this.name = this.add.text(20, curFontSize / 2, name, style).setOrigin(0);
-    this.points = this.add.text(20, this.name.getBounds().bottom, `${this.lang.points} ${points}`, style).setOrigin(0);
+    const isVertical = Utils.isVerticalOrientation();
+
+    this.name = this.add.text(20, curFontSize / 2, name, style).setOrigin(0).setVisible(!isVertical);
+    this.points = this.add.text(20, this.name.getBounds().bottom, `${this.lang.points} ${points}`, style).setOrigin(0).setVisible(!isVertical);
 
   }
 
   public resize(): void {
+    const isVertical = Utils.isVerticalOrientation();
     const curFontSize = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
     const currentBtnHeight = Math.round(document.body.clientHeight / 100 * BTN_DISPLAY_PERCENT);
     const currentLogoHeight = Math.round(document.body.clientHeight / 100 * LOGO_DISPLAY_PERCENT);
 
     this.logo.setPosition(this.camera.centerX, this.camera.centerY - currentBtnHeight / 4).setScale(currentLogoHeight / 245);
-    this.name.setPosition(20, curFontSize / 2).setFontSize(curFontSize);
-    this.points.setPosition(20, this.name.getBounds().bottom).setFontSize(curFontSize);
+    this.name.setPosition(20, curFontSize / 2).setFontSize(curFontSize).setVisible(!isVertical);
+    this.points.setPosition(20, this.name.getBounds().bottom).setFontSize(curFontSize).setVisible(!isVertical);
     this.startGame.x = this.camera.centerX;
     this.startGame.y = this.logo.getBottomCenter().y + currentBtnHeight;
     this.startGame.setScale(currentBtnHeight / 245, curFontSize + curFontSize * 0.20);

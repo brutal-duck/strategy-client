@@ -4,6 +4,7 @@ import Game from './Game';
 import FlyAwayMsg from './../components/FlyAwayMsg';
 import Hud from './Hud';
 import ColorsBtn from './../components/buttons/ColorsBtn';
+import Utils from './../utils/Utils';
 
 export default class Tutorial extends Phaser.Scene {
   public state: Istate;
@@ -221,19 +222,23 @@ export default class Tutorial extends Phaser.Scene {
   }
   
   private createBubble(str: string, action?: () => void): void {
+    const isVertical = Utils.isVerticalOrientation();
     const pos: Iposition  = {
-      x: this.cameras.main.width - this.cameras.main.width / 20, 
-      y: this.cameras.main.height / 2,
+      x: isVertical ? this.cameras.main.width / 2 : this.cameras.main.width - this.cameras.main.width / 20, 
+      y: isVertical ? this.cameras.main.height - this.cameras.main.height / 6 : this.cameras.main.height / 2,
     };
+
+    const wrapWidth = isVertical ? this.cameras.main.width - this.cameras.main.width / 5 : this.cameras.main.width / 4;
+
     const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
       fontFamily: 'Molot',
       fontSize: '20px',
       color: '#000000',
       align: 'center',
-      wordWrap: { width: this.cameras.main.width / 4 },
+      wordWrap: { width:  wrapWidth },
     };
-    const text = this.add.text(pos.x, pos.y, str, textStyle).setOrigin(1, 0.5).setDepth(1);
-    const { width, height, centerX, centerY, bottom, left} = text.getBounds();
+    const text = this.add.text(pos.x, pos.y, str, textStyle).setOrigin(isVertical ? 0.5 : 1, 0.5).setDepth(1);
+    const { width, height, centerX, centerY, bottom, left, top} = text.getBounds();
     const bubble = this.add.graphics().fillStyle(0xffffff)
       .fillRoundedRect(centerX - width / 2 - 20, centerY - height / 2 - 20, width + 40, height + 40);
     
@@ -242,8 +247,12 @@ export default class Tutorial extends Phaser.Scene {
         color: 'green',
         text: this.lang.continue,
         icon: false,
-      }
-      new ColorsBtn(this, { x: left + 40, y: bottom + 60 }, action, settings).setDepth(1);
+      };
+      const position: Iposition = {
+        x: left + 40,
+        y: isVertical ? top - 60 : bottom + 60,
+      };
+      new ColorsBtn(this, position, action, settings).setDepth(1);
     }
   }
 
