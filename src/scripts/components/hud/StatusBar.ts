@@ -1,7 +1,9 @@
 import Hud from '../../scenes/Hud';
 import Timer from '../Timer';
+import Utils from './../../utils/Utils';
 
 const BAR_DISPLAY_PERCENT = 5;
+const MOBILE_BAR_DISPLAY_PERCENT = 7;
 const TEXT_DISPLAY_PERCENT = 4;
 const MAX_TEXT_SIZE = 24;
 
@@ -31,16 +33,20 @@ export default class StatusBar extends Phaser.GameObjects.Sprite {
   }
 
   private getSettings(): { fontSize: number, barHeight: number } {
-    let fontSize = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
+    const { clientHeight } = document.body;
+    let fontSize = Math.round(clientHeight / 100 * TEXT_DISPLAY_PERCENT);
     if (fontSize > MAX_TEXT_SIZE) fontSize = MAX_TEXT_SIZE;
 
-    const barHeight: number = document.body.clientHeight / 100 * BAR_DISPLAY_PERCENT;
+    let barHeight = clientHeight / 100 * BAR_DISPLAY_PERCENT;
+    if (Utils.isVerticalOrientation()) {
+      barHeight = clientHeight / 100 * MOBILE_BAR_DISPLAY_PERCENT;
+    }
     return { fontSize, barHeight };
   }
 
   private create(): void {
     const { fontSize, barHeight } = this.getSettings();
-    const lineWidth = this.scene.camera.width / 2.5;
+    const lineWidth = this.getBarWidth();
 
     const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
       fontSize: fontSize + 'px',
@@ -119,7 +125,7 @@ export default class StatusBar extends Phaser.GameObjects.Sprite {
           }
         },
         targets: [ this.playerBar, this.enemyBar ],
-        width: (target: Phaser.GameObjects.TileSprite): number => {
+        displayWidth: (target: Phaser.GameObjects.TileSprite): number => {
           if (target === this.playerBar) return playerLineWidth;
           if (target === this.enemyBar) return enemyLineWidth;
         },
@@ -130,7 +136,7 @@ export default class StatusBar extends Phaser.GameObjects.Sprite {
   }
 
   private getLineWidth(sum: number): number {
-    const lineWidth = this.scene.camera.width / 2.5;
+    const lineWidth = this.getBarWidth();
     const totalHexes = this.scene.gameScene.playerHexes().length + this.scene.gameScene.enemyHexes().length;
     const p = lineWidth / totalHexes;
     if (sum / totalHexes > 0.55) p * sum - 25;
@@ -138,7 +144,7 @@ export default class StatusBar extends Phaser.GameObjects.Sprite {
   }
 
   private checkStarsProgress(width: number): void {
-    const lineWidth = this.scene.camera.width / 2.5;
+    const lineWidth = this.getBarWidth();
     if (width >= lineWidth - 1) {
       if (this.star1.texture.key !== 'lil-star') this.star1.setTexture('lil-star');
       if (this.star2.texture.key !== 'lil-star') this.star2.setTexture('lil-star');
@@ -163,7 +169,7 @@ export default class StatusBar extends Phaser.GameObjects.Sprite {
   }
 
   private getStarPoint(number: 1 | 2 | 3): number {
-    const lineWidth = this.scene.camera.width / 2.5;
+    const lineWidth = this.getBarWidth();
     if (number === 1) return lineWidth / 2;
     else if (number === 2) return lineWidth * 0.75;
     return lineWidth;
@@ -207,12 +213,12 @@ export default class StatusBar extends Phaser.GameObjects.Sprite {
     const greenHexes: number = this.scene.gameScene?.hexes.filter(hex => hex.own === 'green').length;
     const redHexes: number = this.scene.gameScene?.hexes.filter(hex => hex.own === 'red').length;
 
-    const lineWidth = this.scene.camera.width / 2.5;
+    const lineWidth = this.getBarWidth();
     this.setDisplaySize(lineWidth, barHeight);
 
     this.playerName?.setPosition(width / 2 - width / 5, fontSize).setFontSize(fontSize).setCrop(0, 0, width / 5, 200);
     this.enemyName?.setPosition(width / 2 + width / 5, fontSize).setFontSize(fontSize).setCrop(0, 0, width / 5, 200);
-    const barY = this.playerName.getBounds().bottom + fontSize;
+    const barY = Utils.isVerticalOrientation() ? barHeight / 2 : this.playerName.getBounds().bottom + fontSize;
     this.setPosition(centerX, barY);
 
     const barGeom = this.getBounds();
@@ -223,13 +229,48 @@ export default class StatusBar extends Phaser.GameObjects.Sprite {
       .fillStyle(0x00ff00)
       .fillRoundedRect(- barGeom.width / 2, - barGeom.height / 2, barGeom.width, barGeom.height, barGeom.height / 2);
 
-    this.playerBar?.setPosition(barGeom.left, barGeom.centerY).setSize(this.getLineWidth(greenHexes), barGeom.height);
-    this.enemyBar?.setPosition(barGeom.right, barGeom.centerY).setSize(this.getLineWidth(redHexes), barGeom.height);
+    this.playerBar?.setPosition(barGeom.left, barGeom.centerY).setDisplaySize(this.getLineWidth(greenHexes), barGeom.height);
+    this.enemyBar?.setPosition(barGeom.right, barGeom.centerY).setDisplaySize(this.getLineWidth(redHexes), barGeom.height);
     this.timer?.setFontSize(fontSize).setPosition(barGeom.centerX, barGeom.bottom + 2);
 
     this.star1?.setPosition(barGeom.left + this.getStarPoint(1), barGeom.centerY + 3).setScale(scale);
     this.star2?.setPosition(barGeom.left + this.getStarPoint(2), barGeom.centerY + 3).setScale(scale);
     this.star3?.setPosition(barGeom.left + this.getStarPoint(3), barGeom.centerY + 3).setScale(scale);
+
+    if (Utils.isVerticalOrientation()) {
+      if (this.playerBar.texture.key !== 'pixel') {
+        const playerColor = this.playerColor === 'green' ? 0x00D750 : 0xF39946;
+        const enemyColor = this.enemyColor === 'green' ? 0x00D750 : 0xF39946;
+        this.playerBar.setTexture('pixel').setTint(playerColor).clearMask();
+        this.enemyBar.setTexture('pixel').setTint(enemyColor).clearMask();
+      }
+      this.star1.setVisible(false);
+      this.star2.setVisible(false);
+      this.star3.setVisible(false);
+      this.playerName.setVisible(false);
+      this.enemyName.setVisible(false);
+    } else if (this.playerBar.texture.key !== `pixel-${this.playerColor}`) {
+      const mask = new Phaser.Display.Masks.GeometryMask(this.scene, this.maskGraphics);
+      this.playerBar.setTexture(`pixel-${this.playerColor}`).setTint(0xffffff).setMask(mask);
+      this.enemyBar.setTexture(`pixel-${this.enemyColor}`).setTint(0xffffff).setMask(mask);
+      this.star1.setVisible(true);
+      this.star2.setVisible(true);
+      this.star3.setVisible(true);
+      this.playerName.setVisible(true);
+      this.enemyName.setVisible(true);
+    }
     this.update();
+  }
+
+  private getBarWidth(): number {
+    if (!Utils.isVerticalOrientation()){
+      return this.scene.camera.width / 2.5;
+    }
+    return this.scene.camera.width;
+  }
+
+  public getBarHeight(): number {
+    const { barHeight } = this.getSettings();
+    return barHeight;
   }
 };

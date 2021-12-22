@@ -1,4 +1,5 @@
 import Hud from '../../scenes/Hud';
+import Utils from './../../utils/Utils';
 
 const HEX_COUNT_DISPLAY_PECENT = 5;
 const ICONS_DISPLAY_PERCENT = 5;
@@ -112,7 +113,9 @@ export default class HexCounter extends Phaser.GameObjects.Sprite {
     const currentIconsHeight: number = document.body.clientHeight / 100 * ICONS_DISPLAY_PERCENT;
     const iconsScale = currentIconsHeight / 40;
 
-    this.hexIcon?.setPosition(currentIconsHeight, currentIconsHeight).setScale(0.6 * iconsScale)
+    let y = currentIconsHeight;
+    if (Utils.isVerticalOrientation()) y += this.scene.statusBar.getBarHeight();
+    this.hexIcon?.setPosition(currentIconsHeight, y).setScale(0.6 * iconsScale);
     this.hexText?.setPosition(this.hexIcon.getBounds().right, this.hexIcon.getBounds().centerY).setFontSize(curCountFontSize);
     this.superHexIcon?.setPosition(this.hexIcon.getBounds().centerX, this.hexIcon.getBounds().bottom + currentIconsHeight).setScale(0.6 * iconsScale);
     this.superHexText?.setPosition(this.superHexIcon.getBounds().right, this.superHexIcon.getBounds().centerY).setFontSize(curCountFontSize);

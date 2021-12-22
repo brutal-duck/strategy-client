@@ -6,8 +6,6 @@ import StatusBar from '../components/hud/StatusBar';
 import HexCounter from './../components/hud/HexCounter';
 import WarningPlate from './../components/hud/WarningPlate';
 
-const TEXT_DISPLAY_PERCENT = 4;
-const MAX_TEXT_SIZE = 24;
 export default class Hud extends Phaser.Scene {
   constructor() {
     super('Hud')
@@ -28,21 +26,15 @@ export default class Hud extends Phaser.Scene {
   public hexCounter: HexCounter;
   public warningPlate: WarningPlate;
 
-  private warnCreateAni: Phaser.Tweens.Tween
-  private warnFadeInAni: Phaser.Tweens.Tween
-
-  private warnBaseWasFoundText: Phaser.GameObjects.Text
-  private warnBaseWasFoundAni: Phaser.Tweens.Tween
-
+  private warnBaseWasFoundText: Phaser.GameObjects.Text;
+  private warnBaseWasFoundAni: Phaser.Tweens.Tween;
   private warnYourBaseOnAttackText: Phaser.GameObjects.Text;
   private warnYourBaseOnAttackAni: Phaser.Tweens.Tween;
+  private warnCity: Phaser.GameObjects.Text;
+  private warnCityAni: Phaser.Tweens.Tween;
 
-  private warnCity: Phaser.GameObjects.Text
-  private warnCityAni: Phaser.Tweens.Tween
-
-  public menuBtn: SandwichBtn
-
-  private debugText: Phaser.GameObjects.Text
+  public menuBtn: SandwichBtn;
+  private debugText: Phaser.GameObjects.Text;
 
 
   public init(state: Istate): void {
