@@ -191,14 +191,15 @@ export default class StatusBar extends Phaser.GameObjects.Sprite {
       this.star2.setVisible(false);
       this.star3.setVisible(false);
     } else if (this.scene.state.tutorial === 4) {
-      this.playerName.setVisible(true);
-      this.enemyName.setVisible(true);
+      const isMobile = Utils.isMobilePlatform();
+      this.playerName.setVisible(!isMobile);
+      this.enemyName.setVisible(!isMobile);
       this.playerBar.setVisible(true);
       this.enemyBar.setVisible(true);
       this.timer.setVisible(true);
-      this.star1.setVisible(!Utils.isMobilePlatform());
-      this.star2.setVisible(!Utils.isMobilePlatform());
-      this.star3.setVisible(!Utils.isMobilePlatform());
+      this.star1.setVisible(!isMobile);
+      this.star2.setVisible(!isMobile);
+      this.star3.setVisible(!isMobile);
     }
   }
 
