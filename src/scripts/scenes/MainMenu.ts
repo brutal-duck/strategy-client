@@ -95,6 +95,7 @@ export default class MainMenu extends Phaser.Scene {
     } else {
       const check = localStorage.getItem('play');
       if (check !== 'true') {
+        this.state.amplitude.track('play', {});
         localStorage.setItem('play', 'true');
       }
     }
