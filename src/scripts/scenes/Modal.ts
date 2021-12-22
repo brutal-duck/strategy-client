@@ -1,7 +1,5 @@
-import { colors } from "../gameConfig"
 import langs from "../langs"
 import Game from "./Game"
-import ColorsBtn from './../components/buttons/ColorsBtn';
 import SingleplayerMenu from "../components/modal/SingleplayerMenu";
 import MultiplayerMenu from './../components/modal/MultiplayerMenu';
 import Menu from '../components/modal/Menu';
@@ -9,8 +7,8 @@ import GameMenu from './../components/modal/GameMenu';
 import SuperHexConfirm from './../components/modal/SuperHexConfirm';
 import GameOver from './../components/modal/GameOver';
 import ReviewWindow from './../components/modal/ReviewWindow';
-import platform = require("platform");
 import Utils from './../utils/Utils';
+import GameOverMobile from './../components/modal/GameOverMobile';
 export default class Modal extends Phaser.Scene {
   constructor() {
     super('Modal')
@@ -21,16 +19,13 @@ export default class Modal extends Phaser.Scene {
   public info: any
   public lang: any
 
-  private playerColor: string;
-  private enemyColor: string;
-
   private gameMenu: GameMenu;
   private mainMenu: Menu;
   private superHexConfirm: SuperHexConfirm;
   private reviewWindow: ReviewWindow;
   private singleplayerMenu: SingleplayerMenu;
   private multiplayerMenu: MultiplayerMenu;
-  private gameOver: GameOver;
+  private gameOver: GameOver | GameOverMobile;
   public gameScene: Game;
   public bg: Phaser.GameObjects.TileSprite;
   private openCloseAni: Phaser.Tweens.Tween;
@@ -61,7 +56,7 @@ export default class Modal extends Phaser.Scene {
       } else if (this.type === 'gameMenu') {
         maxHeight = 400;
       } else if (this.type === 'gameOver') {
-        maxHeight = 650;
+        maxHeight = 550;
       }
     }
 
@@ -109,7 +104,11 @@ export default class Modal extends Phaser.Scene {
         break;
 
       case 'gameOver':
-        this.gameOver = new GameOver(this);
+        if (!Utils.isMobilePlatform()) {
+          this.gameOver = new GameOver(this);
+        } else {
+          this.gameOver = new GameOverMobile(this);
+        }
         break;
       
       case 'mainMenu':

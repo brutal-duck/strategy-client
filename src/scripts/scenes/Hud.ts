@@ -48,12 +48,13 @@ export default class Hud extends Phaser.Scene {
   }
   
   public create(): void {
-    this.menuBtn = new SandwichBtn(this);
     this.statusBar = new StatusBar(this);
+    this.menuBtn = new SandwichBtn(this);
     this.hexCounter = new HexCounter(this);
     this.warningPlate = new WarningPlate(this);
 
     this.debugText = this.add.text(-26, this.camera.height, '', { font: '20px Molot', align: 'left', color: '#54C649' }).setStroke('#000', 2).setLineSpacing(-9).setOrigin(0, 1).setVisible(false);
+    this.resize();
   }
 
   public enemyBaseSitedInfo(): void {

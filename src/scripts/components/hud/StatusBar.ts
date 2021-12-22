@@ -3,7 +3,7 @@ import Timer from '../Timer';
 import Utils from './../../utils/Utils';
 
 const BAR_DISPLAY_PERCENT = 5;
-const MOBILE_BAR_DISPLAY_PERCENT = 7;
+const MOBILE_BAR_DISPLAY_PERCENT = 3;
 const TEXT_DISPLAY_PERCENT = 4;
 const MAX_TEXT_SIZE = 24;
 
@@ -38,7 +38,7 @@ export default class StatusBar extends Phaser.GameObjects.Sprite {
     if (fontSize > MAX_TEXT_SIZE) fontSize = MAX_TEXT_SIZE;
 
     let barHeight = clientHeight / 100 * BAR_DISPLAY_PERCENT;
-    if (Utils.isVerticalOrientation()) {
+    if (Utils.isMobilePlatform()) {
       barHeight = clientHeight / 100 * MOBILE_BAR_DISPLAY_PERCENT;
     }
     return { fontSize, barHeight };
@@ -196,9 +196,9 @@ export default class StatusBar extends Phaser.GameObjects.Sprite {
       this.playerBar.setVisible(true);
       this.enemyBar.setVisible(true);
       this.timer.setVisible(true);
-      this.star1.setVisible(true);
-      this.star2.setVisible(true);
-      this.star3.setVisible(true);
+      this.star1.setVisible(!Utils.isMobilePlatform());
+      this.star2.setVisible(!Utils.isMobilePlatform());
+      this.star3.setVisible(!Utils.isMobilePlatform());
     }
   }
 
@@ -218,7 +218,7 @@ export default class StatusBar extends Phaser.GameObjects.Sprite {
 
     this.playerName?.setPosition(width / 2 - width / 5, fontSize).setFontSize(fontSize).setCrop(0, 0, width / 5, 200);
     this.enemyName?.setPosition(width / 2 + width / 5, fontSize).setFontSize(fontSize).setCrop(0, 0, width / 5, 200);
-    const barY = Utils.isVerticalOrientation() ? barHeight / 2 : this.playerName.getBounds().bottom + fontSize;
+    const barY = Utils.isMobilePlatform() ? barHeight / 2 : this.playerName.getBounds().bottom + fontSize;
     this.setPosition(centerX, barY);
 
     const barGeom = this.getBounds();
@@ -237,7 +237,7 @@ export default class StatusBar extends Phaser.GameObjects.Sprite {
     this.star2?.setPosition(barGeom.left + this.getStarPoint(2), barGeom.centerY + 3).setScale(scale);
     this.star3?.setPosition(barGeom.left + this.getStarPoint(3), barGeom.centerY + 3).setScale(scale);
 
-    if (Utils.isVerticalOrientation()) {
+    if (Utils.isMobilePlatform()) {
       if (this.playerBar.texture.key !== 'pixel') {
         const playerColor = this.playerColor === 'green' ? 0x00D750 : 0xF39946;
         const enemyColor = this.enemyColor === 'green' ? 0x00D750 : 0xF39946;
@@ -263,7 +263,7 @@ export default class StatusBar extends Phaser.GameObjects.Sprite {
   }
 
   private getBarWidth(): number {
-    if (!Utils.isVerticalOrientation()){
+    if (!Utils.isMobilePlatform()){
       return this.scene.camera.width / 2.5;
     }
     return this.scene.camera.width;

@@ -114,7 +114,7 @@ export default class HexCounter extends Phaser.GameObjects.Sprite {
     const iconsScale = currentIconsHeight / 40;
 
     let y = currentIconsHeight;
-    if (Utils.isVerticalOrientation()) y += this.scene.statusBar.getBarHeight();
+    if (Utils.isMobilePlatform()) y += this.scene.statusBar.getBarHeight();
     this.hexIcon?.setPosition(currentIconsHeight, y).setScale(0.6 * iconsScale);
     this.hexText?.setPosition(this.hexIcon.getBounds().right, this.hexIcon.getBounds().centerY).setFontSize(curCountFontSize);
     this.superHexIcon?.setPosition(this.hexIcon.getBounds().centerX, this.hexIcon.getBounds().bottom + currentIconsHeight).setScale(0.6 * iconsScale);

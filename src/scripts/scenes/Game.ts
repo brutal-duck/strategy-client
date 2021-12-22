@@ -131,11 +131,6 @@ export default class Game extends Phaser.Scene {
       this.AI.init()
     }
 
-    this.input.keyboard.createCursorKeys().space.on('down', (): void => {
-      // this.gameOver('timeIsUp');
-      this.hud.setWarning(0, 0, '1')
-    });
-
     this.graphManager.initGraphs();
     this.graphManager.initNeutralGraphs();
   }
@@ -156,6 +151,7 @@ export default class Game extends Phaser.Scene {
     this.red = Object.assign({}, config)
     this[this.player.color].name = '';
     this[this.player.color].clameTime = 500;
+    this[this.player.color].superReclameTime = 500;
     this[this.enemyColor].name = '';
     this.stars = 0
     this.baseWasFound = false

@@ -1,5 +1,6 @@
 import Button from "./Button";
 import Hud from './../../scenes/Hud';
+import Utils from './../../utils/Utils';
 
 const ICONS_DISPLAY_PERCENT = 5;
 export default class SandwichBtn extends Button {
@@ -26,7 +27,9 @@ export default class SandwichBtn extends Button {
     const cameraWidth = this.scene.camera.width;
     const currentIconsHeight: number = document.body.clientHeight / 100 * ICONS_DISPLAY_PERCENT;
     const menuBtnScale = currentIconsHeight / 35;
+    let y = currentIconsHeight * 1.2;
+    if (Utils.isMobilePlatform()) y += this.scene.statusBar.getBarHeight();
 
-    this.setScale(menuBtnScale).setPosition(cameraWidth - currentIconsHeight * 1.2, currentIconsHeight * 1.2);
+    this.setScale(menuBtnScale).setPosition(cameraWidth - currentIconsHeight * 1.2, y);
   }
 }
