@@ -100,21 +100,6 @@ export default class Game extends Phaser.Scene {
       this.scene.stop('MainMenu');
       this.startTutorial(this.state);
     }
-
-    function* funcIter(hud: Hud) {
-      yield hud.enemyBaseSitedInfo();
-      yield hud.yourBaseOnAttack();
-      yield hud.cityClamedOrLostInfo(true);
-      yield hud.cityClamedOrLostInfo(false);
-    }
-    
-    const iterator = funcIter(this.hud);
-    this.input.keyboard.addKey('space').on('down', () => {
-      const { done } = iterator.next();
-      if (done){
-        iterator.return();
-      }
-    });
   }
 
 
@@ -336,6 +321,7 @@ export default class Game extends Phaser.Scene {
                 hex.upgradeDefence(color);
               } else {
                 new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', color);
+                this.hud.notEnoughtHexesHint();
               }
             } else {
               new FlyAwayMsg(this, x, y, this.lang.upgrading, 'yellow', '', 1000);
@@ -354,6 +340,7 @@ export default class Game extends Phaser.Scene {
                 hex.setClaming(color);
               } else {
                 new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', color);
+                this.hud.notEnoughtHexesHint();
               }
             } else {
               if (hex.defence === 1 && player.hexes >= 2) {
@@ -367,6 +354,7 @@ export default class Game extends Phaser.Scene {
                 hex.setClearClame(color);
               } else {
                 new FlyAwayMsg(this, x, y, this.lang.notEnought, 'red', color);
+                this.hud.notEnoughtHexesHint();
               }
             }
           } else {

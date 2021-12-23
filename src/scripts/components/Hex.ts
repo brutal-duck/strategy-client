@@ -49,7 +49,6 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     topLeft: string
   }
 
-  
   constructor(scene: Game, x: number, y: number, row: number, col: number, sprite: string = 'hex') {
     super(scene, x, y, sprite);
     this.scene = scene;
@@ -110,6 +109,14 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     if (this.scene.debuging) this.debug();
   }
 
+  public getProductionTime(): number {
+    if (this.productionTimer) {
+      const { delay } = this.productionTimer;
+      const progress = this.productionTimer.getProgress();
+      return Math.round((delay - delay * progress) / 1000);
+    }
+    return 0;
+  }
 
   public setClearClame(color: string, superHex: boolean = false) {
     const lineColor = colors[color].light;

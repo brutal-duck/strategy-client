@@ -78,6 +78,26 @@ export default class Hud extends Phaser.Scene {
     new Hint(this, text, color);
   }
 
+  public notEnoughtHexesHint(): void {
+    if (!this.hints.children.entries.some((el: Hint) => el.text.includes(this.lang.waitNewHexes))) {
+      const text = this.lang.waitNewHexes;
+      const color = colors.red.mainStr;
+      const timer = this.getShortestProductionTime();
+      new Hint(this, text, color, timer);
+    }
+  }
+
+  private getShortestProductionTime(): number {
+    let bestTime = 50;
+    this.gameScene.hexes.forEach(hex => {
+      const time = hex.getProductionTime();
+      if (time > 0 && time < bestTime) {
+        bestTime = time;
+      }
+    });
+    return bestTime;
+  }
+
   public updateWorldStatusBar(): void {
     this.statusBar.update();
   }
