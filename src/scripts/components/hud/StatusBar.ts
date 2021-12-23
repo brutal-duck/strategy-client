@@ -93,7 +93,7 @@ export default class StatusBar extends Phaser.GameObjects.Sprite {
       this.enemyBar,
       this.star1,
       this.star2,
-      this.star3
+      this.star3,
     );
 
     this.timer = new Timer(this.scene, this.x, this.playerBar.getBottomCenter().y + 2, this.scene.gameScene.green.matchTime);

@@ -100,6 +100,21 @@ export default class Game extends Phaser.Scene {
       this.scene.stop('MainMenu');
       this.startTutorial(this.state);
     }
+
+    function* funcIter(hud: Hud) {
+      yield hud.enemyBaseSitedInfo();
+      yield hud.yourBaseOnAttack();
+      yield hud.cityClamedOrLostInfo(true);
+      yield hud.cityClamedOrLostInfo(false);
+    }
+    
+    const iterator = funcIter(this.hud);
+    this.input.keyboard.addKey('space').on('down', () => {
+      const { done } = iterator.next();
+      if (done){
+        iterator.return();
+      }
+    });
   }
 
 

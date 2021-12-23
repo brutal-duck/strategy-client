@@ -5,6 +5,7 @@ import Game from "./Game"
 import StatusBar from '../components/hud/StatusBar';
 import HexCounter from './../components/hud/HexCounter';
 import WarningPlate from './../components/hud/WarningPlate';
+import Hint from './../components/hud/Hint';
 
 export default class Hud extends Phaser.Scene {
   constructor() {
@@ -35,6 +36,7 @@ export default class Hud extends Phaser.Scene {
 
   public menuBtn: SandwichBtn;
   private debugText: Phaser.GameObjects.Text;
+  public hints: Phaser.GameObjects.Group;
 
 
   public init(state: Istate): void {
@@ -45,6 +47,7 @@ export default class Hud extends Phaser.Scene {
     this.allElements = [];
     this.playerColor = this.gameScene.player.color;
     this.enemyColor = this.gameScene.player.color === 'red' ? 'green' : 'red';
+    this.hints = this.add.group();
   }
   
   public create(): void {
@@ -58,97 +61,21 @@ export default class Hud extends Phaser.Scene {
   }
 
   public enemyBaseSitedInfo(): void {
-    this.warnBaseWasFoundText = this.add.text(this.statusBar.getCenter().x, this.statusBar.getCenter().y, this.lang.enemyBaseSited, {
-      font: '20px Molot', align: 'center', color: colors[this.enemyColor].mainStr
-    }).setOrigin(0.5).setStroke('#000000', 1).setAlpha(0)
-    this.allElements.push(this.warnBaseWasFoundText);
-
-    const value = this.warnCityAni?.isPlaying() ? '+=66' : '+=46'
-    this.warnBaseWasFoundAni = this.tweens.add({
-      targets: this.warnBaseWasFoundText,
-      alpha: { value: 1, duration: 600 },
-      y: { value, duration: 600, ease: 'Quart.easeIn' },
-      onComplete: (): void => {
-        this.warnBaseWasFoundAni = this.tweens.add({
-          targets: this.warnBaseWasFoundText,
-          alpha: 0,
-          duration: 600,
-          delay: 4000,
-          onComplete: (): void => {
-            if (this.warnCityAni?.isPlaying()) {
-              this.tweens.add({
-                targets: this.warnCity,
-                y: '-=20',
-                duration: 200
-              })
-            }
-          }
-        })
-      }
-    })
+    const text = this.lang.enemyBaseSited;
+    const color = colors[this.enemyColor].mainStr;
+    new Hint(this, text, color);
   }
 
   public yourBaseOnAttack(): void {
-    if (this.warnYourBaseOnAttackAni?.isPlaying()) return;
-    this.warnYourBaseOnAttackText = this.add.text(this.statusBar.getCenter().x, this.statusBar.getCenter().y, this.lang.baseOnAttack, {
-      font: '20px Molot', align: 'center', color: colors[this.enemyColor].mainStr
-    }).setOrigin(0.5).setStroke('#000000', 1).setAlpha(0)
-    const value = this.warnCityAni?.isPlaying() ? '+=66' : '+=46'
-    this.warnYourBaseOnAttackAni = this.tweens.add({
-      targets: this.warnYourBaseOnAttackText,
-      alpha: { value: 1, duration: 600 },
-      y: { value, duration: 600, ease: 'Quart.easeIn' },
-      onComplete: (): void => {
-        this.warnBaseWasFoundAni = this.tweens.add({
-          targets: this.warnYourBaseOnAttackText,
-          alpha: 0,
-          duration: 600,
-          delay: 4000,
-          onComplete: (): void => {
-            if (this.warnCityAni?.isPlaying()) {
-              this.tweens.add({
-                targets: this.warnCity,
-                y: '-=20',
-                duration: 200
-              })
-            }
-          }
-        })
-      }
-    })
+    const text = this.lang.baseOnAttack;
+    const color = colors[this.enemyColor].mainStr
+    new Hint(this, text, color);
   }
 
   public cityClamedOrLostInfo(clamed: boolean): void {
-    const color = clamed ? colors[this.playerColor].mainStr : '#bc2626'
-    const text = clamed ? this.lang.cityClamed : this.lang.cityLost
-    this.warnCity = this.add.text(this.statusBar.getCenter().x, this.statusBar.getCenter().y, text, {
-      font: '20px Molot', align: 'center', color
-    }).setOrigin(0.5).setStroke('#000000', 1).setAlpha(0)
-    
-
-    const value = this.warnBaseWasFoundAni?.isPlaying() ? '+=80' : '+=80'
-    this.warnCityAni = this.tweens.add({
-      targets: this.warnCity,
-      alpha: { value: 1, duration: 600 },
-      y: { value, duration: 600, ease: 'Quart.easeIn' },
-      onComplete: (): void => {
-        this.warnCityAni = this.tweens.add({
-          targets: this.warnCity,
-          alpha: 0,
-          duration: 600,
-          delay: 4000,
-          onComplete: (): void => {
-            if (this.warnBaseWasFoundAni?.isPlaying()) {
-              this.tweens.add({
-                targets: this.warnBaseWasFoundText,
-                y: '-=20',
-                duration: 400
-              })
-            }
-          }
-        })
-      }
-    })
+    const text = clamed ? this.lang.cityClamed : this.lang.cityLost;
+    const color = clamed ? colors[this.playerColor].mainStr : '#bc2626';
+    new Hint(this, text, color);
   }
 
   public updateWorldStatusBar(): void {
@@ -168,23 +95,26 @@ export default class Hud extends Phaser.Scene {
     this.hexCounter.resize();
     this.menuBtn?.resize();
     this.warningPlate?.resize();
-
+    this.hints.children.entries.forEach((hint: Hint) => {
+      hint.destroy();
+    });
     this.warnBaseWasFoundText?.setX(this.statusBar.getCenter().x);
     this.warnCity?.setX(this.statusBar.getCenter().x);
     
     this.debugText?.setPosition(-26, this.camera.height);
   }
 
-
   public hide(): void {
     this.statusBar.stopTimer();
+    this.hints.children.entries.forEach((hint: Hint) => {
+      hint.destroy();
+    });
     this.tweens.add({
       targets: this.allElements,
       alpha: 0,
       duration: 700
     });
   }
-
 
   private debug(): void {
     const text = `
@@ -194,7 +124,6 @@ export default class Hud extends Phaser.Scene {
     `;
     this.debugText?.setText(text)
   }
-
 
   public update(): void {
     this.debug()
