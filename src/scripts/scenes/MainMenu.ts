@@ -5,6 +5,7 @@ import Game from "./Game"
 import bridge from '@vkontakte/vk-bridge';
 import { platforms } from "../types";
 import Utils from './../utils/Utils';
+import axios from 'axios';
 const TEXT_DISPLAY_PERCENT = 5;
 const BTN_DISPLAY_PERCENT = 23;
 const LOGO_DISPLAY_PERCENT = 30;
@@ -59,7 +60,11 @@ export default class MainMenu extends Phaser.Scene {
         if (!check || check && check.value !== 'true') {
           this.state.amplitude.track('play', {});
           bridge.send('VKWebAppStorageSet', { key: 'play', value: 'true' });
-          bridge.send('VKWebAppJoinGroup', { group_id: Number(process.env.VK_GROUP_ID) });
+          bridge.send('VKWebAppAllowMessagesFromGroup', { group_id: Number(process.env.VK_GROUP_ID) }).then(data => {
+            if (data.result) {
+              axios.post(process.env.PUSH_API, { id: this.state.player.id });
+            }
+          });
         }
       });
     } else if (this.state.platform === platforms.OK) {
