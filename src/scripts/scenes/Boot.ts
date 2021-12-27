@@ -114,7 +114,7 @@ class Boot extends Phaser.Scene {
   }
   
   private initUserVK(): void {
-    const DEV_IDS = [ 3922194, 23755036 ];
+    const DEV_IDS = [ 23755036 ];
     bridge.send('VKWebAppInit');
     bridge.send('VKWebAppGetUserInfo').then(data => {
       this.state.player.name = data.first_name + ' ' + data.last_name;
@@ -124,7 +124,10 @@ class Boot extends Phaser.Scene {
         const tutorial = data.keys.find(el => el.key === 'tutorial');
         
         if (this.state.platform === platforms.VK && DEV_IDS.some(el => el === this.state.player.id)) {
+          bridge.send('VKWebAppStorageSet', { key: 'play', value: '' });
+
           bridge.send('VKWebAppStorageGet', { keys: ['test'] }).then(data => {
+            
             const check = data.keys.find(el => el.key === 'test');
             if (check && check.value === 'true') {
               if (tutorial) {
