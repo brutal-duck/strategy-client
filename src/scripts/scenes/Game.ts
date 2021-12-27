@@ -10,6 +10,7 @@ import World from "../utils/World";
 import Hud from "./Hud";
 import GraphManager from './../utils/GraphManager';
 import { platforms } from "../types";
+import fakeNames from "../fakeNames";
 
 export default class Game extends Phaser.Scene {
   constructor() {
@@ -111,6 +112,9 @@ export default class Game extends Phaser.Scene {
     this.green = Object.assign({}, config)
     this.red = Object.assign({}, config)
     this[this.player.color].name = this.state.player.name;
+    if (this.state.game.fakeOnline) {
+      this.state.enemy = { name: Phaser.Utils.Array.GetRandom(fakeNames), id: '1' }
+    }
     this[this.enemyColor].name = this.state.enemy?.name || this.lang.enemy;
     if (this[this.enemyColor].name === this.lang.you) this[this.enemyColor].name = this.lang.enemy;
     
@@ -540,7 +544,13 @@ export default class Game extends Phaser.Scene {
         else winner = 'red'
       }
       
-      const win = winner === this.player.color
+      const win = winner === this.player.color;
+      if (this.AI && this.state.game.fakeOnline) {
+        if (win) {
+          const winPoints = 3;
+          this.incPlayerPoints(this.stars + winPoints);
+        }
+      }
       if (this.AI) this.AI.remove()
       this.scene.launch('Modal', { state: this.state, type: 'gameOver', info: { win, winner, reason } })
     }
@@ -572,8 +582,8 @@ export default class Game extends Phaser.Scene {
     }
   }
 
-  private incPlayerPoints(): void {
-    this.player.points += this.state.socket.points;
+  private incPlayerPoints(points: number): void {
+    this.player.points += points;
     if (this.state.platform === platforms.VK) {
       bridge.send('VKWebAppStorageSet', { key: 'points', value: String(this.player.points) });
     } else if (this.state.platform === platforms.YANDEX) {
@@ -592,7 +602,6 @@ export default class Game extends Phaser.Scene {
     } else {
       localStorage.setItem('points', String(this.player.points));
     }
-    this.state.socket.points = 0;
   }
   
   private checkSocketGameOver(): void {
@@ -606,7 +615,8 @@ export default class Game extends Phaser.Scene {
           delay: 100,
           callback: (): void => {     
             this.gameOver(text, this.player.color);
-            this.incPlayerPoints();
+            this.incPlayerPoints(this.state.socket.points);
+            this.state.socket.points = 0;
           },
           callbackScope: this,
         });

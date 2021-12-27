@@ -66,7 +66,8 @@ interface IGame {
   player: IsocketPlayer
   serverGameTime: number
   isStarted: boolean
-  AI: string
+  AI: string;
+  fakeOnline: boolean;
 }
 interface Iconfig {
   name: string

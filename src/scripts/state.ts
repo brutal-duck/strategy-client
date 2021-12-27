@@ -13,7 +13,8 @@ let state: Istate = {
     serverGameTime: 0,
     player: null,
     isStarted: false,
-    AI: ''
+    AI: '',
+    fakeOnline: false,
   },
   platform: '',
   socket: null,

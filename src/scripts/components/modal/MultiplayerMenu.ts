@@ -31,20 +31,35 @@ export default class MultiplayerMenu {
     this.countTime = SEARCH_DELAY;
     this.timerText.setText(`${this.scene.lang.timeLeft}: ${this.countTime}`);
     if (this.searchTimer) this.searchTimer.remove();
+    const startTime = 15 - Phaser.Math.Between(1, 7);
     this.searchTimer = this.scene.time.addEvent({
       delay: 1000,
       loop: true,
       callback: (): void => {
         this.countTime -= 1;
-        if (this.countTime <= 0) {
-          this.searchTimer.remove();
-          this.scene.state.socket.closeSocket();
-          this.hideTimer();
+        if (this.countTime <= startTime) {
+          // this.searchTimer.remove();
+          // this.scene.state.socket.closeSocket();
+          // this.hideTimer();
+          this.startFakeMultiplayerGame();
         } else {
           this.timerText.setText(`${this.scene.lang.timeLeft}: ${this.countTime}`);
         }
       },
     });
+  }
+
+  private startFakeMultiplayerGame(): void {
+    this.scene.state.game.AI = 'normal';
+    this.scene.state.game.fakeOnline = true;
+    this.scene.state.socket.clearState();
+    this.scene.state.player.color = Phaser.Math.Between(0, 1) === 0 ? 'green' : 'red';
+    this.scene.gameScene.cameraFly(true, false);
+    this.scene.scene.stop();
+    this.scene.scene.stop('MainMenu');
+    this.scene.scene.start('Hud', this.scene.state);
+    this.scene.gameScene.launch(this.scene.state);
+    this.scene.state.amplitude.track('start', { mode: 'online', fakeOnline: 'true' });
   }
 
   private createMainElements(): void {

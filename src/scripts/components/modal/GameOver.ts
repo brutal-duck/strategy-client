@@ -270,7 +270,8 @@ export default class GameOver {
           const count = Number(check?.value) || 0;
           this.scene.state.amplitude.track('done', {
             status: gameStatus,
-            mode: this.scene.state.game.AI ? 'bot' : 'online',
+            mode: this.scene.state.game.AI && !this.scene.state.game.fakeOnline ? 'bot' : 'online',
+            fakeOnline: String(this.scene.state.game.fakeOnline),
             count: count + 1,
           });
           bridge.send('VKWebAppStorageSet', { key: 'gameCount', value: String(count + 1) });
@@ -297,7 +298,39 @@ export default class GameOver {
             }
           }
           this.scene.state.yaPlayer.setData(result, true);
+          this.scene.state.amplitude.track('done', {
+            status: gameStatus,
+            mode: this.scene.state.game.AI && !this.scene.state.game.fakeOnline ? 'bot' : 'online',
+            count: result.gameCount,
+            fakeOnline: String(this.scene.state.game.fakeOnline),
+          });
         });
+      } else if (this.scene.state.platform === platforms.OK) {
+        FAPI.Client.call({ method: 'storage.get', keys: ['gameCount'] }, (res, data) => {
+          if (data.data) {
+            const check = data.data['gameCount'];
+            const count = Number(check?.value) || 0;
+            if (!check || check && check.value !== 'true') {
+              this.scene.state.amplitude.track('done', {
+                status: gameStatus,
+                mode: this.scene.state.game.AI && !this.scene.state.game.fakeOnline ? 'bot' : 'online',
+                fakeOnline: String(this.scene.state.game.fakeOnline),
+                count: count + 1,
+              });
+              FAPI.Client.call({ method: 'storage.set', key: 'gameCount', value: String(count + 1) });
+            }
+          }
+        });
+      } else {
+        const checkCount = localStorage.getItem('gameCount');
+        const count = isNaN(Number(checkCount)) ? 0 : Number(checkCount);
+        this.scene.state.amplitude.track('done', {
+          status: gameStatus,
+          mode: this.scene.state.game.AI && !this.scene.state.game.fakeOnline ? 'bot' : 'online',
+          fakeOnline: String(this.scene.state.game.fakeOnline),
+          count: count + 1,
+        });
+        localStorage.setItem('gameCount', String(count + 1));
       }
     }
   }

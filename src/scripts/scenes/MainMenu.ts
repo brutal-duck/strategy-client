@@ -68,13 +68,6 @@ export default class MainMenu extends Phaser.Scene {
         }
       });
     } else if (this.state.platform === platforms.OK) {
-      bridge.send('VKWebAppStorageGet', { keys: ['play'] }).then(data => {
-        const check = data.keys.find(key => key.key === 'play');
-        if (!check || check && check.value !== 'true') {
-          this.state.amplitude.track('play', {});
-          bridge.send('VKWebAppStorageSet', { key: 'play', value: 'true' });
-        }
-      });
       FAPI.Client.call({ method: 'storage.get', keys: ['play'] }, (res, data) => {
         if (data.data) {
           const check = data.data['play'];
