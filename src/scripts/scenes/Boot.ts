@@ -114,7 +114,6 @@ class Boot extends Phaser.Scene {
   }
   
   private initUserVK(): void {
-    const DEV_IDS = [ 23755036 ];
     bridge.send('VKWebAppInit');
     bridge.send('VKWebAppGetUserInfo').then(data => {
       this.state.player.name = data.first_name + ' ' + data.last_name;
@@ -123,38 +122,15 @@ class Boot extends Phaser.Scene {
         const points = data.keys.find(el => el.key === 'points');
         const tutorial = data.keys.find(el => el.key === 'tutorial');
         
-        if (this.state.platform === platforms.VK && DEV_IDS.some(el => el === this.state.player.id)) {
-          bridge.send('VKWebAppStorageSet', { key: 'play', value: '' });
-
-          bridge.send('VKWebAppStorageGet', { keys: ['test'] }).then(data => {
-            
-            const check = data.keys.find(el => el.key === 'test');
-            if (check && check.value === 'true') {
-              if (tutorial) {
-                this.state.tutorial = Number(tutorial.value);
-              }
-            } else {
-              this.state.tutorial = 0;
-              bridge.send('VKWebAppStorageSet', { key: 'test', value: 'true' })
-            }
-            if (points) {
-              this.state.player.points = Number(points.value);
-            }
-            this.userIsReady = true;
-            this.state.socket = new Socket(this.state);
-            this.initAmplitude();
-          });
-        } else {
-          if (tutorial) {
-            this.state.tutorial = Number(tutorial.value);
-          }
-          if (points) {
-            this.state.player.points = Number(points.value);
-          }
-          this.userIsReady = true;
-          this.state.socket = new Socket(this.state);
-          this.initAmplitude();
+        if (tutorial) {
+          this.state.tutorial = Number(tutorial.value);
         }
+        if (points) {
+          this.state.player.points = Number(points.value);
+        }
+        this.userIsReady = true;
+        this.state.socket = new Socket(this.state);
+        this.initAmplitude();
       });
     });
   }

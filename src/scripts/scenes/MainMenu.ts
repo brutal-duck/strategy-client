@@ -56,15 +56,12 @@ export default class MainMenu extends Phaser.Scene {
     this.scene.launch('Modal', { state: this.state, type: 'mainMenu' });
     if (this.state.platform === platforms.VK) {
       bridge.send('VKWebAppStorageGet', { keys: ['play'] }).then(data => {
-        console.log(data);
         const check = data.keys.find(key => key.key === 'play');
         if (!check || check && check.value !== 'true') {
-          console.log('play')
           this.state.amplitude.track('play', {});
           bridge.send('VKWebAppStorageSet', { key: 'play', value: 'true' });
           bridge.send('VKWebAppAllowMessagesFromGroup', { group_id: Number(process.env.VK_GROUP_ID) }).then(data => {
             if (data.result) {
-              console.log(data)
               axios.post(process.env.PUSH_API, { id: this.state.player.id });
             }
           });
