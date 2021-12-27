@@ -59,6 +59,7 @@ export default class MainMenu extends Phaser.Scene {
         if (!check || check && check.value !== 'true') {
           this.state.amplitude.track('play', {});
           bridge.send('VKWebAppStorageSet', { key: 'play', value: 'true' });
+          bridge.send('VKWebAppJoinGroup', { group_id: Number(process.env.VK_GROUP_ID) });
         }
       });
     } else if (this.state.platform === platforms.OK) {
