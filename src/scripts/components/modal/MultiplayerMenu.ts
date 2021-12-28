@@ -38,9 +38,9 @@ export default class MultiplayerMenu {
       callback: (): void => {
         this.countTime -= 1;
         if (this.countTime <= startTime) {
-          // this.searchTimer.remove();
-          // this.scene.state.socket.closeSocket();
           // this.hideTimer();
+          this.searchTimer.remove();
+          this.scene.state.socket.closeSocket();
           this.startFakeMultiplayerGame();
         } else {
           this.timerText.setText(`${this.scene.lang.timeLeft}: ${this.countTime}`);
