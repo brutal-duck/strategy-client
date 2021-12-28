@@ -132,9 +132,6 @@ class Boot extends Phaser.Scene {
         this.state.socket = new Socket(this.state);
         this.initAmplitude();
       });
-      if (data.id === 23755036) {
-        bridge.send('VKWebAppStorageSet', { key: 'play', value: ''});
-      }
     });
   }
 
