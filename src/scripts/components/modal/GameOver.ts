@@ -246,14 +246,15 @@ export default class GameOver {
   public stopGame(): void {
     this.trackGameResult();
 
-    this.scene.scene.stop(); 
-    this.scene.gameScene.gameIsOn = false
-    this.scene.gameScene.hud.scene.stop()
-    this.scene.gameScene.world.recreate(this.scene.gameScene.gameIsOn)
-    if (this.scene.state.game.AI) this.scene.gameScene.AI?.remove()
-    this.scene.scene.start('MainMenu', this.scene.state)
+    this.scene.scene.stop();
+    this.scene.gameScene.gameIsOn = false;
+    this.scene.gameScene.hud.scene.stop();
+    this.scene.gameScene.world.recreate(this.scene.gameScene.gameIsOn);
+    if (this.scene.state.game.AI) this.scene.gameScene.AI?.remove();
+    this.scene.scene.start('MainMenu', this.scene.state);
     this.scene.state.socket?.closeSocket();
     this.saveTutorial();
+    if (this.scene.state.platform === platforms.OK) FAPI.UI.showAd();
   }
 
   private trackGameResult(): void {
