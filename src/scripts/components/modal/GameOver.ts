@@ -254,7 +254,10 @@ export default class GameOver {
     this.scene.scene.start('MainMenu', this.scene.state);
     this.scene.state.socket?.closeSocket();
     this.saveTutorial();
-    if (this.scene.state.platform === platforms.OK) FAPI.UI.showAd();
+    if (this.scene.state.platform === platforms.OK) {
+      FAPI.UI.showAd();
+      console.log('show ad');
+    }
   }
 
   private trackGameResult(): void {
