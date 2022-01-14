@@ -256,7 +256,6 @@ export default class GameOver {
     this.saveTutorial();
     if (this.scene.state.platform === platforms.OK) {
       FAPI.UI.showAd();
-      console.log('show ad');
     }
   }
 
