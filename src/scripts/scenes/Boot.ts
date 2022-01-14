@@ -94,7 +94,8 @@ class Boot extends Phaser.Scene {
         const points = data.data['points'];
         const tutorial = data.data['tutorial'];
         if (points) {
-          this.state.player.points = Number(points.value);
+          const numberPoints = Number(points.value);
+          this.state.player.points = isNaN(numberPoints) ? 0 : numberPoints;
         }
         if (tutorial) {
           this.state.tutorial = Number(tutorial.value);
