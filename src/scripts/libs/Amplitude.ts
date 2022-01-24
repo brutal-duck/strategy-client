@@ -36,7 +36,7 @@ class Amplitude implements Iamplitude {
   }
 
   public track(event: string, data: props): void {
-    console.log(event, data);
+    console.log(event);
     if (this.exceptions()) {
       this.amplitude.getInstance().logEvent(event, data);
     }
