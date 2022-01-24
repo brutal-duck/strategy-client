@@ -54,50 +54,7 @@ export default class MainMenu extends Phaser.Scene {
 
   private onStartGame(): void {
     this.scene.launch('Modal', { state: this.state, type: 'mainMenu' });
-    if (this.state.platform === platforms.VK) {
-      bridge.send('VKWebAppStorageGet', { keys: ['play'] }).then(data => {
-        const check = data.keys.find(key => key.key === 'play');
-        if (!check || check && check.value !== 'true') {
-          this.state.amplitude.track('play', {});
-          bridge.send('VKWebAppStorageSet', { key: 'play', value: 'true' });
-          bridge.send('VKWebAppAllowMessagesFromGroup', { group_id: Number(process.env.VK_GROUP_ID) }).then(data => {
-            if (data.result) {
-              axios.post(process.env.PUSH_API, { id: this.state.player.id });
-            }
-          });
-        }
-      });
-    } else if (this.state.platform === platforms.OK) {
-      FAPI.Client.call({ method: 'storage.get', keys: ['play'] }, (res, data) => {
-        console.log(data);
-        const responseData = data.data;
-        const check = responseData ? responseData['play'] : false;
-        if (!check || check && check !== 'true') {
-          this.state.amplitude.track('play', {});
-          FAPI.Client.call({ method: 'storage.set', key: 'play', value: 'true' });
-        }
-      });
-    } else if (this.state.platform === platforms.YANDEX) {
-      if (!this.state.yaPlayer) return;
-      this.state.yaPlayer.getData().then(data => {
-        if (!data.play) {
-          const result: IstorageData = {
-            tutorial: data.tutorial || 10,
-            play: true,
-            points: data.points || 0,
-            gameCount: data.gameCount || 0,
-          };
-          this.state.yaPlayer.setData(result, true);
-          this.state.amplitude.track('play', {});
-        }
-      });
-    } else {
-      const check = localStorage.getItem('play');
-      if (check !== 'true') {
-        this.state.amplitude.track('play', {});
-        localStorage.setItem('play', 'true');
-      }
-    }
+    this.state.amplitude.track('play', {});
   }
 
   private createUserInfo(): void {
