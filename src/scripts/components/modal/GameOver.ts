@@ -310,6 +310,7 @@ export default class GameOver {
         });
       } else if (this.scene.state.platform === platforms.OK) {
         FAPI.Client.call({ method: 'storage.get', keys: ['gameCount'] }, (res, data) => {
+          console.log(data);
           if (data.data) {
             const check = data.data['gameCount'];
             const count = Number(check?.value) || 0;

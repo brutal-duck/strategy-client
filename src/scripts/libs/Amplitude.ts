@@ -36,6 +36,7 @@ class Amplitude implements Iamplitude {
   }
 
   public track(event: string, data: props): void {
+    console.log(event, data);
     if (this.exceptions()) {
       this.amplitude.getInstance().logEvent(event, data);
     }
@@ -55,7 +56,7 @@ class Amplitude implements Iamplitude {
 
   private exceptions(): boolean {
     if (!this.active) return false;
-    if (VK_ID.some((id: number) => id === this.scene.state.player.id)) return false;
+    if (VK_ID.length > 0 && VK_ID.some((id: number) => id === this.scene.state.player.id)) return false;
     return true;
   }
 }
