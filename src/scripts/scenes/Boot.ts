@@ -90,6 +90,7 @@ class Boot extends Phaser.Scene {
     this.state.player.name = FAPIData.user_name || this.lang.you;
 
     FAPI.Client.call({ method: 'storage.get', keys: ['points', 'tutorial'] }, (res, data) => {
+      console.log(data)
       if (data.data) {
         const points = data.data['points'];
         const tutorial = data.data['tutorial'];
