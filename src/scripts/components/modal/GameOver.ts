@@ -323,6 +323,8 @@ export default class GameOver {
               });
               FAPI.Client.call({ method: 'storage.set', key: 'gameCount', value: String(count + 1) });
             }
+          } else {
+            FAPI.Client.call({ method: 'storage.set', key: 'gameCount', value: String(1) });
           }
         });
       } else {
