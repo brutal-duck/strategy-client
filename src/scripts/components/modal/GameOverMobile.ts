@@ -188,7 +188,8 @@ export default class GameOverMobile {
           const count = Number(check?.value) || 0;
           this.scene.state.amplitude.track('done', {
             status: gameStatus,
-            mode: this.scene.state.game.AI ? 'bot' : 'online',
+            mode: this.scene.state.game.AI && !this.scene.state.game.fakeOnline ? 'bot' : 'online',
+            fakeOnline: String(this.scene.state.game.fakeOnline),
             count: count + 1,
           });
           bridge.send('VKWebAppStorageSet', { key: 'gameCount', value: String(count + 1) });
@@ -215,7 +216,47 @@ export default class GameOverMobile {
             }
           }
           this.scene.state.yaPlayer.setData(result, true);
+          this.scene.state.amplitude.track('done', {
+            status: gameStatus,
+            mode: this.scene.state.game.AI && !this.scene.state.game.fakeOnline ? 'bot' : 'online',
+            count: result.gameCount,
+            fakeOnline: String(this.scene.state.game.fakeOnline),
+          });
         });
+      } else if (this.scene.state.platform === platforms.OK) {
+        FAPI.Client.call({ method: 'storage.get', keys: ['gameCount'] }, (res, data) => {
+          if (data.data) {
+            const check = data.data['gameCount'];
+            const count = Number(check?.value) || 0;
+            if (!check || check && check.value !== 'true') {
+              this.scene.state.amplitude.track('done', {
+                status: gameStatus,
+                mode: this.scene.state.game.AI && !this.scene.state.game.fakeOnline ? 'bot' : 'online',
+                fakeOnline: String(this.scene.state.game.fakeOnline),
+                count: count + 1,
+              });
+              FAPI.Client.call({ method: 'storage.set', key: 'gameCount', value: String(count + 1) });
+            }
+          } else {
+            this.scene.state.amplitude.track('done', {
+              status: gameStatus,
+              mode: this.scene.state.game.AI && !this.scene.state.game.fakeOnline ? 'bot' : 'online',
+              fakeOnline: String(this.scene.state.game.fakeOnline),
+              count: 1,
+            });
+            FAPI.Client.call({ method: 'storage.set', key: 'gameCount', value: String(1) });
+          }
+        });
+      } else {
+        const checkCount = localStorage.getItem('gameCount');
+        const count = isNaN(Number(checkCount)) ? 0 : Number(checkCount);
+        this.scene.state.amplitude.track('done', {
+          status: gameStatus,
+          mode: this.scene.state.game.AI && !this.scene.state.game.fakeOnline ? 'bot' : 'online',
+          fakeOnline: String(this.scene.state.game.fakeOnline),
+          count: count + 1,
+        });
+        localStorage.setItem('gameCount', String(count + 1));
       }
     }
   }
@@ -231,7 +272,7 @@ export default class GameOverMobile {
         if (!this.scene.state.yaPlayer) return;
         this.scene.state.yaPlayer.getData().then(data => {
           const result: IstorageData = {
-            tutorial: 60,
+            tutorial: 10,
             play: data.play || false,
             points: data.points || 0,
             gameCount: data.gameCount || 0,

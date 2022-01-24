@@ -357,7 +357,7 @@ export default class GameOver {
         if (!this.scene.state.yaPlayer) return;
         this.scene.state.yaPlayer.getData().then(data => {
           const result: IstorageData = {
-            tutorial: 60,
+            tutorial: 10,
             play: data.play || false,
             points: data.points || 0,
             gameCount: data.gameCount || 0,
