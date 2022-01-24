@@ -310,7 +310,6 @@ export default class GameOver {
         });
       } else if (this.scene.state.platform === platforms.OK) {
         FAPI.Client.call({ method: 'storage.get', keys: ['gameCount'] }, (res, data) => {
-          console.log(data);
           if (data.data) {
             const check = data.data['gameCount'];
             const count = Number(check?.value) || 0;
@@ -324,6 +323,12 @@ export default class GameOver {
               FAPI.Client.call({ method: 'storage.set', key: 'gameCount', value: String(count + 1) });
             }
           } else {
+            this.scene.state.amplitude.track('done', {
+              status: gameStatus,
+              mode: this.scene.state.game.AI && !this.scene.state.game.fakeOnline ? 'bot' : 'online',
+              fakeOnline: String(this.scene.state.game.fakeOnline),
+              count: 1,
+            });
             FAPI.Client.call({ method: 'storage.set', key: 'gameCount', value: String(1) });
           }
         });

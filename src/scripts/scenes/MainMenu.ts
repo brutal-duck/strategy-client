@@ -69,12 +69,12 @@ export default class MainMenu extends Phaser.Scene {
       });
     } else if (this.state.platform === platforms.OK) {
       FAPI.Client.call({ method: 'storage.get', keys: ['play'] }, (res, data) => {
-        if (data.data) {
-          const check = data.data['play'];
-          if (!check || check && check.value !== 'true') {
-            this.state.amplitude.track('play', {});
-            FAPI.Client.call({ method: 'storage.set', key: 'play', value: 'true' });
-          }
+        console.log(data);
+        const responseData = data.data;
+        const check = responseData ? responseData['play'] : false;
+        if (!check || check && check !== 'true') {
+          this.state.amplitude.track('play', {});
+          FAPI.Client.call({ method: 'storage.set', key: 'play', value: 'true' });
         }
       });
     } else if (this.state.platform === platforms.YANDEX) {
@@ -82,7 +82,7 @@ export default class MainMenu extends Phaser.Scene {
       this.state.yaPlayer.getData().then(data => {
         if (!data.play) {
           const result: IstorageData = {
-            tutorial: data.tutorial || 60,
+            tutorial: data.tutorial || 10,
             play: true,
             points: data.points || 0,
             gameCount: data.gameCount || 0,
