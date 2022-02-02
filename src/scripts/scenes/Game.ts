@@ -106,33 +106,33 @@ export default class Game extends Phaser.Scene {
 
   public launch(state: Istate): void {
     this.state.game.isStarted = true;
-    this.state = state
-    this.player = state.player
-    this.enemyColor = this.player.color === 'red' ? 'green' : 'red'
-    this.green = Object.assign({}, config)
-    this.red = Object.assign({}, config)
+    this.state = state;
+    this.player = state.player;
+    this.enemyColor = this.player.color === 'red' ? 'green' : 'red';
+    this.green = Object.assign({}, config);
+    this.red = Object.assign({}, config);
     this[this.player.color].name = this.state.player.name;
     if (this.state.game.fakeOnline) {
-      this.state.enemy = { name: Phaser.Utils.Array.GetRandom(fakeNames), id: '1' }
+      this.state.enemy = { name: Phaser.Utils.Array.GetRandom(fakeNames), id: '1' };
     }
     this[this.enemyColor].name = this.state.enemy?.name || this.lang.enemy;
     if (this[this.enemyColor].name === this.lang.you) this[this.enemyColor].name = this.lang.enemy;
     
-    this.stars = 0
-    this.baseWasFound = false
-    this.claming = [] // массив захватываемых в данный момент клеток
-    this.distanceX = 0
-    this.distanceY = 0
-    this.holdCounter = 0
-    this.twoPointerZoom = false
-    this.draged = false
-    this.zoomed = false
-    this.gameIsOn = true // запущен ли матч
+    this.stars = 0;
+    this.baseWasFound = false;
+    this.claming = []; // массив захватываемых в данный момент клеток
+    this.distanceX = 0;
+    this.distanceY = 0;
+    this.holdCounter = 0;
+    this.twoPointerZoom = false;
+    this.draged = false;
+    this.zoomed = false;
+    this.gameIsOn = true; // запущен ли матч
     this.world.recreate(this.gameIsOn, this.state.game.seed);
     
     if (this.state.game.AI !== '') {
-      this.AI = new AI(this, this.state.game.AI)
-      this.AI.init()
+      this.AI = new AI(this, this.state.game.AI);
+      this.AI.init();
     }
 
     this.graphManager.initGraphs();
@@ -519,8 +519,19 @@ export default class Game extends Phaser.Scene {
   }
   
   public gameOverCheck(color: string): void {
-    const baseHexes = this.hexes.filter(hex => hex.own === color && hex.class === 'base')
-    if (baseHexes.length > 1) this.gameOver('enemyBaseHasCaptured', color)
+    const baseHexes = this.hexes.filter(hex => hex.own === color && hex.class === 'base');
+    if (baseHexes.length > 1) return this.gameOver('enemyBaseHasCaptured', color);
+    const base = this.hexes.filter(hex => hex.class === 'base');
+    base.forEach(el => {
+      const foreignColor = el.own === 'red' ? 'green' : 'red';
+      const nearbyHexes: Hex[] = [];
+      Object.values(el.nearby).forEach(id => {
+        nearbyHexes.push(this.getHexById(id));
+      });
+      if (nearbyHexes.every(hex => hex.own === foreignColor)) {
+        return this.gameOver('enemyBaseHasCaptured', foreignColor);
+      };
+    })
   }
 
   public gameOver(reason: string, winner?: string): void {
