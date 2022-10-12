@@ -24,7 +24,7 @@ class Boot extends Phaser.Scene {
   }
 
   public init(): void {
-    this.build = 1.00002;
+    this.build = 1.03;
     console.log('Build ' + this.build);
     this.lang = langs.ru;
     this.state = state;
@@ -32,7 +32,17 @@ class Boot extends Phaser.Scene {
     this.userIsReady = false;
     this.state.platform = 'web';
     
-    if (process.env.PLATFORM !== platforms.YANDEX) {
+    if (process.env.PLATFORM === platforms.YANDEX) {
+      this.initYandexPlatform();
+    } else if (process.env.PLATFORM === platforms.GD) {
+      this.checkGamedistribution();
+      this.state.platform = 'gd';
+
+      const gdsdk = window['gdsdk'];
+      if (typeof gdsdk !== 'undefined' && gdsdk.showAd !== 'undefined') {
+        gdsdk.showAd('interstitial');
+      }
+    } else {
       const search: string = window.location.search;
       const params = new URLSearchParams(search);
       const vk: string = params.get('api_url');
@@ -47,9 +57,8 @@ class Boot extends Phaser.Scene {
       } else {
         this.initUserWeb();
       }
-    } else {
-      this.initYandexPlatform();
     }
+    console.log(this.state.platform);    
     this.setFonts();
   }
 
@@ -134,6 +143,32 @@ class Boot extends Phaser.Scene {
         this.initAmplitude();
       });
     });
+  }
+
+  private checkGamedistribution(): void {
+    window["GD_OPTIONS"] = {
+      'gameId': process.env.GD_ID,
+      'onEvent': (event) => {
+        switch (event.name) {
+          case 'SDK_GAME_START':
+            console.log('SDK_GAME_START');
+            break;
+          case 'SDK_REWARDED_WATCH_COMPLETE':
+            console.log('SDK_REWARDED_WATCH_COMPLETE');
+            break;
+        }
+      },
+    };
+    (function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s);
+      js.id = id;
+      js.src = 'https://html5.api.gamedistribution.com/main.min.js';
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'gamedistribution-jssdk'));
+
+    this.initUserWeb();
   }
 
   private initAmplitude(): void {

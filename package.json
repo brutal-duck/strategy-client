@@ -6,7 +6,8 @@
   "scripts": {
     "start": "webpack-dev-server --config webpack/localhost/config.js --open",
     "build-yandex": "webpack --config webpack/yandex/build.js",
-    "build-web": "webpack --config webpack/web/build.js"
+    "build-web": "webpack --config webpack/web/build.js",
+    "build-gd": "webpack --config webpack/gd/build.js"
   },
   "author": "",
   "license": "ISC",

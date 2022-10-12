@@ -172,6 +172,12 @@ export default class GameOverMobile {
     this.scene.scene.start('MainMenu', this.scene.state)
     this.scene.state.socket?.closeSocket();
     this.saveTutorial();
+    if (this.scene.state.platform === platforms.GD) {
+      const gdsdk = window['gdsdk'];
+      if (typeof gdsdk !== 'undefined' && gdsdk.showAd !== 'undefined') {
+        gdsdk.showAd('interstitial');
+      }
+    }
   }
 
   private trackGameResult(): void {

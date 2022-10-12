@@ -2,7 +2,8 @@ enum platforms {
   VK = 'vk',
   YANDEX = 'ya',
   OK = 'ok',
-  WEB = 'web'
+  WEB = 'web',
+  GD = 'gd'
 };
 
 export {

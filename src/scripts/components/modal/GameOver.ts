@@ -257,6 +257,12 @@ export default class GameOver {
     if (this.scene.state.platform === platforms.OK) {
       FAPI.UI.showAd();
     }
+    if (this.scene.state.platform === platforms.GD) {
+      const gdsdk = window['gdsdk'];
+      if (typeof gdsdk !== 'undefined' && gdsdk.showAd !== 'undefined') {
+        gdsdk.showAd('interstitial');
+      }
+    }
   }
 
   private trackGameResult(): void {
