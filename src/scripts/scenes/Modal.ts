@@ -1,4 +1,3 @@
-import langs from "../langs"
 import Game from "./Game"
 import SingleplayerMenu from "../components/modal/SingleplayerMenu";
 import MultiplayerMenu from './../components/modal/MultiplayerMenu';
@@ -35,7 +34,7 @@ export default class Modal extends Phaser.Scene {
     this.state = data.state
     this.type = data.type
     this.info = data.info
-    this.lang = langs.ru
+    this.lang = this.state.lang;
     this.createn = false;
     this.gameScene = this.game.scene.getScene('Game') as Game
 

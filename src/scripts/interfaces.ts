@@ -9,6 +9,7 @@ interface Istate {
   amplitude?: Iamplitude;
   ysdk?: any;
   yaPlayer?: IyandexPlayer;
+  lang: any;
 }
 interface Iamplitude {
   setUserProperty: (property: string, data: string | number) => void;

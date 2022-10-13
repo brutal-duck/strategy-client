@@ -19,6 +19,7 @@ let state: Istate = {
   platform: '',
   socket: null,
   startGame: false,
+  lang: null
 };
 
 export default state;

@@ -1,6 +1,5 @@
 import SandwichBtn from "../components/buttons/SandwichBtn"
 import { colors } from "../gameConfig"
-import langs from "../langs"
 import Game from "./Game"
 import StatusBar from '../components/hud/StatusBar';
 import HexCounter from './../components/hud/HexCounter';
@@ -43,7 +42,7 @@ export default class Hud extends Phaser.Scene {
     this.state = state
     this.gameScene = this.game.scene.getScene('Game') as Game
     this.camera = this.cameras.main
-    this.lang = langs.ru
+    this.lang = this.state.lang;
     this.allElements = [];
     this.playerColor = this.gameScene.player.color;
     this.enemyColor = this.gameScene.player.color === 'red' ? 'green' : 'red';

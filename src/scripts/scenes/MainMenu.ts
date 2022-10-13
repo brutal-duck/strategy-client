@@ -1,6 +1,5 @@
 import { FAPI } from '../libs/FAPI.js';
 import StartGameBtn from "../components/buttons/StartGameBtn";
-import langs from "../langs"
 import Game from "./Game"
 import bridge from '@vkontakte/vk-bridge';
 import { platforms } from "../types";
@@ -27,7 +26,7 @@ export default class MainMenu extends Phaser.Scene {
 
   public init(state: Istate): void {
     this.state = state;
-    this.lang = langs.ru;
+    this.lang = this.state.lang;
     this.camera = this.cameras.main;
     this.gameScene = this.game.scene.keys['Game'];
     this.gameScene.cameraFly(true);

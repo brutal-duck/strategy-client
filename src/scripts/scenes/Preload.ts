@@ -1,5 +1,3 @@
-import langs from '../langs';
-
 const block: string = require('./../../assets/images/block-rounded.png');
 const world: string = require('./../../assets/images/world.png');
 const hex: string = require('./../../assets/images/hex.png');
@@ -106,7 +104,7 @@ class Preload extends Phaser.Scene {
 
   public init(state: Istate): void {
     this.state = state
-    this.lang = langs.ru
+    this.lang = this.state.lang;
   }
 
   public preload(): void {

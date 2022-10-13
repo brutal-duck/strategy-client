@@ -1,4 +1,3 @@
-import langs from "../langs";
 import Hex from './../components/Hex';
 import Game from './Game';
 import FlyAwayMsg from './../components/FlyAwayMsg';
@@ -17,7 +16,7 @@ export default class Tutorial extends Phaser.Scene {
 
   public init(state: Istate): void {
     this.state = state;
-    this.lang = langs.ru;
+    this.lang = this.state.lang;
     this.gameScene = this.game.scene.getScene('Game') as Game;
   }
 

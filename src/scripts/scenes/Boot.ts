@@ -28,6 +28,7 @@ class Boot extends Phaser.Scene {
     console.log('Build ' + this.build);
     this.lang = langs.ru;
     this.state = state;
+    this.state.lang = this.lang;
     this.fontsReady = false;
     this.userIsReady = false;
     this.state.platform = 'web';
@@ -35,6 +36,8 @@ class Boot extends Phaser.Scene {
     if (process.env.PLATFORM === platforms.YANDEX) {
       this.initYandexPlatform();
     } else if (process.env.PLATFORM === platforms.GD) {
+      this.lang = langs.en;
+      this.state.lang = this.lang;
       this.checkGamedistribution();
       this.state.platform = 'gd';
 

@@ -4,7 +4,6 @@ import FlyAwayMsg from "../components/FlyAwayMsg";
 import Hex from "../components/Hex";
 import Zoom from "../components/Zoom";
 import { config } from "../gameConfig";
-import langs from "../langs";
 import AI from "../utils/AI";
 import World from "../utils/World";
 import Hud from "./Hud";
@@ -66,7 +65,7 @@ export default class Game extends Phaser.Scene {
 
   public init(state: Istate) {
     this.state = state
-    this.lang = langs.ru
+    this.lang = this.state.lang;
     this.state.game.updateHex = false;
     this.hud = this.game.scene.getScene('Hud') as Hud;
     this.gameIsOn = false
