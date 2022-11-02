@@ -34,6 +34,7 @@ export default class MainMenu extends Phaser.Scene {
   }
   
   public create(): void {
+    this.state.sounds.playMusic('menu-music');
     const curFontSize = Math.round(document.body.clientHeight / 100 * TEXT_DISPLAY_PERCENT);
     const currentBtnHeight = Math.round(document.body.clientHeight / 100 * BTN_DISPLAY_PERCENT);
     const currentLogoHeight = Math.round(document.body.clientHeight / 100 * LOGO_DISPLAY_PERCENT);

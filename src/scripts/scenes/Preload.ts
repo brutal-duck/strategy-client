@@ -94,6 +94,16 @@ const arrow: string = require('../../assets/images/arrow.png');
 const logo: string = require('../../assets/images/logo.png');
 const logoEn: string = require('../../assets/images/logo_en.png');
 
+const menuMusic: string = require('../../assets/sounds/menu.mp3');
+const gameMusic: string = require('../../assets/sounds/game.mp3');
+const castleMusic: string = require('../../assets/sounds/castle.mp3');
+const winSound: string = require('../../assets/sounds/win.mp3');
+const loseSound: string = require('../../assets/sounds/lose.mp3');
+const improveSound: string = require('../../assets/sounds/improve.mp3');
+const catchSound: string = require('../../assets/sounds/catch.mp3');
+const balloonSound: string = require('../../assets/sounds/balloon.mp3');
+const attackSound: string = require('../../assets/sounds/attack.mp3');
+
 import { platforms } from '../types';
 
 class Preload extends Phaser.Scene {
@@ -231,6 +241,16 @@ class Preload extends Phaser.Scene {
     this.load.image('timer-plate', timerPlate);
     this.load.image('arrow', arrow);
     this.load.image('logo', this.state.platform === platforms.GD ? logoEn : logo);
+
+    this.load.audio('menu-music', menuMusic);
+    this.load.audio('game-music', gameMusic);
+    this.load.audio('castle-music', castleMusic);
+    this.load.audio('win-sound', winSound);
+    this.load.audio('lose-sound', loseSound);
+    this.load.audio('improve-sound', improveSound);
+    this.load.audio('catch-sound', catchSound);
+    this.load.audio('balloon-sound', balloonSound);
+    this.load.audio('attack-sound', attackSound);
   }
   
   public create(): void {

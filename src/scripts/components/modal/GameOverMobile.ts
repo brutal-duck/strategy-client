@@ -41,6 +41,13 @@ export default class GameOverMobile {
       titleColor = this.scene.info.win ? '#a893ff' : '#e86464';
     }
 
+    if (this.scene.info.win) {
+      this.scene.state.sounds.play('win-sound');
+    } else {
+      this.scene.state.sounds.play('lose-sound');
+    }
+    this.scene.state.sounds.stopMusic();
+
     let windowHeight = 450;
     if (!this.scene.info.winner) windowHeight = 470 
     else {
@@ -175,6 +182,7 @@ export default class GameOverMobile {
     if (this.scene.state.platform === platforms.GD) {
       const gdsdk = window['gdsdk'];
       if (typeof gdsdk !== 'undefined' && gdsdk.showAd !== 'undefined') {
+        this.scene.state.sounds.pauseMusic();
         gdsdk.showAd('interstitial');
       }
     }

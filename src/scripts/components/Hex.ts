@@ -496,11 +496,12 @@ export default class Hex extends Phaser.GameObjects.Sprite {
     this.worldSprite.setVisible(true);
 
     if (this.dark) this.dark = false;
-    if (this.class === 'base' ) {
+    if (this.class === 'base') {
       if (!this.baseMarkAni?.isPlaying()) this.setBaseMark();
       if (this.scene.gameIsOn && !this.scene.baseWasFound && this.own !== this.scene.player?.color) {
         this.scene.baseWasFound = true
         this.scene.hud.enemyBaseSitedInfo()
+        this.scene.state.sounds.playMusic('castle-music');
         this.scene.centerCamera(this.getCenter().x, this.getCenter().y, false, 1000)
       }
     }

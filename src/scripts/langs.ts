@@ -112,7 +112,7 @@ export default {
     surrenderAndLeave: 'give up and get out',
     tiles: 'tiles',
     superTiles: 'super tiles',
-    landTroops: 'This is a distant territory\should we sent a troop?',
+    landTroops: 'This is a distant territory\nhould we sent a troop?',
     yes: 'yes',
     no: 'no',
     enemyLeft: 'enemy is out of the game',

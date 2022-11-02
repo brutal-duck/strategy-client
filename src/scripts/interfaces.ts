@@ -10,6 +10,14 @@ interface Istate {
   ysdk?: any;
   yaPlayer?: IyandexPlayer;
   lang: any;
+  sounds: Isounds;
+}
+interface Isounds {
+  resumeMusic: () => void;
+  pauseMusic: () => void;
+  playMusic: (sound: string) => void;
+  stopMusic: () => void;
+  play: (sound: string) => void;
 }
 interface Iamplitude {
   setUserProperty: (property: string, data: string | number) => void;

@@ -6,6 +6,7 @@ import Socket from './../utils/Socket';
 import Amplitude from './../libs/Amplitude';
 import { platforms } from '../types';
 import langs from '../langs';
+import Sounds from '../libs/Sounds';
 const pixel: any = require("./../../assets/images/pixel.png");
 
 class Boot extends Phaser.Scene {
@@ -24,7 +25,7 @@ class Boot extends Phaser.Scene {
   }
 
   public init(): void {
-    this.build = 1.03;
+    this.build = 1.1;
     console.log('Build ' + this.build);
     this.lang = langs.ru;
     this.state = state;
@@ -32,6 +33,7 @@ class Boot extends Phaser.Scene {
     this.fontsReady = false;
     this.userIsReady = false;
     this.state.platform = 'web';
+    this.state.sounds = new Sounds(this);
     
     if (process.env.PLATFORM === platforms.YANDEX) {
       this.initYandexPlatform();
@@ -43,6 +45,7 @@ class Boot extends Phaser.Scene {
 
       const gdsdk = window['gdsdk'];
       if (typeof gdsdk !== 'undefined' && gdsdk.showAd !== 'undefined') {
+        this.state.sounds.pauseMusic();
         gdsdk.showAd('interstitial');
       }
     } else {
@@ -155,6 +158,7 @@ class Boot extends Phaser.Scene {
         switch (event.name) {
           case 'SDK_GAME_START':
             console.log('SDK_GAME_START');
+            this.state.sounds.resumeMusic();
             break;
           case 'SDK_REWARDED_WATCH_COMPLETE':
             console.log('SDK_REWARDED_WATCH_COMPLETE');

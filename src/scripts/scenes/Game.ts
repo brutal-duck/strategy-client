@@ -104,6 +104,7 @@ export default class Game extends Phaser.Scene {
 
 
   public launch(state: Istate): void {
+    this.state.sounds.playMusic('game-music');
     this.state.game.isStarted = true;
     this.state = state;
     this.player = state.player;
@@ -316,9 +317,11 @@ export default class Game extends Phaser.Scene {
         new FlyAwayMsg(this, x, y, this.lang.wrongPlace, 'red', '', 1000);
       } else if (hex.own === color) {
         if (hex.class === 'grass') {
+
           if (!hex.clamingAni?.isPlaying()) {
             if (!hex.upgradeAni?.isPlaying()) {
               if (player.hexes >= hex.defence + 1) {
+                this.state.sounds.play('improve-sound');
                 player.hexes -= hex.defence + 1;
                 new FlyAwayMsg(this, x, y, `-${hex.defence + 1}`, 'red', color);
                 hex.upgradeDefence(color);
@@ -338,6 +341,7 @@ export default class Game extends Phaser.Scene {
           if (hex.class !== 'base') {
             if (hex.own === 'neutral') {
               if (player.hexes >= hex.defence) {
+                this.state.sounds.play('catch-sound');
                 new FlyAwayMsg(this, x, y, `-${hex.defence}`, 'red', color);
                 player.hexes -= hex.defence;
                 hex.setClaming(color);
@@ -347,6 +351,7 @@ export default class Game extends Phaser.Scene {
               }
             } else {
               if (hex.defence === 1 && player.hexes >= 2) {
+                this.state.sounds.play('attack-sound');
                 new FlyAwayMsg(this, x, y, `-${2}`, 'red', color);
                 player.hexes -= 2;
                 hex.setClearClame(color);
@@ -568,6 +573,7 @@ export default class Game extends Phaser.Scene {
 
   public update(): void {
     if (this.gameIsOn) {
+
       if (!this.input.pointer2.isDown && (this.draged || this.zoomed)) {
         this.holdCounter++
         this.physics.moveToObject(this.vector, this.midPoint, 120)
@@ -577,8 +583,7 @@ export default class Game extends Phaser.Scene {
           this.distanceX = 0
           this.distanceY = 0
           this.vector.body.stop()
-        } 
-  
+        }
       } else {
         this.vector.body.stop()
       }
@@ -647,55 +652,54 @@ export default class Game extends Phaser.Scene {
         });
       }
     }
-
   }
 
   private updateHexState(): void {
-      if (this.state.game.hexes) {
-        this.state.game.hexes.forEach(socketHex => {
-          const hex = this.hexes.find(el => el.id === socketHex.id);
-          if (hex.own !== socketHex.newOwn && socketHex.own !== socketHex.newOwn && !hex.clamingAni?.isPlaying()) {
-            if (hex.own !== 'neutral') {
-              if (socketHex.newOwn === this.player.color) {
-                new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, `-${hex.defence + 1}`, 'red', this.player.color);
-              }
-              hex.setSocketClearClame(socketHex.newOwn, socketHex.super);
-            } 
-            else {
-              if (socketHex.newOwn === this.player.color) {
-                new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, `-${hex.defence}`, 'red', socketHex.super ? 'purple' : this.player.color);
-              }
-              hex.setSocketClaming(socketHex.newOwn, socketHex.super);}
-          } else if (socketHex.own !== socketHex.newOwn && !hex.clamingAni?.isPlaying()) {
-            hex.socketClame(socketHex.newOwn, socketHex.super);
-          } else if (hex.own !== socketHex.own) {
-            hex.socketClame(socketHex.newOwn, socketHex.super);
-            if (hex.class === 'rock') hex.setWorldTexture(socketHex.newOwn);
-          }
-          if (socketHex.defence !== socketHex.newDefence && !hex.upgradeAni?.isPlaying() && socketHex.newDefence > socketHex.defence) {
-            if (socketHex.newDefence > 1) {
-              hex.upgradeSocketDefence();
-              if (socketHex.newOwn === this.player.color) {
-                new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, `-${hex.defence + 1}`, 'red', this.player.color)
-              }
+    if (this.state.game.hexes) {
+      this.state.game.hexes.forEach(socketHex => {
+        const hex = this.hexes.find(el => el.id === socketHex.id);
+        if (hex.own !== socketHex.newOwn && socketHex.own !== socketHex.newOwn && !hex.clamingAni?.isPlaying()) {
+          if (hex.own !== 'neutral') {
+            if (socketHex.newOwn === this.player.color) {
+              new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, `-${hex.defence + 1}`, 'red', this.player.color);
             }
-          }
-          if (socketHex.defence !== socketHex.newDefence && !hex.clamingAni?.isPlaying() && socketHex.newDefence < socketHex.defence) {
             hex.setSocketClearClame(socketHex.newOwn, socketHex.super);
-          }
-
-          if (hex.defence !== socketHex.defence) {
-            hex.defence = socketHex.defence;
-            if (hex.defence > 1) {
-              hex.defenceLvl?.setText(String(hex.defence));
-            } else {
-              hex.defenceLvl?.setVisible(false);
+          } 
+          else {
+            if (socketHex.newOwn === this.player.color) {
+              new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, `-${hex.defence}`, 'red', socketHex.super ? 'purple' : this.player.color);
             }
-            hex.setWorldTexture();
+            hex.setSocketClaming(socketHex.newOwn, socketHex.super);}
+        } else if (socketHex.own !== socketHex.newOwn && !hex.clamingAni?.isPlaying()) {
+          hex.socketClame(socketHex.newOwn, socketHex.super);
+        } else if (hex.own !== socketHex.own) {
+          hex.socketClame(socketHex.newOwn, socketHex.super);
+          if (hex.class === 'rock') hex.setWorldTexture(socketHex.newOwn);
+        }
+        if (socketHex.defence !== socketHex.newDefence && !hex.upgradeAni?.isPlaying() && socketHex.newDefence > socketHex.defence) {
+          if (socketHex.newDefence > 1) {
+            hex.upgradeSocketDefence();
+            if (socketHex.newOwn === this.player.color) {
+              new FlyAwayMsg(this, hex.getCenter().x, hex.getCenter().y, `-${hex.defence + 1}`, 'red', this.player.color)
+            }
           }
-        });
-      }
-      this.state.game.updateHex = false;
+        }
+        if (socketHex.defence !== socketHex.newDefence && !hex.clamingAni?.isPlaying() && socketHex.newDefence < socketHex.defence) {
+          hex.setSocketClearClame(socketHex.newOwn, socketHex.super);
+        }
+
+        if (hex.defence !== socketHex.defence) {
+          hex.defence = socketHex.defence;
+          if (hex.defence > 1) {
+            hex.defenceLvl?.setText(String(hex.defence));
+          } else {
+            hex.defenceLvl?.setVisible(false);
+          }
+          hex.setWorldTexture();
+        }
+      });
+    }
+    this.state.game.updateHex = false;
   }
 
   private updatePlayerState(): void {

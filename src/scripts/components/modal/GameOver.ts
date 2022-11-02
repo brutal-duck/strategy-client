@@ -53,6 +53,13 @@ export default class GameOver {
       titleColor = this.scene.info.win ? '#a893ff' : '#e86464';
     }
 
+    if (this.scene.info.win) {
+      this.scene.state.sounds.play('win-sound');
+    } else {
+      this.scene.state.sounds.play('lose-sound');
+    }
+    this.scene.state.sounds.stopMusic();
+
     let windowHeight = 600;
     const windowWidth = 600;
     if (!this.scene.info.winner) {
@@ -260,6 +267,7 @@ export default class GameOver {
     if (this.scene.state.platform === platforms.GD) {
       const gdsdk = window['gdsdk'];
       if (typeof gdsdk !== 'undefined' && gdsdk.showAd !== 'undefined') {
+        this.scene.state.sounds.pauseMusic();
         gdsdk.showAd('interstitial');
       }
     }

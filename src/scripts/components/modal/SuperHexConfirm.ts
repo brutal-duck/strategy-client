@@ -43,6 +43,8 @@ export default class SuperHexConfirm {
     });
 
     this.btn2 = new ColorsBtn(this.scene, { x: x + 64, y: midGeom.centerY + 50 }, (): void => { 
+      this.scene.state.sounds.play('balloon-sound');
+      
       if (this.scene.gameScene.state.game.AI) this.scene.gameScene.superHexClameConfirmed();
       else this.scene.gameScene.superHexSocketClameConfirmed();
       this.scene.scene.stop();
