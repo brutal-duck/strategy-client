@@ -7,7 +7,7 @@ const dotenv = require('dotenv').config({ path: path.resolve(__dirname, '.env') 
 
 module.exports = {
   devServer: {
-    port: dotenv.parsed.PORT
+    port: 3000
   },
   entry: './src/scripts/index.ts',
   output: {

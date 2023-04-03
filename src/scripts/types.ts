@@ -3,7 +3,8 @@ enum platforms {
   YANDEX = 'ya',
   OK = 'ok',
   WEB = 'web',
-  GD = 'gd'
+  GD = 'gd',
+  VKPLAY = 'vkplay'
 };
 
 export {

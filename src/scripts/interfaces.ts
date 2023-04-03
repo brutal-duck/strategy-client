@@ -11,6 +11,7 @@ interface Istate {
   yaPlayer?: IyandexPlayer;
   lang: any;
   sounds: Isounds;
+  vkplayApi: any;
 }
 interface Isounds {
   resumeMusic: () => void;

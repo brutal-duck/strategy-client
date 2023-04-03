@@ -34,7 +34,7 @@ class Boot extends Phaser.Scene {
     this.userIsReady = false;
     this.state.platform = 'web';
     this.state.sounds = new Sounds(this);
-    
+
     if (process.env.PLATFORM === platforms.YANDEX) {
       this.initYandexPlatform();
     } else if (process.env.PLATFORM === platforms.GD) {
@@ -51,24 +51,28 @@ class Boot extends Phaser.Scene {
     } else {
       const search: string = window.location.search;
       const params = new URLSearchParams(search);
+      const vkplayParams = Object.fromEntries(params.entries())
       const vk: string = params.get('api_url');
       const ok: string = params.get('api_server');
       if (vk === 'https://api.vk.com/api.php') this.state.platform = 'vk';
       else if (ok === 'https://api.ok.ru/') this.state.platform = 'ok';
+      else if (vkplayParams.hasOwnProperty('appid')) this.state.platform = platforms.VKPLAY;
 
       if (this.state.platform === platforms.VK) {
         this.initUserVK();
       } else if (this.state.platform === platforms.OK) {
         this.initUserOk();
+      } else if (this.state.platform === platforms.VKPLAY) {
+        this.initUserVkPlay()
       } else {
         this.initUserWeb();
       }
     }
-    console.log(this.state.platform);    
+    console.log(this.state.platform);
     this.setFonts();
   }
 
-  
+
   private setFonts(): void {
     let scene: Boot = this;
     Webfont.load({
@@ -79,6 +83,71 @@ class Boot extends Phaser.Scene {
     });
   }
 
+
+  private initUserVkPlay(): void {
+    (function apiHandshake(iframeApi) {
+      if (typeof iframeApi === 'undefined') {
+        console.log('Cannot find iframeApi function, are we inside an iframe?');
+        return;
+      }
+
+      var externalApi = null;
+
+      var callbacks = {
+        appid: [process.env.VK_PLAY_ID],
+
+        getLoginStatusCallback: function (status) {
+          if (status.status != 'ok') {
+            console.log("Ошибка авторизации...");
+          } else {
+            switch (status.loginStatus) {
+              case 0:
+                externalApi.authUser();
+                break;
+              case 1:
+                externalApi.registerUser();
+                break;
+              case 2:
+                externalApi.userProfile();
+                break;
+            }
+          }
+        },
+        userInfoCallback: function (info) {
+          console.log(info)
+        },
+        registerUserCallback: function (info) {
+          externalApi.reloadWindow();
+        },
+      };
+
+      function error(err) {
+        throw new Error('Could not init external api ' + err);
+      }
+
+      function connected(api) {
+        externalApi = api;
+        this.state.vkplayApi = api
+        externalApi.getLoginStatus()
+      }
+
+      iframeApi(callbacks).then(connected, error);
+    }(window['iframeApi']));
+
+    this.state.player.name = this.lang.you;
+    this.state.player.points = Number(localStorage.getItem('points'));
+    this.state.tutorial = Number(localStorage.getItem('tutorial'));
+    const id = localStorage.getItem('id');
+    if (id) {
+      this.state.player.id = id;
+    } else {
+      this.state.player.id = this.randomString(10);
+      localStorage.setItem('id', String(this.state.player.id));
+    }
+    this.userIsReady = true;
+    this.state.socket = new Socket(this.state);
+    this.initAmplitude();
+  }
 
   private initUserWeb(): void {
     this.state.player.name = this.lang.you;
@@ -99,7 +168,7 @@ class Boot extends Phaser.Scene {
   private initUserOk(): void {
     const FAPIData = FAPI.Util.getRequestParameters();
     FAPI.init(FAPIData.api_server, FAPIData.apiconnection, (): void => {
-      this.okCallback(); 
+      this.okCallback();
     });
     this.state.player.id = FAPIData.logged_user_id;
     this.state.player.name = FAPIData.user_name || this.lang.you;
@@ -128,16 +197,16 @@ class Boot extends Phaser.Scene {
 
     }
   }
-  
+
   private initUserVK(): void {
     bridge.send('VKWebAppInit');
     bridge.send('VKWebAppGetUserInfo').then(data => {
       this.state.player.name = data.first_name + ' ' + data.last_name;
       this.state.player.id = data.id;
-      bridge.send('VKWebAppStorageGet', { keys: ['points', 'tutorial']}).then(data => {
+      bridge.send('VKWebAppStorageGet', { keys: ['points', 'tutorial'] }).then(data => {
         const points = data.keys.find(el => el.key === 'points');
         const tutorial = data.keys.find(el => el.key === 'tutorial');
-        
+
         if (tutorial) {
           this.state.tutorial = Number(tutorial.value);
         }
@@ -166,7 +235,7 @@ class Boot extends Phaser.Scene {
         }
       },
     };
-    (function(d, s, id) {
+    (function (d, s, id) {
       var js, fjs = d.getElementsByTagName(s)[0];
       if (d.getElementById(id)) return;
       js = d.createElement(s);
@@ -223,11 +292,11 @@ class Boot extends Phaser.Scene {
   private randomString(length: number = 5): string {
     let characters: string = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     let rs: string = '';
-  
+
     while (rs.length < length) {
       rs += characters[Math.floor(Math.random() * characters.length)];
     }
-  
+
     return rs;
   }
 
@@ -253,7 +322,7 @@ class Boot extends Phaser.Scene {
         this.state.tutorial = Number(result.tutorial);
         this.state.player.points = Number(result.points);
         this.state.yaPlayer.setData(result, true);
-        this.state.ysdk.adv.showFullscreenAdv({callbacks:{}});
+        this.state.ysdk.adv.showFullscreenAdv({ callbacks: {} });
       });
     });
   }

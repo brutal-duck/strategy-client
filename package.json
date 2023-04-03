@@ -1,10 +1,12 @@
 {
   "name": "strategy",
+  "homepage": "./strategy-client",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --config webpack/localhost/config.js --open",
+    "deploy": "gh-pages -d build",
     "build-yandex": "webpack --config webpack/yandex/build.js",
     "build-web": "webpack --config webpack/web/build.js",
     "build-gd": "webpack --config webpack/gd/build.js"
@@ -15,12 +17,14 @@
     "@babel/core": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
     "@types/amplitude-js": "^8.0.0",
+    "@types/node": "^18.11.19",
     "@types/platform": "^1.3.3",
     "babel-loader": "^8.0.6",
     "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^3.4.2",
     "dotenv": "^8.2.0",
     "file-loader": "^4.3.0",
+    "gh-pages": "^5.0.0",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.9.0",
     "raw-loader": "^3.1.0",
