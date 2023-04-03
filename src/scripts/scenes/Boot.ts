@@ -55,7 +55,7 @@ class Boot extends Phaser.Scene {
       const vk: string = params.get('api_url');
       const ok: string = params.get('api_server');
       console.log(vkplayParams, 'params')
-      console.log('version 1.0.5')
+      console.log('version 1.0.9')
       if (vk === 'https://api.vk.com/api.php') this.state.platform = 'vk';
       else if (ok === 'https://api.ok.ru/') this.state.platform = 'ok';
       else if (vkplayParams.hasOwnProperty('lang')) this.state.platform = platforms.VKPLAY;
@@ -124,6 +124,9 @@ class Boot extends Phaser.Scene {
         registerUserCallback: function (info) {
           externalApi.reloadWindow();
         },
+        adsCallback: function(context) {
+          console.log('ads', context)
+        },
       };
 
       function error(err) {
@@ -134,13 +137,13 @@ class Boot extends Phaser.Scene {
         externalApi = api;
         externalApi.getLoginStatus()
         console.log('API CONNECTED')
+        externalApi.showAds({interstitial: true})
       }
 
       iframeApi(callbacks).then(connected, error);
     }((window as any).iframeApi));
-
     console.log('inside init vkplay')
-
+    console.log(this.state.vkplayApi)
     this.state.player.name = this.lang.you;
     this.state.player.points = Number(localStorage.getItem('points'));
     this.state.tutorial = Number(localStorage.getItem('tutorial'));
