@@ -54,15 +54,18 @@ class Boot extends Phaser.Scene {
       const vkplayParams = Object.fromEntries(params.entries())
       const vk: string = params.get('api_url');
       const ok: string = params.get('api_server');
+      console.log(vkplayParams, 'params')
+      console.log('version 1.0.5')
       if (vk === 'https://api.vk.com/api.php') this.state.platform = 'vk';
       else if (ok === 'https://api.ok.ru/') this.state.platform = 'ok';
-      else if (vkplayParams.hasOwnProperty('appid')) this.state.platform = platforms.VKPLAY;
-
+      else if (vkplayParams.hasOwnProperty('lang')) this.state.platform = platforms.VKPLAY;
+      console.log(this.state.platform, 'platform')
       if (this.state.platform === platforms.VK) {
         this.initUserVK();
       } else if (this.state.platform === platforms.OK) {
         this.initUserOk();
       } else if (this.state.platform === platforms.VKPLAY) {
+        console.log('before init vkplay')
         this.initUserVkPlay()
       } else {
         this.initUserWeb();
@@ -86,6 +89,7 @@ class Boot extends Phaser.Scene {
 
   private initUserVkPlay(): void {
     (function apiHandshake(iframeApi) {
+      console.log('inside init vkplay func')
       if (typeof iframeApi === 'undefined') {
         console.log('Cannot find iframeApi function, are we inside an iframe?');
         return;
@@ -100,6 +104,7 @@ class Boot extends Phaser.Scene {
           if (status.status != 'ok') {
             console.log("Ошибка авторизации...");
           } else {
+            console.log(status)
             switch (status.loginStatus) {
               case 0:
                 externalApi.authUser();
@@ -127,12 +132,14 @@ class Boot extends Phaser.Scene {
 
       function connected(api) {
         externalApi = api;
-        this.state.vkplayApi = api
         externalApi.getLoginStatus()
+        console.log('API CONNECTED')
       }
 
       iframeApi(callbacks).then(connected, error);
-    }(window['iframeApi']));
+    }((window as any).iframeApi));
+
+    console.log('inside init vkplay')
 
     this.state.player.name = this.lang.you;
     this.state.player.points = Number(localStorage.getItem('points'));
