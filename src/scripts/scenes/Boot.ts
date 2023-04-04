@@ -25,7 +25,7 @@ class Boot extends Phaser.Scene {
   }
 
   public init(): void {
-    this.build = 1.1;
+    this.build = 1.21;
     console.log('Build ' + this.build);
     this.lang = langs.ru;
     this.state = state;
@@ -54,18 +54,14 @@ class Boot extends Phaser.Scene {
       const vkplayParams = Object.fromEntries(params.entries())
       const vk: string = params.get('api_url');
       const ok: string = params.get('api_server');
-      console.log(vkplayParams, 'params')
-      console.log('version 1.0.9')
       if (vk === 'https://api.vk.com/api.php') this.state.platform = 'vk';
       else if (ok === 'https://api.ok.ru/') this.state.platform = 'ok';
       else if (vkplayParams.hasOwnProperty('lang')) this.state.platform = platforms.VKPLAY;
-      console.log(this.state.platform, 'platform')
       if (this.state.platform === platforms.VK) {
         this.initUserVK();
       } else if (this.state.platform === platforms.OK) {
         this.initUserOk();
       } else if (this.state.platform === platforms.VKPLAY) {
-        console.log('before init vkplay')
         this.initUserVkPlay()
       } else {
         this.initUserWeb();
@@ -88,14 +84,11 @@ class Boot extends Phaser.Scene {
 
 
   private initUserVkPlay(): void {
-    (function apiHandshake(iframeApi) {
-      console.log('inside init vkplay func')
+    (function apiHandshake(iframeApi, state) {
       if (typeof iframeApi === 'undefined') {
         console.log('Cannot find iframeApi function, are we inside an iframe?');
         return;
       }
-
-      var externalApi = null;
 
       var callbacks = {
         appid: [process.env.VK_PLAY_ID],
@@ -104,29 +97,25 @@ class Boot extends Phaser.Scene {
           if (status.status != 'ok') {
             console.log("Ошибка авторизации...");
           } else {
-            console.log(status)
             switch (status.loginStatus) {
               case 0:
-                externalApi.authUser();
+                state.externalApi.authUser();
                 break;
               case 1:
-                externalApi.registerUser();
+                state.externalApi.registerUser();
                 break;
               case 2:
-                externalApi.userProfile();
+                state.externalApi.showAds({interstitial: true})
+                state.externalApi.userInfo();
                 break;
             }
           }
         },
-        userInfoCallback: function (info) {
-          console.log(info)
-        },
+        userInfoCallback: function (info) {},
         registerUserCallback: function (info) {
-          externalApi.reloadWindow();
+          state.externalApi.reloadWindow();
         },
-        adsCallback: function(context) {
-          console.log('ads', context)
-        },
+        adsCallback: function(context) {},
       };
 
       function error(err) {
@@ -134,16 +123,12 @@ class Boot extends Phaser.Scene {
       }
 
       function connected(api) {
-        externalApi = api;
-        externalApi.getLoginStatus()
-        console.log('API CONNECTED')
-        externalApi.showAds({interstitial: true})
+        state.externalApi = api;
+        state.externalApi.getLoginStatus()
       }
 
       iframeApi(callbacks).then(connected, error);
-    }((window as any).iframeApi));
-    console.log('inside init vkplay')
-    console.log(this.state.vkplayApi)
+    }((window as any).iframeApi, this.state));
     this.state.player.name = this.lang.you;
     this.state.player.points = Number(localStorage.getItem('points'));
     this.state.tutorial = Number(localStorage.getItem('tutorial'));

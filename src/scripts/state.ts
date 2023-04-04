@@ -16,7 +16,7 @@ let state: Istate = {
     AI: '',
     fakeOnline: false,
   },
-  vkplayApi: {},
+  externalApi: null,
   platform: '',
   socket: null,
   startGame: false,

@@ -271,6 +271,9 @@ export default class GameOver {
         gdsdk.showAd('interstitial');
       }
     }
+    if (this.scene.state.platform === platforms.VKPLAY) {
+      this.scene.state.externalApi.showAds({interstitial: true})
+    }
   }
 
   private trackGameResult(): void {
