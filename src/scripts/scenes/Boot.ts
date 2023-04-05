@@ -25,7 +25,7 @@ class Boot extends Phaser.Scene {
   }
 
   public init(): void {
-    this.build = 1.21;
+    this.build = 1.24;
     console.log('Build ' + this.build);
     this.lang = langs.ru;
     this.state = state;
@@ -58,17 +58,39 @@ class Boot extends Phaser.Scene {
       else if (ok === 'https://api.ok.ru/') this.state.platform = 'ok';
       else if (vkplayParams.hasOwnProperty('lang')) this.state.platform = platforms.VKPLAY;
       if (this.state.platform === platforms.VK) {
+        this.setLangs('ru')
         this.initUserVK();
       } else if (this.state.platform === platforms.OK) {
+        this.setLangs('ru')
         this.initUserOk();
       } else if (this.state.platform === platforms.VKPLAY) {
+        this.setLangs(vkplayParams.lang ==='ru_RU' ? 'ru' : 'en')
         this.initUserVkPlay()
       } else {
+        this.setLangs()
         this.initUserWeb();
       }
     }
     console.log(this.state.platform);
     this.setFonts();
+  }
+
+  private setLangs(lang?: string): void {
+    if (lang) {
+      if (lang !== 'ru') lang = 'en';
+      this.lang = langs[lang];
+      this.state.lang = this.lang;
+      return;
+    }
+    if (this.state.platform !== 'vk' && this.state.platform !== 'ok') {
+      let lang: string = window.navigator.language;
+      lang = lang.toLowerCase();
+      let ru: number = lang.indexOf('ru');
+
+      if (ru !== -1) lang = 'ru';
+      else this.lang = langs.en;
+    } else this.lang = langs.ru;
+    this.state.lang = this.lang;
   }
 
 

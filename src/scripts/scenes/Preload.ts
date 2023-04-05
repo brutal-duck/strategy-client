@@ -240,7 +240,7 @@ class Preload extends Phaser.Scene {
     this.load.image('modal-plate', modalPlate);
     this.load.image('timer-plate', timerPlate);
     this.load.image('arrow', arrow);
-    this.load.image('logo', this.state.platform === platforms.GD ? logoEn : logo);
+    this.load.image('logo', this.state.lang.index === 'ru' ? logo : logoEn);
 
     this.load.audio('menu-music', menuMusic);
     this.load.audio('game-music', gameMusic);
